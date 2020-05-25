@@ -1,0 +1,76 @@
+pkgbuild_version=5
+pkgname=open-vm-tools
+pkgver=10.3.10
+
+dependencies=(
+    "!$pkgname"
+    'libmspack'
+    'gtkmm2'
+    'gtkmm'
+    'libdnet'
+    'xf86-video-vmware'
+    'rpcsvc-proto'
+    'fuse3'
+)
+sources=(
+	"https://github.com/vmware/open-vm-tools/archive/stable-${pkgver/_/-}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/stable-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-stable-${pkgver}/${pkgname}"
+	sed -i -e 's|-Werror||g' -e 's|.*common-agent/etc/config/Makefile.*||' configure.ac
+  	mkdir -p common-agent/etc/config
+  	autoreconf -vi
+  	./configure --prefix=/usr \
+    	--sbindir=/usr/bin \
+    	--without-xmlsecurity \
+	LIBS="-ltirpc" CFLAGS="-I/usr/include/tirpc" CXXFLAGS="-I/usr/include/tirpc"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-stable-${pkgver}/${pkgname}"
+  	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-stable-${pkgver}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+
+	mkdir -pv ${fakeroot_dir}/usr/lib/systemd/system
+
+cat > ${fakeroot_dir}/usr/lib/systemd/system/vmtoolsd.service << EOF
+[Unit]
+Description=Open Virtual Machine Tools (VMware Tools)
+ConditionVirtualization=vmware
+
+[Service]
+ExecStart=/usr/bin/vmtoolsd
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat > ${fakeroot_dir}/usr/lib/systemd/system/vmware-vmblock-fuse.service <<EOF
+[Unit]
+Description=Open Virtual Machine Tools (vmware-vmblock-fuse)
+ConditionVirtualization=vmware
+
+[Service]
+Type=simple
+RuntimeDirectory=vmblock-fuse
+RuntimeDirectoryMode=755
+ExecStart=/usr/bin/vmware-vmblock-fuse -d -f -o subtype=vmware-vmblock,default_permissions,allow_other /run/vmblock-fuse
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+mkdir -pv ${fakeroot_dir}/etc/xdg/autostart/
+mv ${fakeroot_dir}/usr/etc/xdg/autostart/vmware-user.desktop ${fakeroot_dir}/etc/xdg/autostart/
+
+}

@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=msbuild
+pkgver=current
+_pkgver=15.4+xamarinxplat.2017.11.27.11.23-0xamarin1+ubuntu1404b1
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+"http://download.mono-project.com/repo/ubuntu/pool/main/m/msbuild/msbuild_${_pkgver}_all.deb"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	mkdir ${build_dir}/msbuild
+	cd ${build_dir}/msbuild
+	ar x ${sources_dir}/msbuild_${_pkgver}_all.deb
+	bsdtar xvf data.tar.xz
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cp -ra ${build_dir}/msbuild/* ${fakeroot_dir}/
+}

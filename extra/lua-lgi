@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=lua-lgi
+pkgbase=lgi
+pkgver=0.9.1
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'gobject-introspection'
+	'libffi'
+	'lua'
+)
+sources=(
+	"https://github.com/pavouk/$pkgbase/archive/$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgver}.tar.gz" -C "$build_dir"
+
+	
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgbase}-${pkgver}"
+	make \
+    	LUA_LIBDIR=/usr/lib/lua/5.3 \
+    	LUA_SHAREDIR=/usr/share/lua/5.3 \
+    	DESTDIR="${fakeroot_dir}" install
+
+	install -Dm755 tools/dump-typelib.lua \
+    	"${fakeroot_dir}/usr/bin/dump-typelib"
+}
+

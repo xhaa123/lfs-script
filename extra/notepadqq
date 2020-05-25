@@ -1,0 +1,34 @@
+pkgbuild_version=5
+pkgname=notepadqq
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'qt'
+	'qtwebkit'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://github.com/notepadqq/notepadqq
+	cd "${build_dir}/${pkgname}"
+	./configure --prefix=/usr --qmake=/opt/qt5/bin/qmake \
+	--lrelease=/opt/qt5/bin/lrelease
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"	
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}

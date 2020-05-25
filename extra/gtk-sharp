@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=gtk-sharp
+pkgver=2.12.41
+giturl=https://github.com/mono/gtk-sharp
+
+dependencies=(
+	"!$pkgname"
+
+)
+
+sources=(
+"https://github.com/mono/gtk-sharp/archive/$pkgver.tar.gz"
+)
+
+lfs_me_prepare() {
+	tar xvf ${sources_dir}/$pkgver.tar.gz -C ${build_dir}
+	#git clone $giturl
+	cd $build_dir/$pkgname-$pkgver
+	#sed -i 's/gmcs/mcs/' configure{,.ac}
+	./bootstrap-2.12 --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR=${fakeroot_dir} install
+}

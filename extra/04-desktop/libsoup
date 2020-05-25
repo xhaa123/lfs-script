@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=libsoup
+pkgver=2.66.2
+
+dependencies=(
+	"!$pkgname"
+	"glib-networking"
+	"libxml2"
+	"sqlite"
+	"gobject-introspection"
+	"vala"
+	"libpsl"
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/libsoup/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=/usr -Dvapi=true -Dgssapi=false ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	ninja
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	DESTDIR="${fakeroot_dir}" ninja install
+
+}
+# vim:set ts=4 syntax=sh:

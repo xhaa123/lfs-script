@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=libgdiplus
+pkgver=5.6
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'libtiff'
+	'cairo'
+	'giflib'
+	'glib'
+	'libexif'
+)
+sources=(
+	"http://download.mono-project.com/sources/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --with-cairo=system
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

@@ -1,0 +1,60 @@
+pkgbuild_version=5
+pkgname=opencv
+pkgver=4.1.1
+
+dependencies=(
+    "!$pkgname"
+	'cmake'
+	'unzip'
+	'ffmpeg'
+	'gst-plugins-base'
+	'gtk+3'
+	'jasper'
+	'libjpeg-turbo'
+	'libpng'
+	'libtiff'
+	'libwebp'
+	'Python2'
+	'v4l-utils'
+	'xine-lib'
+)
+
+sources=(
+	"https://sourceforge.net/projects/opencvlibrary/files/opencv-unix/${pkgver}/${pkgname}-${pkgver}.zip"
+	"https://github.com/Itseez/opencv_contrib/archive/${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	unzip "${sources_dir}/${pkgname}-${pkgver}.zip" -d "$build_dir"
+	tar xvf "${sources_dir}/${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr      \
+	-D CMAKE_SKIP_RPATH=ON \
+	-D CMAKE_BUILD_TYPE=RELEASE \
+	-D WITH_XINE=ON                   \
+        -D BUILD_TESTS=OFF                \
+        -D ENABLE_PRECOMPILED_HEADERS=OFF \
+	-D WITH_DEBUG_INFO=OFF \
+	-D BUILD_PERF_TESTS=OFF \
+	-D CMAKE_C_FLAGS="" \
+	-D CMAKE_CXX_FLAGS="" \
+	-D OPENCV_EXTRA_MODULES_PATH="../../opencv_contrib-$pkgver/modules" \
+	-Wno-dev  .. 
+}
+
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make -j6
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make DESTDIR="$fakeroot_dir" install
+}
+

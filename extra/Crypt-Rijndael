@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=Crypt-Rijndael
+pkgver=1.13
+
+dependencies=(
+    "!$pkgname"
+	'perl'
+)
+sources=(
+	"https://search.cpan.org/CPAN/authors/id/L/LE/LEONT/${pkgname}-${pkgver}.tar.gz"
+)
+
+overwrite=(
+	"/usr/lib/perl5/5.26.0/x86_64-linux-thread-multi/perllocal.pod"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	perl Makefile.PL
+	
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir"  install
+}
+

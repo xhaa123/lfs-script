@@ -1,0 +1,61 @@
+pkgbuild_version=5
+pkgname=font-xfree86-type1
+pkgver=1.0.4
+
+dependencies=(
+	"!$pkgname"
+	'xorg-build-environment'
+	'xcursor-themes'
+)
+overwrite=(
+"/usr/X11/share/fonts/X11/100dpi/fonts.dir"
+"/usr/X11/share/fonts/X11/75dpi/fonts.dir"
+"/usr/X11/share/fonts/X11/Type1/fonts.dir"
+"/usr/X11/share/fonts/X11/Type1/fonts.scale"
+"/usr/X11/share/fonts/X11/misc/fonts.dir"
+"/usr/X11/share/fonts/X11/cyrillic/fonts.dir"
+"/usr/X11/share/fonts/X11/TTF/fonts.dir"
+"/usr/X11/share/fonts/X11/TTF/fonts.scale"
+"/usr/X11/share/fonts/X11/OTF/fonts.dir"
+"/usr/X11/share/fonts/X11/OTF/fonts.scale"
+)
+
+sources=(
+	"https://xorg.freedesktop.org/releases/individual/font/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+	1381f274a178cbd08627560e17a4a8f6653be3f7
+)
+
+lfs_me_prepare() {
+    tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+    cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure $XORG_CONFIG
+}
+
+lfs_me_build() {
+    return
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+    cd "${build_dir}/${pkgname}-${pkgver}"
+    make DESTDIR="$fakeroot_dir" install &&
+
+	rm -f "$fakeroot_dir"/usr/share/fonts/X11/*/fonts.*
+	true #force zero exit status
+}
+
+lfs_me_postinstall() {
+	echo -n "Updating font cache... "
+	fc-cache -f -s > /dev/null
+	mkfontscale /usr/share/fonts/X11/{TTF,OTF,100dpi,75dpi,cyrillic,misc,Type1}
+	mkfontdir 	/usr/share/fonts/X11/{TTF,OTF,100dpi,75dpi,cyrillic,misc,Type1}
+}
+
+# vim:set ts=4 syntax=sh:

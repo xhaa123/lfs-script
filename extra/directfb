@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=directfb
+_pkgname=DirectFB
+pkgver=1.7.7
+
+dependencies=(
+	"!$pkgname"
+	'libjpeg-turbo'
+	'sdl'
+	'libpng'
+	'freetype'
+	'mesa'
+)
+sources=(
+	"http://sources.webos-ports.org/downloads/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	sed -i "/Werror/d" configure.in
+	./configure --prefix=/usr \
+	--enable-zlib	\
+	--enable-x11	\
+	--enable-sdl	\
+	--disable-vnc	\
+	--disable-osx	\
+	--enable-mesa
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

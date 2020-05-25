@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=libexif
+pkgver=0.6.21
+
+dependencies=(
+	"!$pkgname"
+
+)
+sources=(
+	"http://downloads.sourceforge.net/libexif/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+        --with-doc-dir=/usr/share/doc/libexif-${pkgver} \
+        --disable-static
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

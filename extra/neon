@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=neon
+pkgver=0.30.2
+
+dependencies=(
+    "!$pkgname"
+	'gnutls'
+	'libxml2'
+	'krb5'
+)
+
+sources=(
+	"https://fossies.org/linux/www/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -e 's/client_set/set/'  \
+	    -e 's/gnutls_retr/&2/'  \
+	    -e 's/type = t/cert_&/' \
+	    -i src/ne_gnutls.c
+
+	./configure --prefix=/usr    \
+            --with-ssl=gnutls       \
+            --enable-shared  \
+	    --with-libxml2 \
+            --disable-static
+
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

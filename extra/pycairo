@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=pycairo
+pkgver=1.18.1
+
+dependencies=(
+    "!$pkgname"
+	'Python3'
+	'Python2'
+	'cairo'
+)
+sources=(
+	"https://github.com/pygobject/pycairo/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	python2 setup.py build
+	python3 setup.py build
+
+}
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	python2 setup.py install --optimize=1 --root=${fakeroot_dir}
+	python3 setup.py install --optimize=1 --root=${fakeroot_dir}
+}
+

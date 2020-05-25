@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=qca
+pkgver=2.2.1
+
+dependencies=(
+    "!$pkgname"
+	'ca-certificates'
+	'cmake'
+	'qt'
+	'which'
+)
+
+sources=(
+	"http://download.kde.org/stable/qca/${pkgver}/src/${pkgname}-${pkgver}.tar.xz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/qca/qca-openssl-1.1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i 's@ca-bundle.pem@ca-bundle.crt@' CMakeLists.txt
+	patch -Np1 -i ${sources_dir}/qca-openssl-1.1.patch
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=$QT5DIR                     \
+      -DCMAKE_BUILD_TYPE=Release                                 \
+      -DQCA_MAN_INSTALL_DIR:PATH=/usr/share/man                  \
+      ..
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make DESTDIR="$fakeroot_dir" install
+}
+

@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=libusb
+pkgver=1.0.22
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"	
+	make -j1
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+}
+
+
+# vim:set syntax=sh et:

@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=itstool
+pkgver=2.0.6
+
+dependencies=(
+	"!$pkgname"
+	"docbook-xml"
+)
+sources=(
+	"http://files.itstool.org/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	PYTHON=/usr/bin/python3 ./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+
+}
+
+
+
+# vim:set ts=4 syntax=sh:

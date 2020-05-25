@@ -1,0 +1,40 @@
+#vim:
+pkgbuild_version=5
+pkgname=udisks
+pkgver=2.8.2
+
+dependencies=(
+    "!$pkgname"
+	'libatasmart'
+	'libgudev'
+	'libxslt'
+	'polkit'
+	'systemd'
+	'gobject-introspection'
+	'gptfdisk'
+	'ntfs-3g'
+	'libblockdev'
+)
+sources=(
+	"https://github.com/storaged-project/${pkgname}/releases/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr        \
+            --sysconfdir=/etc    \
+            --localstatedir=/var \
+            --disable-static
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

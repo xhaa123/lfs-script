@@ -1,0 +1,66 @@
+pkgbuild_version=5
+pkgname=webkitgtk
+pkgver=2.24.1
+
+dependencies=(
+    "!$pkgname"
+	'cairo'
+	'cmake'
+	'gst-plugins-base'
+	'gst-plugins-bad'
+	'gtk+3'
+	'gtk+2'
+	'icu'
+	'libgudev'
+	'libsecret'
+	'libsoup'
+	'libwebp'
+	'mesa'
+	'ruby'
+	'sqlite'
+	'which'
+	'enchant'
+	'gobject-introspection'
+	'hicolor-icon-theme'
+	'harfbuzz'
+	'libnotify'
+	'wayland'
+	'geoclue'
+)
+sources=(
+	"http://webkitgtk.org/releases/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	mkdir -vp build
+	cd        build
+	cmake -DCMAKE_BUILD_TYPE=Release  \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_SKIP_RPATH=ON       \
+      -DPORT=GTK                  \
+      -DLIB_INSTALL_DIR=/usr/lib  \
+      -DUSE_LIBHYPHEN=OFF         \
+      -DENABLE_MINIBROWSER=ON     \
+      -DENABLE_GEOLOCATION=ON	  \
+      -DENABLE_GLES2=ON 	  \
+      -DUSE_WOFF2=OFF		  \
+	-Wno-dev ..
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}/build/"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build/"
+	make DESTDIR="$fakeroot_dir" install
+}

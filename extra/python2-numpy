@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=python2-numpy
+_pkgname=numpy
+pkgver=1.12.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+sources=(
+	"https://github.com/numpy/numpy/releases/download/v${pkgver}/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py install --prefix=/usr \
+	--root="${fakeroot_dir}" --optimize=1
+}

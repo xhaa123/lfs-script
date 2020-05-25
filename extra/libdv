@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=libdv
+pkgver=1.0.0
+
+dependencies=(
+    	"!$pkgname"
+	'popt'
+	'sdl'
+	'xorg-server'
+)
+sources=(
+	"http://downloads.sourceforge.net/libdv/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+        --disable-static
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	install -v -m755 -d      ${fakeroot_dir}/usr/share/doc/libdv-${pkgver}
+	install -v -m644 README* ${fakeroot_dir}/usr/share/doc/libdv-${pkgver}
+}

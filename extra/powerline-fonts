@@ -1,0 +1,28 @@
+pkgbuild_version=5
+pkgname=powerline-fonts
+pkgver=git
+giturl=https://github.com/powerline/fonts
+
+dependencies=(
+    "!$pkgname"
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd fonts
+}
+
+lfs_me_build()
+	{
+	return	
+}
+
+lfs_me_install() {
+	cd "${build_dir}/fonts"
+	find . -iname "*.ttf" -execdir install -Dm644 {} $fakeroot_dir/usr/share/fonts/TTF/{} \;
+  	find . -iname "*.otf" -execdir install -Dm644 {} $fakeroot_dir/usr/share/fonts/OTF/{} \;
+  	find . -iname "*.pcf.gz" -execdir install -Dm644 {} $fakeroot_dir/usr/share/fonts/misc/{} \;
+  	find . -iname "*.psf.gz" -execdir install -Dm644 {} $fakeroot_dir/usr/share/kbd/consolefonts/{} \;
+}

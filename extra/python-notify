@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=notify-python
+pkgver=0.1.1
+
+dependencies=(
+    "!$pkgname"
+	'pygtk'
+	'libnotify'
+)
+sources=(
+	"http://www.galago-project.org/files/releases/source/notify-python/notify-python-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	patch -Np1 -i ${sources_dir}/libnotify.patch
+	./configure --prefix=/usr
+	touch src/pynotify.override
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

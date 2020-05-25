@@ -1,0 +1,27 @@
+pkgbuild_version=5
+pkgname=linux-firmware
+pkgver=git
+giturl=https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware
+
+dependencies=(
+    "!$pkgname"
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+}
+
+lfs_me_build()
+	{
+	return	
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} FIRMWAREDIR=/usr/lib/firmware install
+	rm ${fakeroot_dir}/usr/lib/firmware/{Makefile,README,configure}
+}
+

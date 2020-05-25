@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=youtube-dl
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+    'Python3'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd "${build_dir}"
+	curl -L https://yt-dl.org/downloads/latest/youtube-dl -o youtube-dl
+	chmod a+rx youtube-dl
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/"
+	mkdir -pv "$fakeroot_dir"/usr/bin/
+	mv youtube-dl "$fakeroot_dir"/usr/bin/
+}
+

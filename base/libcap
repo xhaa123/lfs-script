@@ -1,0 +1,50 @@
+pkgbuild_version=5
+pkgname=libcap
+pkgver=2.27
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'attr'
+)
+overwrite=(
+	"/usr/lib64/libcap.so.2.25"
+	"/usr/lib64/libcap.a"
+	"/usr/lib64/libcap.so"
+	"/usr/lib64/libcap.so.2"
+)
+sources=(
+	"https://www.kernel.org/pub/linux/libs/security/linux-privs/${pkgname}2/${pkgname}-${pkgver}.tar.xz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/libcap/gperf-3.1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	patch -Np1 -i ${sources_dir}/gperf-3.1.patch
+	sed -i '/install.*STALIBNAME/d' libcap/Makefile
+
+	# install into /usr/bin
+	sed -i "/SBINDIR/s#sbin#bin#" Make.Rules
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" RAISE_SETFCAP=no lib=lib prefix=/usr install
+	chmod -v 755 "$fakeroot_dir"/usr/lib/libcap.so
+}
+
+# vim:set syntax=sh et:

@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=net-tools
+pkgver=1.60git
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+)
+sources=(
+	
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	mkdir "${build_dir}/${pkgname}-${pkgver}"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	git clone git://git.code.sf.net/p/net-tools/code
+	cd code
+	sed -i "s#/sbin#/bin#" Makefile
+	sed -i "s#/usr##" man/Makefile	
+
+}
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}/code"
+	yes "" | make
+}
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/code"
+	make DESTDIR=${fakeroot_dir}/usr  update
+
+	rm "${fakeroot_dir}"/usr/bin/{nis,yp}domainname
+	rm "${fakeroot_dir}"/usr/share/man/man1/{nis,yp}domainname.1
+
+	rm "${fakeroot_dir}"/usr/bin/{hostname,dnsdomainname,domainname}
+	rm -rf "${fakeroot_dir}"/usr/share/man/man1
+}
+

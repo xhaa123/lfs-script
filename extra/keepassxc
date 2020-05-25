@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=keepassxc
+pkgver=2.4.3
+
+dependencies=(
+    "!$pkgname"
+	'qt'
+	'libgcrypt'
+	'zlib'
+	'libsodium'
+	'shared-mime-info'
+	'argon2'
+	'libqrencode'
+)
+sources=(
+"https://github.com/keepassxreboot/keepassxc/releases/download/$pkgver/keepassxc-$pkgver-src.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar xvf $sources_dir/keepassxc-$pkgver-src.tar.xz -C $build_dir
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	cmake DCMAKE_BUILD_TYPE=Release \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+  	-DCMAKE_INSTALL_LIBDIR=lib \
+	..
+}
+
+lfs_me_build(){
+	cd $build_dir/${pkgname}-${pkgver}/build
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall(){
+	gtk-update-icon-cache /usr/share/icons/hicolor/
+}

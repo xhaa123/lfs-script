@@ -1,0 +1,74 @@
+pkgbuild_version=5
+pkgname=acpid
+pkgver=2.0.31
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	"https://downloads.sourceforge.net/sourceforge/acpid2/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sbindir=/usr/bin
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	chmod 755 ${fakeroot_dir}/usr/bin/acpid	
+	mkdir -pv ${fakeroot_dir}/usr/lib/systemd/system/
+	mkdir -pv ${fakeroot_dir}/etc/acpi/{events,actions}/
+cat > ${fakeroot_dir}/usr/lib/systemd/system/acpid.service << EOF
+[Unit]
+Description=ACPI event daemon
+Documentation=man:acpid(8)
+
+[Service]
+ExecStart=/usr/bin/acpid --foreground --netlink
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat > ${fakeroot_dir}/etc/acpi/events/bl_up << EOF
+event=video/brightnessup BRTUP 00000086 00000000 K
+action=/etc/acpi/actions/bl_up.sh
+EOF
+
+cat > ${fakeroot_dir}/etc/acpi/events/bl_down << EOF
+event=video/brightnessdown BRTDN 00000087 00000000 K
+action=/etc/acpi/actions/bl_down.sh
+EOF
+
+cat > ${fakeroot_dir}/etc/acpi/actions/bl_up.sh << 'EOF'
+#!/bin/sh
+
+bl_device=/sys/class/backlight/intel_backlight/brightness
+echo $(($(cat $bl_device)+10)) | sudo tee $bl_device
+EOF
+
+cat > ${fakeroot_dir}/etc/acpi/actions/bl_down.sh << 'EOF'
+#!/bin/sh
+
+bl_device=/sys/class/backlight/intel_backlight/brightness
+echo $(($(cat $bl_device)-10)) | sudo tee $bl_device
+EOF
+
+chmod 755 ${fakeroot_dir}/etc/acpi/actions/bl_up.sh
+chmod 755 ${fakeroot_dir}/etc/acpi/actions/bl_down.sh
+
+}

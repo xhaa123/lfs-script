@@ -1,0 +1,28 @@
+pkgbuild_version=5
+pkgname=icon-naming-utils
+pkgver=0.8.90
+
+dependencies=(
+    "!$pkgname"
+	'XML-Simple'
+)
+sources=(
+	"http://tango.freedesktop.org/releases/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=leveldb
+pkgver=1.20
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'gperftools'
+	'snappy'
+)
+
+sources=(
+"https://github.com/google/leveldb/archive/v$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -dm755 \
+      	"$fakeroot_dir"/usr/{include/leveldb,lib} \
+      	"$fakeroot_dir"/usr/share/doc/"$pkgname"
+
+  	# libraries
+  	install -m644 -t "$fakeroot_dir/usr/lib" "out-static/libleveldb.a"
+  	cp -P out-shared/libleveldb.so* "$fakeroot_dir/usr/lib"
+
+  	# headers
+  	install -m644 -t "$fakeroot_dir/usr/include/leveldb" include/leveldb/*
+}

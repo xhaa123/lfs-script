@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=xmlto
+pkgver=0.0.28
+
+dependencies=(
+	"!$pkgname"
+	'docbook-xml'
+	'docbook-xsl-nons'
+	'libxslt'
+)
+sources=(
+	"https://releases.pagure.org/xmlto/${pkgname}-${pkgver}.tar.bz2" 
+) 
+
+sha1sums=( 
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	LINKS="/usr/bin/links" \
+	./configure --prefix=/usr                
+
+
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+}
+lfs_me_preinstall(){
+return
+}
+# vim:set ts=4 syntax=sh:

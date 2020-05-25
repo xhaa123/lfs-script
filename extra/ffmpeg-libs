@@ -1,0 +1,85 @@
+pkgbuild_version=5
+pkgname=ffmpeg-libs
+pkgver=git
+
+dependencies=(
+	"!$pkgname"
+	'libass'
+	'fdk-aac'
+	'freetype'
+	'lame'
+	'libtheora'
+	'libvorbis'
+	'libvpx'
+	'opus'
+	'x264'
+	'x265'
+	'yasm'
+	'alsa-lib'
+	'libva'
+	'libvdpau'
+	'sdl2'
+	'fontconfig'
+	'libwebp'
+	'openssl'
+)
+sources=(
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd "${build_dir}/"
+	git clone https://github.com/FFmpeg/FFmpeg
+	cd FFmpeg
+	sed -i 's/-lflite"/-lflite -lasound"/' configure
+
+       ./configure --prefix=/usr \
+            --enable-gpl         \
+            --enable-version3    \
+            --enable-nonfree     \
+            --disable-static     \
+            --enable-shared      \
+            --disable-debug      \
+            --enable-libass      \
+            --enable-libfdk-aac  \
+            --enable-libfreetype \
+            --enable-libmp3lame  \
+            --enable-libopus     \
+            --enable-libtheora   \
+            --enable-libvorbis   \
+            --enable-libvpx      \
+            --enable-libx264     \
+            --enable-libx265     \
+	    --enable-openssl	 \
+	    --enable-libfribidi  \
+	    --enable-libopus     \
+	    --enable-libwebp     \
+            --docdir=/usr/share/doc/ffmpeg-${pkgver}
+}
+
+lfs_me_build() {
+	cd "${build_dir}/FFmpeg"
+	make
+	gcc tools/qt-faststart.c -o tools/qt-faststart
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/FFmpeg"
+	make DESTDIR="${fakeroot_dir}" install
+	rm -rf ${fakeroot_dir}/usr/bin
+	rm -rf ${fakeroot_dir}/usr/include
+	rm -rf ${fakeroot_dir}/usr/share
+	rm -f ${fakeroot_dir}/usr/lib/libavdevice.so
+	rm -f ${fakeroot_dir}/usr/lib/libavcodec.so
+	rm -f ${fakeroot_dir}/usr/lib/libavfilter.so
+	rm -f ${fakeroot_dir}/usr/lib/libavformat.so
+	rm -f ${fakeroot_dir}/usr/lib/libavutil.so
+	rm -f ${fakeroot_dir}/usr/lib/libpostproc.so
+	rm -f ${fakeroot_dir}/usr/lib/libswresample.so
+	rm -f ${fakeroot_dir}/usr/lib/libswscale.so
+	rm -rf ${fakeroot_dir}/usr/lib/pkgconfig
+}
+

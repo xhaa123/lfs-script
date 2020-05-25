@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=cdrtools
+pkgver=3.02a09
+_pkgver=3.02
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"https://sourceforge.net/projects/cdrtools/files/alpha/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+
+}
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+	export GMAKE_NOWARN=true
+	make -j1 INS_BASE=/usr INS_RBASE=/ DEFINSUSR=root DEFINSGRP=root
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+	export GMAKE_NOWARN=true
+	make INS_BASE=/usr INS_RBASE=/ DEFINSUSR=root DEFINSGRP=root DESTDIR="$fakeroot_dir" install
+	rm -rf "$fakeroot_dir"/usr/include
+	rm -rf "$fakeroot_dir"/usr/lib/{*.a,profiled}
+  	rm -rf "$fakeroot_dir"/usr/share/man/man3
+
+}
+

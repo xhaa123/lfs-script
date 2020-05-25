@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=libchardet
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://github.com/Joungkyun/libchardet/
+	cd "${build_dir}/${pkgname}"
+	./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --disable-static
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}

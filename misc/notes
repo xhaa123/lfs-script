@@ -1,0 +1,16 @@
+caribou: set pyton to python3 or build fails
+adwaita-icom-theme: rebuild libpng; gdk-pixbuf; librsvg
+gnome: run glib-compile-schemas /usr/share/glib-2.0/schemas
+alsa-setup: auto-mute enabled ; dynamic disabled ; independ; disabled ; loopback disabled
+git config --global credential.helper store
+
+install totem for video thumbnails in Gnome Files
+
+vmware-workstation: compile vmci as modules, modprobe vmw_vmci vmnet
+enable 3D acceleration, add mks.gl.allowBlacklistedDrivers = "TRUE" to 
+~/.vmware/preferences
+git config --global user.email
+git config --global user.name
+
+issue with dbus (gnome-terminal) add dbus-update-activation-environment 
+--all to bashrc

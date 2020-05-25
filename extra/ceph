@@ -1,0 +1,56 @@
+pkgbuild_version=5
+pkgname=ceph
+pkgver=git
+giturl=https://github.com/ceph/ceph
+
+dependencies=(
+	"!$pkgname"
+	'xfsprogs'
+	'libaio'
+	'leveldb'
+	'lz4'
+	'keyutils'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	pip2 install cython
+	cd $pkgname
+	git submodule update --init --recursive
+	mkdir build
+	cd build
+	cmake \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_SYSCONFDIR=/etc \
+    -DCMAKE_INSTALL_SBINDIR=/usr/bin \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=/usr/lib \
+    -DWITH_BABELTRACE=OFF \
+    -DWITH_SPDK=OFF \
+    -DWITH_CEPHFS=ON \
+    -DWITH_FUSE=ON \
+    -DWITH_LTTNG=OFF \
+    -DWITH_LZ4=ON \
+    -DWITH_MGR=ON \
+    -DWITH_NSS=ON \
+    -DWITH_RADOSGW=ON \
+    -DWITH_RADOSGW_BEAST_FRONTEND=OFF \
+    -DWITH_RDMA=OFF \
+    -DWITH_SSL=ON \
+    -DWITH_SYSTEMD=ON \
+    -DWITH_XFS=ON \
+    -DENABLE_SHARED=ON \
+    ..
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	make DESTDIR=${fakeroot_dir} install
+}

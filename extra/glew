@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=glew
+pkgver=2.1.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'glu'
+)
+
+sources=(
+	"http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tgz"
+)
+
+sha1sum=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tgz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i 's|lib64|lib|' config/Makefile.linux
+	sed -i '/^.PHONY: .*\.pc$/d' Makefile	
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make GLEW_DEST="$fakeroot_dir/usr" install.all
+}

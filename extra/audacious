@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=audacious
+pkgver=3.10.1
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'gtk+2'
+	'libxml2'
+	'dbus'
+#	'gnome-icon-theme'
+	'pcre'
+	'oniguruma'
+)
+sources=(
+	"https://distfiles.audacious-media-player.org/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	TPUT=/bin/true ./configure --prefix=/usr \
+        --with-buildstamp="eCORP"
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall() {
+	gtk-update-icon-cache -f /usr/share/icons/hicolor
+}
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+file=$1
+
+echo "Building Package $1"
+lfs-me build $1
+echo "Done"
+echo "Removing Package $1"
+lfs-me remove $1
+echo "Done"
+echo "Installing Package $1"
+lfs-me install $1*.pkg
+echo "Done"
+

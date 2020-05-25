@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=usbmuxd
+pkgver=git
+giturl=https://github.com/libimobiledevice/usbmuxd
+
+dependencies=(
+	"!$pkgname"
+	'libimobiledevice'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	NOCONFIGURE=1 ./autogen.sh
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+}
+
+lfs_me_postinstall() {
+	   groupadd -g 140 usbmux &>/dev/null
+    useradd -c 'usbmux user' -u 140 -g usbmux -d / -s /sbin/nologin usbmux &>/dev/null
+    passwd -l usbmux &>/dev/null
+}

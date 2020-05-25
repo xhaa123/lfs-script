@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=spice
+pkgver=0.14.0
+
+dependencies=(
+	"!$pkgname"
+	"alsa-lib"
+	'celt'
+	'orc'
+	'spice-protocol'
+)
+sources=(
+	"http://spice-space.org/download/releases/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--disable-static \
+	--enable-client
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+}
+# vim:set ts=4 syntax=sh:

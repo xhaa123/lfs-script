@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=gulp
+pkgver=4.0.0
+
+dependencies=(
+	"!$pkgname"
+	'semver'
+	'node-js'
+)
+
+sources=(
+"https://registry.npmjs.org/$pkgname/-/$pkgname-$pkgver.tgz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	return
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}"
+	npm install -g --user root --prefix "$fakeroot_dir"/usr "$sources_dir"/$pkgname-$pkgver.tgz
+	rm -r "$fakeroot_dir"/usr/etc
+}

@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=librsvg
+pkgver=2.44.14
+
+dependencies=(
+    "!$pkgname"
+	'gdk-pixbuf'
+	'libcroco'
+	'pango'
+	'gobject-introspection'
+	'vala'
+	'rustc'
+)
+sources=(
+	"https://ftp.gnome.org/pub/gnome/sources/librsvg/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i 's/ --nogtkinit//' doc/Makefile.in
+	./configure --prefix=/usr    \
+        --enable-vala    	     \
+        --disable-static
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall() {
+	gtk-update-icon-cache /usr/share/icons/hicolor
+}

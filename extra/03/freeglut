@@ -1,0 +1,46 @@
+pkgbuild_version=5
+pkgname=freeglut
+pkgver=3.0.0
+
+dependencies=(
+	"!$pkgname"
+	'glu'
+)
+sources=(
+	"http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+	7330b622481e2226c0c9f6d2e72febe96b03f9c4
+)
+
+lfs_me_prepare() {
+	echo "create required X11 symling for Cmake"
+	ln -sf $XORG_PREFIX /usr/X11R6
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build && cd build
+	
+	CMAKE_LIBRARY_PATH=$XORG_PREFIX/lib     \
+	CMAKE_INCLUDE_PATH=$XORG_PREFIX/include \
+	cmake -DCMAKE_INSTALL_PREFIX=/usr       \
+      	-DCMAKE_BUILD_TYPE=Release        \
+      	-DFREEGLUT_BUILD_DEMOS=OFF        \
+      	-DFREEGLUT_BUILD_STATIC_LIBS=OFF  \
+      	..
+
+
+
+	}
+lfs_me_build(){
+
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make
+}
+
+lfs_me_install(){
+
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make DESTDIR=${fakeroot_dir} install
+}
+# vim:set ts=4 syntax=sh:

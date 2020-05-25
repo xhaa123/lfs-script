@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=portaudio
+pkgver=190600_20161030
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'jack'
+)
+sources=(
+	"http://www.portaudio.com/archives/pa_stable_v${pkgver}.tgz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/pa_stable_v${pkgver}.tgz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}"
+	./configure --prefix=/usr --enable-cxx
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

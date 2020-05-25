@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=python2-backports.shutil_which
+_pkgname=backports.shutil_which
+pkgver=3.5.1
+
+dependencies=(
+	"!$pkgname"
+	'Python2'
+)
+sources=(
+	"https://pypi.python.org/packages/dd/ea/715dc80584207a0ff4a693a73b03c65f087d8ad30842832b9866fe18cb2f/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py install --root="${fakeroot_dir}" --optimize=1
+}

@@ -1,0 +1,47 @@
+pkgbuild_version=5
+pkgname=mozjs-gnome
+_pkgname=mozjs
+pkgver=60.8.0
+
+dependencies=(
+	"!$pkgname"
+	'autoconf-firefox'
+	'icu'
+	'xorg-libraries'
+	'yasm'
+	'nspr'
+	'Python2'
+	'zip'
+	
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/teams/releng/tarballs-needing-help/mozjs/${_pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	mkdir mozjs-build
+	cd    mozjs-build
+
+../js/src/configure --prefix=/usr       \
+                    --with-intl-api     \
+                    --with-system-zlib  \
+                    --with-system-nspr  \
+                    --with-system-icu   \
+                    --disable-jemalloc  \
+                    --enable-readline
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/mozjs-build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/mozjs-build"
+	make DESTDIR="$fakeroot_dir" install
+}

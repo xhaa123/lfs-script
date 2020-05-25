@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=snappy
+pkgver=1.1.7
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+"https://github.com/google/snappy/archive/$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	CXXFLAGS+=\ -DNDEBUG
+	cmake \
+    	-DCMAKE_INSTALL_PREFIX=/usr \
+    	-DCMAKE_INSTALL_LIBDIR=/usr/lib \
+    	-DBUILD_SHARED_LIBS=yes \
+    	.
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

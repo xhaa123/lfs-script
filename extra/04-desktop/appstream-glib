@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=appstream-glib
+pkgver=0.7.15
+
+dependencies=(
+	"!$pkgname"
+	"gdk-pixbuf"
+	"json-glib"
+	"libarchive"
+	"libsoup"
+	"pango"
+	"gcab"
+	"gobject-introspection"
+	"gtk+3"
+	"yaml"
+	"snowball"
+)
+sources=(
+	"https://people.freedesktop.org/~hughsient/${pkgname}/releases/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=/usr -Drpm=false ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	ninja
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	DESTDIR="${fakeroot_dir}" ninja install
+}

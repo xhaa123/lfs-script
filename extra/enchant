@@ -1,0 +1,34 @@
+pkgbuild_version=5
+pkgname=enchant
+pkgver=2.2.3
+
+dependencies=(
+    "!$pkgname"
+	'glib'
+	'aspell'
+	'dbus-glib'
+)
+sources=(
+	"https://github.com/AbiWord/enchant/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	rm -rf ${fakeroot_dir}/usr/include/enchant
+	ln -sfv enchant-2       ${fakeroot_dir}/usr/include/enchant
+	ln -sfv libenchant-2.so ${fakeroot_dir}/usr/lib/libenchant.so
+	ln -sfv enchant-2.pc    ${fakeroot_dir}/usr/lib/pkgconfig/enchant.pc
+}
+

@@ -1,0 +1,34 @@
+pkgbuild_version=5
+pkgname=gparted
+pkgver=0.33.0
+
+dependencies=(
+	"!$pkgname"
+	"gtkmm2"
+	"parted"
+)
+sources=(
+	"http://downloads.sourceforge.net/gparted/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--disable-doc	\
+	--disable-static
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

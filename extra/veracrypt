@@ -1,0 +1,42 @@
+pkgbuild_version=5
+pkgname=veracrypt
+_pkgname=VeraCrypt
+pkgver=1.23
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'wxgtk'
+)
+sources=(
+	"https://sourceforge.net/projects/${pkgname}/files/${_pkgname}%20${pkgver}/${_pkgname}_${pkgver}_Source.zip/download"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cp ${sources_dir}/download ${sources_dir}/${pkgname}-${pkgver}.zip
+	unzip "${sources_dir}/${pkgname}-${pkgver}.zip" -d "$build_dir/VeraCrypt"
+	mv ${build_dir}/VeraCrypt* ${build_dir}/${pkgname}-${pkgver}
+	cd "${build_dir}/${pkgname}-${pkgver}/src"
+	make PKG_CONFIG_PATH=/usr/lib/pkgconfig \
+    	WX_CONFIG=/usr/bin/wx-config \
+    	TC_EXTRA_LFLAGS+="-ldl ${LDFLAGS}" \
+    	TC_EXTRA_CXXFLAGS="${CXXFLAGS}" \
+    	TC_EXTRA_CFLAGS="${CFLAGS}"
+
+}
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/src"
+	mkdir -pv ${fakeroot_dir}/usr/bin
+	mkdir -pv ${fakeroot_dir}/usr/share/pixmaps
+	install -Dm 755 Main/${pkgname} "${fakeroot_dir}/usr/bin/${pkgname}"
+  	install -Dm 644 Resources/Icons/VeraCrypt-256x256.xpm "${fakeroot_dir}/usr/share/pixmaps/veracrypt.xpm"
+	install -Dm 644 Setup/Linux/veracrypt.desktop -t "${fakeroot_dir}/usr/share/applications"
+}
+

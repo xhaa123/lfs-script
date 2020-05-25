@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=allegro
+pkgver=4.4.2
+
+dependencies=(
+    "!$pkgname"
+	'gtk+2'
+	'libtheora'
+)
+sources=(
+	"https://download.gna.org/allegro/allegro/4.4.2/allegro-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir -p build
+	cd build
+	cmake .. \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_PREFIX=/usr \
+	-DWANT_DOCS=OFF
+	make
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make DESTDIR="$fakeroot_dir" install
+}
+

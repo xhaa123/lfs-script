@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=libsndfile
+pkgver=1.0.28
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"http://www.mega-nerd.com/${pkgname}/files/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure --prefix=/usr  --disable-static --docdir=/usr/share/doc/libsndfile-${pkgver}
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+
+}

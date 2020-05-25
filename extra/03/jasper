@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=jasper
+pkgver=2.0.14
+
+dependencies=(
+    "!$pkgname"
+	'libjpeg-turbo'
+	'freeglut'
+	'glu'
+)
+sources=(
+	"https://github.com/mdadams/jasper/archive/version-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/version-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-version-${pkgver}"
+	mkdir BUILD
+	cd BUILD
+	cmake -DCMAKE_INSTALL_PREFIX=/usr    \
+        -DCMAKE_BUILD_TYPE=Release     \
+        -DCMAKE_SKIP_INSTALL_RPATH=YES \
+        ..
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-version-${pkgver}"
+	cd BUILD
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-version-${pkgver}"
+	cd BUILD
+	make DESTDIR="$fakeroot_dir" install
+}

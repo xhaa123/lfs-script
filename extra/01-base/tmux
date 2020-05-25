@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=tmux
+pkgver=git
+
+dependencies=(
+    	"!$pkgname"
+	'ncurses'
+	'libevent'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://github.com/tmux/tmux
+	cd "${build_dir}/${pkgname}"
+	./autogen.sh
+	./configure --prefix=/usr
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}

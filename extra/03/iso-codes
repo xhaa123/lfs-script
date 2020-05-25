@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=iso-codes
+pkgver=4.3
+
+dependencies=(
+	"!$pkgname"
+	'Python3'
+)
+sources=(
+	"https://ftp.osuosl.org/pub/blfs/conglomeration/iso-codes/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir"  install
+}
+
+lfs_me_postremove(){
+	find /usr/share/xml/iso-codes -type l -delete
+
+}

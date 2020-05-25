@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=six
+pkgver=1.12.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	"https://pypi.io/packages/source/s/six/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	python2 setup.py build
+	python3 setup.py build
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	python2 setup.py install --root=${fakeroot_dir} --optimize=1
+	python3 setup.py install --root=${fakeroot_dir} --optimize=1
+}

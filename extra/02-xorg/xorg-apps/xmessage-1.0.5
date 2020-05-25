@@ -1,0 +1,50 @@
+pkgbuild_version=5
+pkgname=xmessage
+pkgver=1.0.5
+
+dependencies=(
+	"!$pkgname"
+	'xorg-build-environment'
+	'libpng'
+	'mesa'
+	'xbitmaps'
+	'xcb-util'
+	'Linux-PAM'
+)
+
+sources=(
+	"https://xorg.freedesktop.org/releases/individual/app/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+	d3eca72c7173d0d9547c676a16bcec51ca1213a2
+)
+
+lfs_me_prepare() {
+    tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+    cd "${build_dir}/${pkgname}-${pkgver}"
+	
+	if [[ "$pkgname" == "luit" ]]; then
+	 sed -i -e "/D_XOPEN/s/5/6/" configure
+	fi
+#	if [[ "$pkgname" == "sessreg" ]]; then
+#
+#	sed -e 's/\$(CPP) \$(DEFS)/$(CPP) -P $(DEFS)/' -i man/Makefile.in
+#	fi
+
+	./configure $XORG_CONFIG
+}
+
+lfs_me_build() {
+    return
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+    cd "${build_dir}/${pkgname}-${pkgver}"
+    make DESTDIR="$fakeroot_dir" install
+}
+# vim:set ts=4 syntax=sh:

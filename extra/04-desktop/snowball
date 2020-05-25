@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=snowball
+pkgver=git
+giturl=https://github.com/snowballstem/snowball
+
+dependencies=(
+    "!$pkgname"
+)
+
+sources=(
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/snowball/dynamiclib.patch"
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	patch -Np1 -i ${sources_dir}/dynamiclib.patch
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	install -d "$fakeroot_dir/usr/bin"
+  	install -t "$fakeroot_dir/usr/bin" snowball stemwords
+	install -Dm644 {.,"$fakeroot_dir"/usr}/include/libstemmer.h
+	install -D {.,"$fakeroot_dir"/usr/lib}/libstemmer.so.0.0.0
+	ln -s libstemmer.so.0.0.0 "$fakeroot_dir/usr/lib/libstemmer.so.0"
+	ln -s libstemmer.so.0 "$fakeroot_dir/usr/lib/libstemmer.so"
+}

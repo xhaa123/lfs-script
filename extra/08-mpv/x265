@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=x265
+pkgver=3.1.2
+
+dependencies=(
+    "!$pkgname"
+	'cmake'
+	'yasm'
+)
+sources=(
+	"https://bitbucket.org/multicoreware/x265/downloads/${pkgname}_${pkgver}.tar.gz"
+#	"https://www.linuxfromscratch.org/patches/blfs/svn/x265_${pkgver}-enable_static-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}_${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}_${pkgver}"
+#	patch -Np1 -i ${sources_dir}/x265_${pkgver}-enable_static-1.patch
+	mkdir bld
+	cd bld
+	cmake -DCMAKE_INSTALL_PREFIX=/usr \
+        -DENABLE_STATIC=OFF         \
+        ../source
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}_${pkgver}/bld"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}_${pkgver}/bld"
+	make DESTDIR="$fakeroot_dir" install
+}

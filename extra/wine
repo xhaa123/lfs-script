@@ -1,0 +1,27 @@
+pkgbuild_version=5
+pkgname=wine
+pkgver=current
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	return
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}"/wine
+	cp -a usr ${fakeroot_dir}
+}

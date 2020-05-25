@@ -1,0 +1,55 @@
+pkgbuild_version=5
+pkgname=mesa
+pkgver=19.1.4
+
+dependencies=(
+	"!$pkgname"
+	'libdrm'
+	'python-mako'
+	'xorg-libraries'
+	'libelf'
+	'libva'
+	'libvdpau'
+	'llvm'
+)
+sources=(
+	"ftp://ftp.freedesktop.org/pub/mesa/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+overwrite=(
+	"/usr/lib/libwayland-egl.so.1.0.0"
+	"/usr/lib/pkgconfig/wayland-egl.pc"
+	"/usr/lib/libwayland-egl.la"
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=$XORG_PREFIX          \
+      -Dbuildtype=release            \
+      -Ddri-drivers=i965	     \
+      -Dgallium-drivers=i915,r600,radeonsi,svga,swrast,virgl \
+      -Dgallium-nine=false           \
+      -Dglx=dri                      \
+      -Dosmesa=gallium               \
+      -Dvalgrind=false               \
+      ..
+}
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	ninja
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	DESTDIR="$fakeroot_dir" ninja install
+}
+
+# vim:set ts=4 syntax=sh:

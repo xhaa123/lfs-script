@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=sdl-net
+_pkgname=SDL2_net
+pkgver=2.0.1
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'sdl2'
+)
+
+sources=(
+	"https://www.libsdl.org/projects/SDL_net/release/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

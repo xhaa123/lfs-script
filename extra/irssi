@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=irssi
+pkgver=1.1.1
+
+dependencies=(
+    "!$pkgname"
+    'openssl'	
+"glib"
+)
+sources=(
+	"https://github.com/irssi/irssi/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	
+	./configure --prefix=/usr \
+		      --with-proxy \
+	          --sysconfdir=/etc 
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	find  ${fakeroot_dir}/usr/lib/perl5/ -name perllocal.pod -delete
+}
+
+

@@ -1,0 +1,47 @@
+pkgbuild_version=5
+pkgname=wicd
+pkgver=1.7.4
+
+dependencies=(
+    "!$pkgname"
+	'Python2'
+	'dbus-python'
+	'wireless_tools'
+	'net-tools'
+	'pygtk'
+	'wpa_supplicant'
+	'dhcpcd'
+	'urwid'
+)
+sources=(
+	"https://launchpad.net/wicd/1.7/${pkgver}/+download/${pkgname}-${pkgver}.tar.gz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/wicd/wicd-urwid.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed "/detection failed/ a\ 		self.init=\'init\/default\/wicd\'"     -i.orig setup.py
+
+	rm po/*.po 
+	patch -Np0 -i ${sources_dir}/wicd-urwid.patch
+	python2 setup.py configure --no-install-kde     \
+                          --no-install-acpi    \
+                          --no-install-pmutils \
+                          --no-install-init    \
+                          --no-install-gnome-shell-extensions \
+                          --docdir=/usr/share/doc/wicd-${pkgver}
+}
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	python2 setup.py install  --optimize=1 --root="$fakeroot_dir"
+}
+

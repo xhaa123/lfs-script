@@ -1,0 +1,64 @@
+pkgbuild_version=5
+pkgname=colord
+pkgver=1.4.4
+LC_ALL=en_US.utf8
+
+dependencies=(
+	"!$pkgname"
+	'dbus'
+	'glib'
+	'lcms2'
+	'sqlite'
+	'libgusb'
+	'libgudev'
+	'vala'
+	'gobject-introspection'
+)
+sources=(
+	"http://www.freedesktop.org/software/${pkgname}/releases/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=/usr    \
+      --sysconfdir=/etc        \
+      --localstatedir=/var     \
+      -Ddaemon_user=colord     \
+      -Dvapi=true              \
+      -Dsystemd=true           \
+      -Dlibcolordcompat=true   \
+      -Dargyllcms_sensor=false \
+      -Dbash_completion=false  \
+      -Ddocs=false             \
+      -Dman=false ..  
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	ninja
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	DESTDIR="$fakeroot_dir" ninja install
+}
+
+lfs_me_postinstall(){
+
+echo "creating required groups and users"
+groupadd -g 71 colord
+useradd -c "Color Daemon Owner" -d /var/lib/colord -u 71 \
+        -g colord -s /bin/false colord
+}
+# vim:set ts=4 syntax=sh:

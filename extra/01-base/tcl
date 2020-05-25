@@ -1,0 +1,73 @@
+pkgbuild_version=5
+pkgname=tcl
+pkgver=8.6.9
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"http://downloads.sourceforge.net/${pkgname}/${pkgname}${pkgver}-src.tar.gz"
+	"http://downloads.sourceforge.net/${pkgname}/${pkgname}${pkgver}-html.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}${pkgver}-src.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}${pkgver}/unix"
+	tar -xf "${sources_dir}/${pkgname}${pkgver}-html.tar.gz" --strip-components=1 -C "../"
+
+	./configure --prefix=/usr           \
+	--mandir=/usr/share/man \
+	--enable-64bit
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}${pkgver}/"
+	export SRCDIR=`pwd`
+	cd unix
+
+	make
+
+#	sed -e "s@^\(TCL_SRC_DIR='\).*@\1/usr/include'@" \
+#	    -e "/TCL_B/s@='\(-L\)\?.*unix@='\1/usr/lib@" \
+#		    -i tclConfig.sh
+
+sed -e "s#$SRCDIR/unix#/usr/lib#" \
+    -e "s#$SRCDIR#/usr/include#"  \
+    -i tclConfig.sh
+
+sed -e "s#$SRCDIR/unix/pkgs/tdbc1.0.5#/usr/lib/tdbc1.0.4#" \
+    -e "s#$SRCDIR/pkgs/tdbc1.0.5/generic#/usr/include#"    \
+    -e "s#$SRCDIR/pkgs/tdbc1.0.5/library#/usr/lib/tcl8.6#" \
+    -e "s#$SRCDIR/pkgs/tdbc1.0.5#/usr/include#"            \
+    -i pkgs/tdbc1.0.5/tdbcConfig.sh
+
+sed -e "s#$SRCDIR/unix/pkgs/itcl4.1.0#/usr/lib/itcl4.1.0#" \
+    -e "s#$SRCDIR/pkgs/itcl4.1.0/generic#/usr/include#"    \
+    -e "s#$SRCDIR/pkgs/itcl4.1.0#/usr/include#"            \
+    -i pkgs/itcl4.1.0/itclConfig.sh
+
+unset SRCDIR
+
+
+}
+
+lfs_me_check() {
+	cd "${build_dir}/${pkgname}${pkgver}/unix"
+	make test
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}${pkgver}/unix"
+	make DESTDIR="$fakeroot_dir" install
+	make DESTDIR="$fakeroot_dir" install-private-headers
+	ln -v -sf tclsh8.6 "${fakeroot_dir}/usr/bin/tclsh"
+	chmod -v 755 "${fakeroot_dir}/usr/lib/libtcl8.6.so"
+
+	mkdir -v -p "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+	cp -v -r  ../html/* "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+}
+
+# vim:set syntax=sh et:

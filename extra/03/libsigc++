@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=libsigc++
+pkgver=2.10.2
+
+dependencies=(
+    "!$pkgname"
+)
+
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/libsigc++/2.10/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -e '/^libdocdir =/ s/$(book_name)/libsigc++-2.10.0/' -i docs/Makefile.in
+	./configure --prefix=/usr
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

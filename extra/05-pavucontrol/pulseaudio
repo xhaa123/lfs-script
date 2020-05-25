@@ -1,0 +1,49 @@
+pkgbuild_version=5
+pkgname=pulseaudio
+pkgver=12.2
+
+dependencies=(
+	"!$pkgname"
+	'libsndfile'
+	'alsa-lib'
+	'dbus'
+	'speex'
+	'glib'
+	'libcap'
+)
+sources=(
+	"http://freedesktop.org/software/${pkgname}/releases/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i "s:asoundlib.h:alsa/asoundlib.h:" src/modules/alsa/*.{c,h}
+	sed -i "s:use-case.h:alsa/use-case.h:" configure.ac
+	sed -i "s:use-case.h:alsa/use-case.h:" src/modules/alsa/alsa-ucm.h
+	AUTOPOINT='intltoolize --automake --copy' autoreconf -fiv
+	./configure --prefix=/usr    \
+            --sysconfdir=/etc    	\
+	    --libexecdir=/usr/lib	\
+            --localstatedir=/var 	\
+            --disable-bluez4     	\
+	    --disable-bluez5	 	\
+            --disable-rpath
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+	rm ${fakeroot_dir}/etc/dbus-1/system.d/pulseaudio-system.conf
+}
+
+# vim:set ts=4 syntax=sh:

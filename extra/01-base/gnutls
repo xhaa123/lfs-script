@@ -1,0 +1,52 @@
+pkgbuild_version=5
+pkgname=gnutls
+pkgver=3.6.9
+
+dependencies=(
+	"!$pkgname"
+	'nettle'
+	'libtasn1'
+	'p11-kit'
+	'ca-certificates'
+	'libunistring'
+
+
+)
+sources=(
+	"ftp://ftp.gnutls.org/gcrypt/gnutls/v${pkgver:0:3}/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--with-default-trust-store-pkcs11="pkcs11:"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+	make DESTDIR="${fakeroot_dir}" -C doc/reference install-data-local
+
+  	#don't overwrite info pages
+    	rm "${fakeroot_dir}/usr/share/info/dir"
+}
+
+lfs_me_postinstall() {
+    echo "Adding info pages"
+    install-info  "/usr/share/info/${pkgname}.info" /usr/share/info/dir
+}
+
+lfs_me_preremove() {
+    echo "Adding info pages"
+    install-info  --delete "/usr/share/info/${pkgname}.info" /usr/share/info/dir
+}

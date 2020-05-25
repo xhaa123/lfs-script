@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=qtermwidget
+pkgver=git
+giturl=https://github.com/lxde/qtermwidget
+
+dependencies=(
+	"!$pkgname"
+	'cmake'
+	'qt'
+	'lxqt-build-tools'
+
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	mkdir build
+	cd build
+	cmake DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_BUILD_TYPE=Release ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	make DESTDIR=${fakeroot_dir} install
+}

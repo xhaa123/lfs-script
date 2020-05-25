@@ -1,0 +1,42 @@
+pkgbuild_version=5
+pkgname=chrome-gnome-shell
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'gnome-shell'
+	'cmake'
+	'git'
+	'python2-requests'
+	'jq'
+	'p7zip'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd "$build_dir"
+	git clone git://git.gnome.org/chrome-gnome-shell
+	cd "${build_dir}/${pkgname}/"
+	mkdir -v build
+	cd build
+	 cmake                                \
+        -D CMAKE_INSTALL_PREFIX=/usr      \
+        -D CMAKE_INSTALL_LIBDIR=lib       \
+        -D BUILD_EXTENSION=ON ..
+}
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}/build"
+	make -j5
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	make DESTDIR="$fakeroot_dir" install
+	echo "this extension requires python2 as /usr/bin/python to work!"
+}
+

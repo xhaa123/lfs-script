@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=libfm
+pkgver=git
+
+dependencies=(
+    	"!$pkgname"
+	'glibc'
+	'dbus-glib'
+	'gvfs'
+	'libexif'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone git://git.lxde.org/git/lxde/libfm
+	cd "${build_dir}/${pkgname}"
+	./autogen.sh
+	./configure --prefix=/usr \
+	--disable-static	\
+	--with-gtk=3
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}

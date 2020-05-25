@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=noto-fonts
+pkgver=20170227
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+sources=(
+	"https://noto-website-2.storage.googleapis.com/pkgs/NotoSans-hinted.zip"
+	"https://noto-website-2.storage.googleapis.com/pkgs/NotoSerif-hinted.zip"
+	"https://noto-website-2.storage.googleapis.com/pkgs/NotoMono-hinted.zip"
+	"https://noto-website-2.storage.googleapis.com/pkgs/NotoColorEmoji-unhinted.zip"
+	"https://noto-website-2.storage.googleapis.com/pkgs/NotoEmoji-unhinted.zip"
+	"https://noto-website-2.storage.googleapis.com/pkgs/NotoSansThai-hinted.zip"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	unzip -o ${sources_dir}/NotoSans-hinted.zip -d ${build_dir}/${pkgname}-${pkgver}
+	unzip -o ${sources_dir}/NotoSerif-hinted.zip -d ${build_dir}/${pkgname}-${pkgver}
+	unzip -o ${sources_dir}/NotoMono-hinted.zip -d ${build_dir}/${pkgname}-${pkgver}
+	unzip -o ${sources_dir}/NotoColorEmoji-unhinted.zip -d ${build_dir}/${pkgname}-${pkgver}
+	unzip -o ${sources_dir}/NotoEmoji-unhinted.zip -d ${build_dir}/${pkgname}-${pkgver}
+	unzip -o ${sources_dir}/NotoSansThai-hinted.zip -d ${build_dir}/${pkgname}-${pkgver}
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -dm 755 $fakeroot_dir/usr/share/fonts/TTF
+	install -D -m644 *.ttf $fakeroot_dir/usr/share/fonts/TTF
+}

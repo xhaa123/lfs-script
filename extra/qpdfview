@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=qpdfview
+pkgver=0.4.17beta1
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+"https://launchpad.net/qpdfview/trunk/$pkgver/+download/qpdfview-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	lrelease-qt5 qpdfview.pro
+	qmake-qt5 CONFIG+="without_ps without_djvu" qpdfview.pro
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

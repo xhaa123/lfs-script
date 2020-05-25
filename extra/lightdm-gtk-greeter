@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=lightdm-gtk-greeter
+pkgver=2.0.5
+CFLAGS="-Wno-declaration-after-statement -Wno-error=deprecated-declarations"
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	"https://launchpad.net/lightdm-gtk-greeter/${pkgver:0:3}/${pkgver}/+download/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+HAVE_EXO_CSOURCE=yes ./configure      \
+   	--prefix=/usr                 \
+   	--libexecdir=/usr/lib/lightdm \
+   	--sbindir=/usr/bin            \
+   	--sysconfdir=/etc             \
+   	--with-libxklavier            \
+   	--enable-kill-on-sigterm      \
+   	--disable-libido              \
+   	--disable-libindicator        \
+   	--disable-static              \
+   	--docdir=/usr/share/doc/lightdm-gtk-greeter-${pkgver}
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j1
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR=${fakeroot_dir} install
+}

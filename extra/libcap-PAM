@@ -1,0 +1,47 @@
+pkgbuild_version=5
+pkgname=libcap-PAM
+_pkgname=libcap
+pkgver=2.25
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'attr'
+	'Linux-PAM'
+)
+sources=(
+	
+"https://www.kernel.org/pub/linux/libs/security/linux-privs/${_pkgname}2/${_pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+	b2754cddb614567de445ffdaac7a00b9671b858a
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+
+	# install into /usr/bin
+	sed -i "/SBINDIR/s#sbin#bin#" Make.Rules
+}
+
+lfs_me_build(){
+	 cd "${build_dir}/${_pkgname}-${pkgver}"
+	make -C pam_cap
+
+}
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	mkdir -pv ${fakeroot_dir}/lib/security
+	mkdir -pv ${fakeroot_dir}/etc/security
+	install -v -m755 pam_cap/pam_cap.so ${fakeroot_dir}/lib/security
+	install -v -m644 pam_cap/capability.conf ${fakeroot_dir}/etc/security
+}
+
+# vim:set syntax=sh et:

@@ -1,0 +1,99 @@
+pkgbuild_version=5
+pkgname=virtualbox-bin
+pkgver=5.2.18
+_build=124319
+_arch=amd64
+_installdir=/opt/VirtualBox
+dependencies=(
+    "!$pkgname"
+	'glibc'
+)
+
+sources=(
+"http://download.virtualbox.org/virtualbox/${pkgver}/VirtualBox-${pkgver}-${_build}-Linux_${_arch}.run"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	mkdir ${build_dir}/vbox
+	echo yes | sh "${sources_dir}/VirtualBox-$pkgver-$_build-Linux_$_arch.run" --target "$build_dir/vbox/" \
+    	--nox11 --noexec &> /dev/null
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/vbox"
+	install -d "$fakeroot_dir/$_installdir"
+        tar -jxf "VirtualBox.tar.bz2" -C "$fakeroot_dir/$_installdir"
+        install -D -m 0644 /dev/null "$fakeroot_dir/etc/vbox/vbox.cfg"
+        cat > "$fakeroot_dir/etc/vbox/vbox.cfg" <<EOF
+# VirtualBox installation directory"
+INSTALL_DIR='$_installdir'
+
+# VirtualBox version
+INSTALL_VER='$pkgver'
+INSTALL_REV='$_build'
+EOF
+
+	cat > ${fakeoot_dir}/etc/profile.d/vbox.sh << "EOF"
+# Begin /etc/profile.d/vbox.sh
+
+VBOXDIR=/opt/VirtualBox
+export VBOXDIR
+pathappend $VBOXDIR
+
+# End /etc/profile.d/vbox.sh
+EOF
+
+mkdir -pv ${fakeroot_dir}/usr/share/applications
+mkdir -pv ${fakeroot_dir}/usr/share/pixmaps
+
+cat > ${fakeroot_dir}/usr/share/applications/virtualbox.desktop << "EOF"
+[Desktop Entry]
+Encoding=UTF-8
+Name=VirtualBox
+Comment=VirtualBox
+GenericName=VirtualBox
+Exec=/opt/VirtualBox/VirtualBox %u
+Terminal=false
+Type=Application
+Icon=virtualbox
+Categories=GNOME;GTK;Application;
+StartupNotify=true
+EOF
+
+mkdir -pv ${fakeroot_dir}/usr/lib/udev/rules.d/
+
+cat > ${fakeroot_dir}/usr/lib/udev/rules.d/10-vboxdrv.rules << "EOF"
+KERNEL=="vboxdrv", NAME="vboxdrv", OWNER="root", GROUP="root", MODE="0600"
+SUBSYSTEM=="usb_device", ACTION=="add", RUN="VBoxCreateUSBNode.sh $major $minor $attr{bDeviceClass}"
+SUBSYSTEM=="usb", ACTION=="add", ENV{DEVTYPE}=="usb_device", RUN="VBoxCreateUSBNode.sh $major $minor $attr{bDeviceClass}"
+SUBSYSTEM=="usb_device", ACTION=="remove", RUN="VBoxCreateUSBNode.sh --remove $major $minor"
+SUBSYSTEM=="usb", ACTION=="remove", ENV{DEVTYPE}=="usb_device", RUN="VBoxCreateUSBNode.sh --remove $major $minor"
+EOF
+
+ln -sfv /opt/VirtualBox/VBoxCreateUSBNode.sh ${fakeroot_dir}/usr/lib/udev/VBoxCreateUSBNode.sh
+
+ln -sfv /opt/VirtualBox/icons/128x128/virtualbox.png \
+        ${fakeroot_dir}/usr/share/pixmaps/virtualbox.png
+
+chmod 4711 ${fakeroot_dir}/opt/VirtualBox/VirtualBox
+
+}
+
+lfs_me_postinstall(){
+
+	echo "Building & Installing Modules"
+	cd /opt/VirtualBox/src/vboxhost
+	make install
+	echo "Done"
+
+	echo "Adding vboxusers group"
+	groupadd vboxusers
+	echo "Add your user to vboxusers group"
+}

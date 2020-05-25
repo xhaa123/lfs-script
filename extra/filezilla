@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=filezilla
+pkgver=3.34.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'dbus'
+	'gnutls'
+	'hicolor-icon-theme'
+	'sqlite'
+	'wxgtk'
+	'libfilezilla'
+)
+
+sources=(
+"https://dl3.cdn.filezilla-project.org/client/FileZilla_${pkgver}_src.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/FileZilla_${pkgver}_src.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure \
+	--prefix=/usr \
+	--with-pugixml=builtin \
+	--with-wx-config=/usr/bin/wx-config
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

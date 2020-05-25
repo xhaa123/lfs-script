@@ -1,0 +1,48 @@
+pkgbuild_version=5
+pkgname=fontforge
+pkgver=20170731
+_pkgver=2.0.20170731
+dependencies=(
+    "!$pkgname"
+	'freetype'
+	'glib'
+	'libxml2'
+	'cairo'
+	'gtk+2'
+	'harfbuzz'
+	'pango'
+	'desktop-file-utils'
+	'shared-mime-info'
+	'giflib'
+	'libjpeg-turbo'
+	'libpng'
+	'libtiff'
+
+)
+sources=(
+	"https://github.com/fontforge/fontforge/releases/download/${pkgver}/fontforge-dist-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-dist-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+	./configure --prefix=/usr     \
+            --enable-gtk2-use \
+            --disable-static  \
+            --docdir=/usr/share/doc/fontforge-${pkgver}
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

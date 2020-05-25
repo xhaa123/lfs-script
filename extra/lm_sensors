@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=lm_sensors
+pkgver=3.4.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'which'
+)
+sources=(
+	"http://pkgs.fedoraproject.org/repo/pkgs/lm_sensors/lm_sensors-3.4.0.tar.bz2/c03675ae9d43d60322110c679416901a/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make PREFIX=/usr        \
+    	BUILD_STATIC_LIB=0 \
+    	MANDIR=/usr/share/man \
+    	DESTDIR=${fakeroot_dir} install
+}

@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=python-chardet
+_pkgname=chardet
+pkgver=3.0.4
+
+dependencies=(
+	"!$pkgname"
+	'Python3'
+)
+sources=(
+	"https://pypi.io/packages/source/c/chardet/$_pkgname-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+overwrite=(
+'/usr/bin/chardetect'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/$_pkgname-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python3 setup.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python3 setup.py install --root="${fakeroot_dir}" --optimize=1
+}

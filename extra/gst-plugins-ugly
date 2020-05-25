@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=gst-plugins-ugly
+pkgver=1.16.0
+
+dependencies=(
+    "!$pkgname"
+	'gst-plugins-base'
+	'lame'
+	'liba52'
+	'libdvdread'
+	'x264'
+	'libmad'
+	'libmpeg2'
+	'libcdio'
+	'mpg123'
+
+)
+sources=(
+	"https://gstreamer.freedesktop.org/src/${pkgname}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+            --with-package-name="GStreamer Ugly Plugins eCORP Linux" \
+            --with-package-origin="eCORP Linux"
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

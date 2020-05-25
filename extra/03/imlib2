@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=imlib2
+pkgver=1.5.1
+
+dependencies=(
+	"!$pkgname"
+	'xorg-libraries'
+	'libpng'
+	'libjpeg-turbo'
+	'libtiff'
+	'giflib'
+)
+sources=(
+	"http://sourceforge.net/projects/enlightenment/files/imlib2-src/${pkgver}/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+}

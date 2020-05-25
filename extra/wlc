@@ -1,0 +1,48 @@
+pkgbuild_version=5
+pkgname=wlc
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'cmake'
+	'git'
+	'pixman'
+	'wayland'
+	'wayland-protocols'
+	'libxkbcommon'
+	'libinput'
+	'libX11'
+	'libxcb'
+	'mesa'
+	'libdrm'
+	
+
+
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd $build_dir
+	git clone https://github.com/Cloudef/wlc
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+	git submodule init
+	git submodule update lib/chck
+	cmake -DCMAKE_BUILD_TYPE=Upstream \
+        -DCMAKE_INSTALL_LIBDIR=/usr/lib \
+        -DCMAKE_INSTALL_PREFIX=/usr		
+
+	make -j5
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

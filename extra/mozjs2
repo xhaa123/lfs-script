@@ -1,0 +1,67 @@
+pkgbuild_version=5
+pkgname=mozjs2
+_pkgname=mozjs
+_pkgver=38.2.1.rc0
+pkgver=38.0.0
+
+dependencies=(
+	"!$pkgname"
+	'autoconf-firefox'
+	'icu'
+	'libffi'
+	'nspr'
+	'Python2'
+	'zip'
+)
+sources=(
+	"http://anduin.linuxfromscratch.org/BLFS/mozjs/mozjs-${_pkgver}.tar.bz2"
+	"http://www.linuxfromscratch.org/patches/blfs/svn/js38-38.2.1-upstream_fixes-2.patch"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${_pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	patch -Np1 -i "${sources_dir}/js38-38.2.1-upstream_fixes-2.patch"
+	cd js/src
+	autoconf2.13
+	./configure --prefix=/usr       \
+            --with-intl-api     \
+            --with-system-zlib  \
+            --with-system-ffi   \
+            --with-system-nspr  \
+            --with-system-icu   \
+            --enable-threadsafe \
+            --enable-readline
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/js/src"
+	make
+}
+
+lfs_me_check() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/js/src"
+	make check
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/js/src"
+	make DESTDIR="$fakeroot_dir" install
+
+	pushd ${fakeroot_dir}/usr/include/mozjs-38
+	for link in `find . -type l`; do
+    	header=`readlink $link`
+    	rm -f $link
+    	cp -pv $header $link
+    	chmod 644 $link
+	done
+	popd
+
+chown -Rv root.root ${fakeroot_dir}/usr/include/mozjs-38
+
+
+}

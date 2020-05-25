@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=ninja
+pkgver=1.9.0
+
+dependencies=(
+    "!$pkgname"
+    'Python3'
+)
+sources=(
+	
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd ${sources_dir}
+	wget --no-check-certificate https://github.com/ninja-build/ninja/archive/v${pkgver}.tar.gz \
+     -O ninja-${pkgver}.tar.gz
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	python3 configure.py --bootstrap
+}
+
+lfs_me_build(){
+return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir -p ${fakeroot_dir}/usr/bin
+	install -vm755 ninja "${fakeroot_dir}/usr/bin/" 
+	install -vDm644 misc/ninja.vim \
+                ${fakeroot_dir}/usr/share/vim/vim74/syntax/ninja.vim 
+	install -vDm644 misc/bash-completion \
+                ${fakeroot_dir}/usr/share/bash-completion/completions/ninja 
+	install -vDm644 misc/zsh-completion \
+                ${fakeroot_dir}/usr/share/zsh/site-functions/_ninja
+}
+

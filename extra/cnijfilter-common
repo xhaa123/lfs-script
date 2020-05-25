@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=cnijfilter-common
+pkgver=3.3.9
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'cups'
+)
+
+sources=(
+	"https://github.com/endlessm/cnijfilter-common/archive/Release_${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/Release_${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	return
+}

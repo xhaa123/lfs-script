@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=xf86-input-vmmouse
+pkgver=13.1.0
+
+dependencies=(
+	"!$pkgname"
+	'xorg-server'
+)
+sources=(
+	"http://ftp.x.org/pub/individual/driver/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+	e5e196719c09a02ca275b8eab534753408518e05
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure $XORG_CONFIG \
+	--without-hal-fdi-dir      \
+            --without-hal-callouts-dir \
+            --with-udev-rules-dir=/lib/udev/rules.d
+}
+
+lfs_me_check() {
+	return
+}
+
+# vim:set ts=4 syntax=sh:

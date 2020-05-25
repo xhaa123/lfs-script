@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=exiv2
+pkgver=0.27.2
+
+dependencies=(
+    "!$pkgname"
+	'curl'
+)
+sources=(
+	"http://www.exiv2.org/builds/${pkgname}-${pkgver}-Source.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}-Source.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}-Source"
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr  \
+      -DCMAKE_BUILD_TYPE=Release   \
+      -DEXIV2_ENABLE_VIDEO=yes     \
+      -DEXIV2_ENABLE_WEBREADY=yes  \
+      -DEXIV2_ENABLE_CURL=yes      \
+      -DEXIV2_BUILD_SAMPLES=no     \
+      -G "Unix Makefiles" ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}-Source/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}-Source/build"
+	make DESTDIR="$fakeroot_dir" install
+#	chmod -v 755 ${fakeroot_dir}/usr/lib/libexiv2.so
+}

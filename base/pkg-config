@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=pkg-config
+pkgver=0.29.2
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"https://pkg-config.freedesktop.org/releases/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure --prefix=/usr         \
+	--with-internal-glib  \
+	--disable-compile-warnings \
+	--disable-host-tool   \
+	--docdir="/usr/share/doc/${pkgname}-${pkgver}"
+}
+
+lfs_me_build() {
+        cd "${build_dir}/${pkgname}-${pkgver}"
+        make
+}
+
+lfs_me_install() {
+        cd "${build_dir}/${pkgname}-${pkgver}"
+        make DESTDIR=$fakeroot_dir install
+}
+
+# vim:set syntax=sh et:

@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=gmime3
+pkgver=3.0.4
+
+dependencies=(
+    "!$pkgname"
+	'glib'
+	'libgpg-error'
+	'gobject-introspection'
+	'vala'
+	'libidn'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/gmime/${pkgver:0:3}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

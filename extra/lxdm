@@ -1,0 +1,62 @@
+pkgbuild_version=5
+pkgname=lxdm
+pkgver=0.5.3
+
+dependencies=(
+    "!$pkgname"
+	'gtk+2'
+	'iso-codes'
+	'librsvg'
+	'Linux-PAM'
+	'gtk+3'
+)
+sources=(
+	"http://downloads.sourceforge.net/lxdm/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cat > pam/lxdm << "EOF"
+# Begin /etc/pam.d/lxdm
+
+auth     requisite      pam_nologin.so
+auth     required       pam_env.so
+auth     include        system-auth
+
+account  include        system-account
+
+password include        system-password
+
+session  required       pam_limits.so
+session  include        system-session
+
+# End /etc/pam.d/lxdm
+EOF
+
+	sed -i 's:sysconfig/i18n:profile.d/i18n.sh:g' data/lxdm.in
+	sed -i 's:/etc/xprofile:/etc/profile:g' data/Xsession
+	sed -e 's/^bg/#&/'        \
+	-e '/reset=1/ s/# //' \
+    	-e 's/logou$/logout/' \
+    	-e "/arg=/a arg=$XORG_PREFIX/bin/X" \
+    	-i data/lxdm.conf.in
+
+	./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --with-pam        \
+            --with-systemdsystemunitdir=/lib/systemd/system
+
+}
+
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

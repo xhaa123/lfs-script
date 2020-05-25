@@ -1,0 +1,183 @@
+pkgbuild_version=5
+pkgname=qt
+_pkgname=qt-everywhere-src
+pkgver=5.13.0
+export QT5PREFIX=/opt/qt5
+export QT5BINDIR=$QT5PREFIX/bin
+
+dependencies=(
+    "!$pkgname"
+	'Python3'
+	'xorg-libraries'
+	'alsa-lib'
+	'ca-certificates'
+	'glib'
+	'gst-plugins-base'
+	'harfbuzz'
+	'icu'
+	'jasper'
+	'libjpeg-turbo'
+	'libmng'
+	'libpng'
+	'libtiff'
+	'libxkbcommon'
+	'mesa'
+	'mtdev'
+	'nss'
+	'openssl'
+	'pcre'
+	'sqlite'
+	'wayland'
+	'xcb-util-image'
+	'xcb-util-keysyms'
+	'xcb-util-renderutil'
+	'xcb-util-wm'
+	'pciutils'
+)
+sources=(
+	"https://download.qt.io/archive/qt/${pkgver:0:4}/${pkgver}/single/${_pkgname}-${pkgver}.tar.xz"
+	"http://www.linuxfromscratch.org/patches/blfs/svn/qt-5.13.0-upstream_fixes-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	patch -Np1 -i $sources_dir/qt-5.13.0-upstream_fixes-1.patch
+	sed -i 's/SIOCGSTAMP/0x8906/' \
+	qtserialbus/src/plugins/canbus/socketcan/socketcanbackend.cpp
+	./configure -prefix         $QT5PREFIX \
+            -sysconfdir     /etc/xdg   \
+            -confirm-license           \
+            -opensource                \
+            -dbus-linked               \
+            -openssl-linked            \
+            -system-harfbuzz           \
+            -system-sqlite             \
+            -nomake examples           \
+            -no-rpath		       \
+	    -skip qtwebengine
+
+}
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	export CXXFLAGS=-fno-delete-null-pointer-checks
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make INSTALL_ROOT="$fakeroot_dir"  install
+	install -v -dm755 ${fakeroot_dir}/usr/share/pixmaps/
+	install -v -Dm644 qttools/src/assistant/assistant/images/assistant-128.png \
+                  ${fakeroot_dir}/usr/share/pixmaps/assistant-qt5.png
+
+	install -v -Dm644 qttools/src/designer/src/designer/images/designer.png \
+                  ${fakeroot_dir}/usr/share/pixmaps/designer-qt5.png
+
+	install -v -Dm644 qttools/src/linguist/linguist/images/icons/linguist-128-32.png \
+                  ${fakeroot_dir}/usr/share/pixmaps/linguist-qt5.png
+
+	install -v -Dm644 qttools/src/qdbus/qdbusviewer/images/qdbusviewer-128.png \
+                  ${fakeroot_dir}/usr/share/pixmaps/qdbusviewer-qt5.png
+
+	install -dm755 ${fakeroot_dir}/usr/share/applications
+
+}
+lfs_me_postinstall(){
+
+	export QT5PREFIX=/opt/qt5
+	export QT5BINDIR=$QT5PREFIX/bin
+
+	find $QT5PREFIX/lib/pkgconfig -name "*.pc" -exec perl -pi -e "s, -L$PWD/?\S+,,g" {} \;
+	find $QT5PREFIX/ -name qt_lib_bootstrap_private.pri \
+	-exec sed -i -e "s:$PWD/qtbase:/$QT5PREFIX/lib/:g" {} \;
+
+	find $QT5PREFIX/ -name \*.prl \
+        -exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+
+	cat > /usr/share/applications/assistant-qt5.desktop << "EOF"
+	[Desktop Entry]
+	Name=Qt5 Assistant
+	Comment=Shows Qt5 documentation and examples
+	Exec=$QT5BINDIR/assistant
+	Icon=assistant-qt5.png
+	Terminal=false
+	Encoding=UTF-8
+	Type=Application
+	Categories=Qt;Development;Documentation;
+EOF
+
+	cat > /usr/share/applications/designer-qt5.desktop << "EOF"
+	[Desktop Entry]
+	Name=Qt5 Designer
+	GenericName=Interface Designer
+	Comment=Design GUIs for Qt5 applications
+	Exec=$QT5BINDIR/designer
+	Icon=designer-qt5.png
+	MimeType=application/x-designer;
+	Terminal=false
+	Encoding=UTF-8
+	Type=Application
+	Categories=Qt;Development;
+EOF
+
+	cat > /usr/share/applications/linguist-qt5.desktop << "EOF"
+	[Desktop Entry]
+	Name=Qt5 Linguist
+	Comment=Add translations to Qt5 applications
+	Exec=$QT5BINDIR/linguist
+	Icon=linguist-qt5.png
+	MimeType=text/vnd.trolltech.linguist;application/x-linguist;
+	Terminal=false
+	Encoding=UTF-8
+	Type=Application
+	Categories=Qt;Development;
+EOF
+
+	cat > /usr/share/applications/qdbusviewer-qt5.desktop << "EOF"
+	[Desktop Entry]
+	Name=Qt5 QDbusViewer
+	GenericName=D-Bus Debugger
+	Comment=Debug D-Bus applications
+	Exec=$QT5BINDIR/qdbusviewer
+	Icon=qdbusviewer-qt5.png
+	Terminal=false
+	Encoding=UTF-8
+	Type=Application
+	Categories=Qt;Development;Debugger;
+EOF
+
+	cat >> /etc/ld.so.conf << "EOF"
+	# Begin Qt addition
+
+	/opt/qt5/lib
+
+	# End Qt addition
+EOF
+
+	ldconfig
+
+	cat > /etc/profile.d/qt5.sh << "EOF"
+	# Begin /etc/profile.d/qt5.sh
+
+	QT5DIR=/opt/qt5
+
+	pathappend $QT5DIR/bin           PATH
+	pathappend $QT5DIR/lib/pkgconfig PKG_CONFIG_PATH
+
+	export QT5DIR
+
+	# End /etc/profile.d/qt5.sh
+EOF
+
+	for file in moc uic rcc qmake lconvert lrelease lupdate; do
+  	ln -sfrvn $QT5BINDIR/$file /usr/bin/$file-qt5
+	done
+
+	ldconfig
+}

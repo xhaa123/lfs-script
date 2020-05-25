@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=qt5-x11extras
+_qtver=5.11.1
+pkgver=${_qtver/-/}
+_pkgfqn="${pkgname/5-/}-everywhere-src-${_qtver}"
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'qt'
+)
+
+sources=(
+	"http://download.qt.io/official_releases/qt/${pkgver%.*}/${_qtver}/submodules/${_pkgfqn}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgfqn}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${_pkgfqn}"
+	mkdir -p build
+	cd build
+	qmake-qt5 ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgfqn}/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgfqn}/build"
+	make INSTALL_ROOT="$fakeroot_dir" install
+	find "$fakeroot_dir/opt/qt5/lib" -type f -name '*.prl' \
+    	-exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+}

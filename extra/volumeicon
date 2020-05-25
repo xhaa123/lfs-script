@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=volumeicon
+pkgver=0.5.1
+
+dependencies=(
+    "!$pkgname"
+	'alsa-lib'
+	'gtk+3'
+	'libnotify'
+	'git'
+	'intltool'
+)
+sources=(
+	"http://nullwise.com/files/volumeicon/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --enable-notify
+
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

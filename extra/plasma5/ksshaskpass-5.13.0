@@ -1,0 +1,63 @@
+pkgbuild_version=5
+pkgname=ksshaskpass
+pkgver=5.13.0
+
+dependencies=(
+	"!$pkgname"
+	'fontforge'
+	'gtk+2'
+	'gtk+3'
+	'libpwquality'
+	'libxkbcommon'
+	'mesa'
+	'wayland'
+	'networkmanager'
+	'pulseaudio'
+	'Python2'
+	'qca'
+	'taglib'
+	'xcb-util-cursor'
+	'libdbusmenu-qt'
+	'libcanberra'
+	'libinput'
+	'Linux-PAM'
+	'pciutils'
+	'glu'
+
+)
+
+sources=(
+	"http://ftp.kaist.ac.kr/kde/stable/plasma/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+	1107ce24070899ed1edda79d7200015e1dd0126c
+)
+
+lfs_me_prepare() {
+    tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+    cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=$KF5_PREFIX \
+            -DCMAKE_BUILD_TYPE=Release         \
+            -DLIB_INSTALL_DIR=lib              \
+            -DBUILD_TESTING=OFF                \
+            -Wno-dev ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+    cd "${build_dir}/${pkgname}-${pkgver}/build"
+    make DESTDIR="$fakeroot_dir" install
+}
+
+# vim:set ts=4 syntax=sh:

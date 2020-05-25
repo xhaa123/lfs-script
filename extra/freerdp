@@ -1,0 +1,46 @@
+pkgbuild_version=5
+pkgname=freerdp
+_pkgname=FreeRDP
+pkgver=git
+
+dependencies=(
+	"!$pkgname"
+	'gst-plugins-base'
+	'cmake'
+	'openssl'
+	'pulseaudio'
+)
+sources=(
+	)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone https://github.com/FreeRDP/FreeRDP
+	git submodule update --init
+	cd "${build_dir}/${_pkgname}"
+	cmake \
+	-DCMAKE_INSTALL_PREFIX=/usr \
+	-DCMAKE_INSTALL_LIBDIR=lib \
+	-DWITH_PULSE=ON \
+	-DWITH_CUPS=OFF \
+	-DWITH_CHANNELS=ON \
+	-DWITH_CLIENT_CHANNELS=ON \
+	-DWITH_SERVER_CHANNELS=ON \
+	-DWITH_WAYLAND=ON \
+	-DWITH_THIRD_PARTY=ON \
+	.
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}"
+	make DESTDIR="${fakeroot_dir}" install
+
+}

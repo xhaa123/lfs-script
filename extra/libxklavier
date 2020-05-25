@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=libxklavier
+pkgver=5.4
+
+dependencies=(
+    "!$pkgname"
+	'glib'
+	'iso-codes'
+	'libxml2'
+	'xorg-libraries'
+	'gobject-introspection'
+	'vala'
+)
+sources=(
+	"https://people.freedesktop.org/~svu/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=tracker
+pkgver=2.2.2
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'json-glib'
+	'libseccomp'
+	'libsoup'
+	'vala'
+)
+
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/tracker/${pkgver:0:3}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=/usr --sysconfdir=/etc ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	ninja
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	DESTDIR="$fakeroot_dir" ninja install
+}

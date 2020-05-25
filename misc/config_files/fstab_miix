@@ -1,0 +1,9 @@
+# Begin /etc/fstab
+
+# file system  mount-point  type     options             dump  fsck
+#                                                              order
+
+/dev/mmcblk0p5 		/ 		f2fs defaults 		0 0
+/dev/mmcblk0p2		/boot		vfat defaults		0 0 
+efivars			/sys/firmware/efi/efivars efivarfs ro 	0 0
+# End /etc/fstab

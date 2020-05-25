@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=screen
+pkgver=4.6.2
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"https://ftp.gnu.org/gnu/screen/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr             \
+            --infodir=/usr/share/info         \
+            --mandir=/usr/share/man           \
+            --with-socket-dir=/run/screen     \
+            --with-pty-group=5                \
+            --with-sys-screenrc=/etc/screenrc
+	
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i -e "s%/usr/local/etc/screenrc%/etc/screenrc%" {etc,doc}/*
+	make
+}
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	rm ${fakeroot_dir}/usr/share/info/dir
+	mkdir ${fakeroot_dir}/etc
+	install -m 644 etc/etcscreenrc ${fakeroot_dir}/etc/screenrc
+}
+

@@ -1,0 +1,28 @@
+pkgbuild_version=5
+pkgname=cbatticon
+pkgver=git
+giturl=https://github.com/valr/cbatticon
+
+dependencies=(
+    "!$pkgname"
+    'gtk+3'
+    'libnotify'
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}"
+	make WITH_NOTIFY=1 WITH_GTK3=1
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make PREFIX=${fakeroot_dir}/usr install
+
+}

@@ -1,0 +1,72 @@
+pkgbuild_version=5
+pkgname=vscode
+pkgver=1.20.1
+
+dependencies=(
+	"!$pkgname"
+	'Python2'
+	'node-js'
+	'gulp'
+	'gtk+2'
+	'nss'
+	'yarn'
+)
+
+sources=(
+"https://github.com/Microsoft/vscode/archive/$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	yarn install --arch=x64
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mem_limit="--max_old_space_size=2048"
+    	/usr/bin/node $mem_limit /usr/bin/gulp vscode-linux-x64
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -m 0755 -d "${fakeroot_dir}/usr/share/code-oss"
+    	cp -r "${build_dir}/VSCode-linux-x64"/* "${fakeroot_dir}/usr/share/code-oss"
+	ln -svf /usr/share/bin/code-oss ${fakeroot_dir}/usr/bin/code-oss
+    	# Add .desktop file
+	mkdir -pv ${fakeroot_dir}/usr/share/applications/
+      	cat >> ${fakeroot_dir}/usr/share/applications/code.desktop << EOF
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=Microsoft Code (Open Source)
+Comment=Code Editing. Redefined.
+GenericName=Text Editor
+Exec=/usr/bin/code-oss --unity-launch %F
+Icon=/usr/share/code-oss/resources/app/resources/linux/code.png
+Type=Application
+StartupNotify=true
+StartupWMClass=Code - OSS
+Categories=Utility;TextEditor;Development;IDE;
+MimeType=text/plain;inode/directory;
+Actions=new-window;
+Keywords=vscode;
+
+[Desktop Action new-window]
+Name=New Window
+Name[de]=Neues Fenster
+Name[es]=Nueva ventana
+Name[fr]=Nouvelle fenêtre
+Name[it]=Nuova finestra
+Name[ja]=新規ウインドウ
+Name[ko]=새 창
+Name[ru]=Новое окно
+Name[zh_CN]=新建窗口
+Name[zh_TW]=開新視窗
+Exec=/usr/bin/code-oss --new-window %F
+Icon=/usr/share/code-oss/resources/app/resources/linux/code.png
+EOF
+}

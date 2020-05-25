@@ -1,0 +1,47 @@
+#vim: filetype=sh
+pkgbuild_version=5
+pkgname=glib
+pkgver=2.60.6
+LC_ALL=en_US.UTF-8
+
+dependencies=(
+	"!$pkgname"
+	'libffi'
+	'Python3'
+	'pcre'
+	'dbus'
+	'libelf'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/${pkgname}/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+#	"http://www.linuxfromscratch.org/patches/blfs/svn/glib-${pkgver}-skip_warnings-1.patch"
+#	"https://gist.githubusercontent.com/ahodesuka/49c1d0eea4b64f24c4c7/raw/d0edf118e1c27700300038c1d82b3ff775c0216b/glib-thumbnailer.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+#	patch -Np1 -i ${sources_dir}/glib-${pkgver}-skip_warnings-1.patch
+#	patch -Np1 -i ${sources_dir}/glib-thumbnailer.patch
+
+	mkdir build-glib
+	cd    build-glib
+
+	meson --prefix=/usr -Dwith-pcre=system -Dselinux=disabled -Dwith-python=/usr/bin/python3 ..
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/"
+	
+	cd build-glib && ninja
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/"
+	cd build-glib &&	DESTDIR=${fakeroot_dir} ninja install
+}

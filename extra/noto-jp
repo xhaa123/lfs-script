@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=noto-jp
+pkgver=20170301
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+sources=(
+	"https://noto-website-2.storage.googleapis.com/pkgs/NotoSansCJKjp-hinted.zip"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	unzip -o ${sources_dir}/NotoSansCJKjp-hinted.zip -d ${build_dir}/${pkgname}-${pkgver}
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -dm 755 $fakeroot_dir/usr/share/fonts/OTF
+        install -D -m644 *.otf $fakeroot_dir/usr/share/fonts/OTF
+
+}

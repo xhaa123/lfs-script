@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=x264
+pkgver=20190815-2245
+
+dependencies=(
+	 "!$pkgname"
+	'nasm'
+	)
+
+sources=(
+"https://download.videolan.org/x264/snapshots/${pkgname}-snapshot-${pkgver}-stable.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-snapshot-${pkgver}-stable.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-snapshot-${pkgver}-stable"
+	./configure --prefix=/usr \
+            --enable-shared \
+            --disable-cli
+}
+lfs_me_build(){
+
+	cd "${build_dir}/${pkgname}-snapshot-${pkgver}-stable"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-snapshot-${pkgver}-stable"
+	make DESTDIR="$fakeroot_dir" install
+}
+

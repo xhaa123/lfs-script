@@ -1,0 +1,70 @@
+pkgbuild_version=5
+pkgname=util-linux
+pkgver=2.34
+
+dependencies=(
+    "!$pkgname"
+	'shadow'
+	'coreutils'
+)
+sources=(
+	"https://cdn.kernel.org/pub/linux/utils/${pkgname}/v${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+overwrite=(
+	"/usr/lib/libuuid.la"
+	"/usr/lib/libblkid.la"
+	"/usr/lib/libmount.la"
+	"/lib/libblkid.so.1.1.0"
+	"/lib/libuuid.so.1.3.0"
+	"/lib/libmount.so.1.1.0"
+	"/usr/lib/libuuid.so"
+	"/usr/lib/libblkdid.so"
+	"/usr/lib/libmount.so"
+	"/lib/libblkid.so.1"
+	"/lib/libuuid.so.1"
+	"/lib/libmount.so.1"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	mkdir -pv /var/lib/hwclock
+
+	./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
+            --docdir=/usr/share/doc/util-linux-${pkgver} \
+            --disable-chfn-chsh  \
+            --disable-login      \
+            --disable-nologin    \
+            --disable-su         \
+            --disable-setpriv    \
+            --disable-runuser    \
+            --disable-pylibmount \
+	    --disable-static 	 \
+            --without-python 	 \
+	    --enable-libmount-force-mountinfo
+}
+
+lfs_me_check() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	if [[ "$UID" -eq 0 ]]
+	then
+		chown -Rv nobody .
+		su nobody -s /bin/bash -c "PATH=$PATH make -k check"
+	else
+		make -k check
+	fi
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	mkdir -pv "${fakeroot_dir}/var/lib/hwclock"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+# vim:set syntax=sh et:

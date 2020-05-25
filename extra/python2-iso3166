@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=python2-iso3166
+_pkgname=iso3166
+pkgver=0.8
+
+dependencies=(
+	"!$pkgname"
+	'Python2'
+	'python2-funcsigs'
+)
+sources=(
+	"https://pypi.python.org/packages/46/06/64145b8d6be8474db1f09f6b01a083921c11a4c979d029677c7e943d2433/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py install --root="${fakeroot_dir}" --optimize=1
+}

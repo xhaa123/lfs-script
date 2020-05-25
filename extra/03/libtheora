@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=libtheora
+pkgver=1.1.1
+
+dependencies=(
+    "!$pkgname"
+	'libogg'
+	'libvorbis'
+	'sdl'
+)
+sources=(
+	"http://downloads.xiph.org/releases/theora/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c
+	./configure --prefix=/usr --disable-static
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

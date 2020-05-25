@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=giflib
+pkgver=5.2.1
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"http://sourceforge.net/projects/${pkgname}/files/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+	e0d10e8b4494383c7e366ac80a942ba45a705a96
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make PREFIX=/usr DESTDIR="${fakeroot_dir}" install
+	rm -vf $fakeroot_dir/usr/lib/libgif.a
+}
+# vim:set ts=4 syntax=sh:

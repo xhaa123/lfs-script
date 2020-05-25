@@ -1,0 +1,63 @@
+pkgbuild_version=5
+pkgname=perl
+pkgver=5.30.0
+
+overwrite=(
+	'/usr/bin/perl'
+)
+dependencies=(
+    "!$pkgname"
+	'gdbm'
+	'glibc'
+)
+sources=(
+	"http://www.cpan.org/src/5.0/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	echo "creating hosts file"
+	echo "127.0.0.1 localhost $(hostname)" > /etc/hosts
+
+	export BUILD_ZLIB=False
+	export BUILD_BZIP2=0
+
+	sed -i 's/67]/6789]/' Configure
+	sh Configure -des	\
+			-Dprefix=/usr                 \
+			-Dvendorprefix=/usr           \
+			-Dman1dir=/usr/share/man/man1 \
+			-Dman3dir=/usr/share/man/man3 \
+			-Dpager="/usr/bin/less -isR"  \
+			-Duseshrplib	\
+			-Dusethreads
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	export BUILD_ZLIB=False
+	export BUILD_BZIP2=0
+	make
+}
+
+lfs_me_check() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	export BUILD_ZLIB=False
+	export BUILD_BZIP2=0
+	make -k test
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	export BUILD_ZLIB=False
+	export BUILD_BZIP2=0
+	make DESTDIR="$fakeroot_dir" install
+	unset BUILD_ZLIB BUILD_BZIP2
+}
+
+# vim:set syntax=sh et:

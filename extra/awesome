@@ -1,0 +1,54 @@
+pkgbuild_version=5
+pkgname=awesome
+pkgver=git
+
+dependencies=(
+	"!$pkgname"
+	'imagemagick'
+	'libxdg-basedir'
+	'cairo'
+	'gdk-pixbuf'
+	'imlib2'
+	'lua'
+	'lua-lgi'
+	'pango'
+	'startup-notification'
+	'cmake'
+	'xmlto'
+	'asciidoc'
+	'xcb-util-cursor'
+	'xcb-util-keysyms'
+	'xcb-util-wm'
+	'dex'
+	'vicious'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd $build_dir
+	git clone https://github.com/awesomeWM/awesome.git
+	cd "${build_dir}/${pkgname}"
+	mkdir build
+	cd build
+	cmake .. \
+    	-DCMAKE_BUILD_TYPE=RELEASE \
+    	-DCMAKE_INSTALL_PREFIX=/usr \
+    	-DSYSCONFDIR=/etc \
+    	-DLUA_LIBRARY=/usr/lib/liblua.so.5.3
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}/build"
+	make -j5
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	make DESTDIR="$fakeroot_dir" install
+}
+

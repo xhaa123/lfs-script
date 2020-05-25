@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=qtkeychain
+pkgver=git
+
+dependencies=(
+    	"!$pkgname"
+	'glibc'
+	'qt'
+#	'libgnome-keyring'
+	'cmake'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://github.com/frankosterfeld/qtkeychain
+	cd "${build_dir}/${pkgname}"
+	mkdir build
+	cd build
+	cmake .. \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_INSTALL_LIBDIR=lib \
+          -DCMAKE_INSTALL_LIBEXECDIR=lib/${pkgname} \
+          -DCMAKE_BUILD_TYPE=Release
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	make DESTDIR="$fakeroot_dir" install
+}

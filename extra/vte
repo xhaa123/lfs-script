@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=vte
+pkgver=0.56.2
+dependencies=(
+	"!$pkgname"
+	"gtk+3"
+	"libxml2"
+	"pcre2"
+	"gobject-introspection"
+	"gnutls"
+	"vala"
+)
+
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/vte/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i '/Werror/d' configure.ac
+	autoreconf
+	./configure --prefix=/usr \
+	--sysconfdir=/etc --disable-static --enable-introspection                
+				
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+}

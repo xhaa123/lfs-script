@@ -1,0 +1,79 @@
+pkgbuild_version=5
+pkgname=syntax-highlighting
+pkgver=5.47.0
+export CXXFLAGS='-isystem /usr/include/openssl-1.0'
+
+dependencies=(
+	"!$pkgname"
+	'boost'
+	'extra-cmake-modules'
+	'docbook-xml'
+	'docbook-xsl'
+	'giflib'
+	'libepoxy'
+	'libgcrypt'
+	'libjpeg-turbo'
+	'libpng'
+	'libxslt'
+	'lmdb'
+#	'qtwebkit'
+	'phonon'
+	'shared-mime-info'
+	'URI'
+	'wget'
+	'aspell'
+	'avahi'
+	'libdbusmenu-qt'
+	'networkmanager'
+	'polkit-qt'
+	'bluez'
+	'modemmanager'
+#	'oxygen-icons'
+#	'breeze-icons'
+)
+case "$pkgname" in
+	kjs| kdelibs4support| khtml| kjsembed| kmediaplayer |kross)
+sources=(
+	"http://download.kde.org/stable/frameworks/${pkgver:0:4}/portingAids/${pkgname}-${pkgver}.tar.xz"
+)
+;;
+
+*)
+sources=(
+        "http://download.kde.org/stable/frameworks/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+esac
+
+sha1sums=(
+	
+)
+
+lfs_me_prepare() {
+    tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+    cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=$KF5_PREFIX \
+            -DCMAKE_PREFIX_PATH=$QT5DIR        \
+            -DCMAKE_BUILD_TYPE=Release         \
+            -DLIB_INSTALL_DIR=lib              \
+            -DBUILD_TESTING=OFF                \
+            -Wno-dev ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+    cd "${build_dir}/${pkgname}-${pkgver}/build"
+    make DESTDIR="$fakeroot_dir" install
+}
+
+# vim:set ts=4 syntax=sh:

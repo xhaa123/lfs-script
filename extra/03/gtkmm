@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=gtkmm
+pkgver=3.24.1
+
+dependencies=(
+    "!$pkgname"
+	'atkmm'
+	'gtk+3'
+	'pangomm'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/gtkmm/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -e '/^libdocdir =/ s/$(book_name)/gtkmm-${pkgver}/' \
+        -i docs/Makefile.in
+	./configure --prefix=/usr
+}
+
+lfs_me_build(){
+	 cd "${build_dir}/${pkgname}-${pkgver}"
+	 make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

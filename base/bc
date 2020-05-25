@@ -1,0 +1,55 @@
+pkgbuild_version=5
+pkgname=bc
+pkgver=2.1.3
+
+_info_pages=(
+	'dc.info'
+	'bc.info'
+)
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"http://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	PREFIX=/usr CC=gcc CFLAGS="-std=c99" ./configure.sh -G -O3
+}
+
+lfs_me_check() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make test
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+    	#don't overwrite info pages
+    	#rm "${fakeroot_dir}/usr/share/info/dir"
+}
+
+lfs_me_postinstall() {
+    echo "Adding info pages"
+    install-info  "/usr/share/info/${pkgname}.info" /usr/share/info/dir
+}
+
+lfs_me_preremove() {
+    echo "Adding info pages"
+    install-info  --delete "/usr/share/info/${pkgname}.info" /usr/share/info/dir
+}
+
+# vim:set syntax=sh et:

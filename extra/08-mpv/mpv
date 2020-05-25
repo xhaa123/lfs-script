@@ -1,0 +1,47 @@
+pkgbuild_version=5
+pkgname=mpv
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'ffmpeg'
+	'zlib'
+	'libass'
+	'lua'
+	'libjpeg-turbo'
+	'uchardet'
+	'luajit'
+)
+sources=(
+
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone https://github.com/mpv-player/mpv
+	cd mpv
+	./bootstrap.py
+	./waf configure --prefix=/usr \
+	--enable-libmpv-shared \
+	--enable-sdl2
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}"
+	./waf build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+
+	./waf install --destdir=${fakeroot_dir}
+	install -m644 DOCS/{encoding.rst,tech-overview.txt} \
+    	"${fakeroot_dir}"/usr/share/doc/mpv
+	cd ${build_dir}
+	rm -rf ${build_dir}/mpv
+}

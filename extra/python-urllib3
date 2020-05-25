@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=python-urllib3
+_pkgname=urllib3
+pkgver=1.22
+
+dependencies=(
+	"!$pkgname"
+	'Python2'
+)
+sources=(
+	
+"https://pypi.python.org/packages/ee/11/7c59620aceedcc1ef65e156cc5ce5a24ef87be4107c2b74458464e437a5d/$_pkgname-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/$_pkgname-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python3 setup.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python3 setup.py install --root="${fakeroot_dir}" --optimize=1
+}

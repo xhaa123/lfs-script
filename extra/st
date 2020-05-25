@@ -1,0 +1,47 @@
+pkgbuild_version=5
+pkgname=st
+pkgver=git
+giturl=http://git.suckless.org/st
+
+dependencies=(
+    "!$pkgname"
+
+)
+sources=(
+	"https://st.suckless.org/patches/alpha/st-alpha-0.8.1.diff"
+	"https://st.suckless.org/patches//scrollback/st-scrollback-20190122-3be4cf1.diff"
+	"https://st.suckless.org/patches/scrollback/st-scrollback-mouse-0.8.diff"
+)
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	patch -Np1 -i ${sources_dir}/st-alpha*.diff
+	patch -Np1 -i ${sources_dir}/st-scrollback*.diff
+	patch -Np1 -i ${sources_dir}/st-scrollback-mouse*.diff
+	sed "s#/usr/local#/usr#" -i config.mk
+	#replace default font
+	sed "s/Liberation Mono:pixelsize=12/Monospace:pixelsize=14/" -i config.def.h
+	ln -sv /usr/bin/cc /usr/bin/c99
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+	mkdir -pv ${fakeroot_dir}/usr/share/applications/
+cat > ${fakeroot_dir}/usr/share/applications/st.desktop << EOF
+[Desktop Entry]
+Name=st
+Exec=st
+Icon=utilities-terminal
+Type=Application
+EOF
+	rm /usr/bin/c99
+}

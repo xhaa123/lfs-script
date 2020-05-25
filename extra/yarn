@@ -1,0 +1,34 @@
+pkgbuild_version=5
+pkgname=yarn
+pkgver=1.3.2
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'node-js'
+)
+
+sources=(
+"https://github.com/yarnpkg/yarn/releases/download/v$pkgver/yarn-v$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-v${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-v${pkgver}"
+	install -dm755  "$fakeroot_dir"/usr/lib/node_modules/yarn
+  	cp -R * "$fakeroot_dir"/usr/lib/node_modules/yarn
+
+  	install -dm755 "$fakeroot_dir"/usr/bin
+  	ln -s /usr/lib/node_modules/yarn/bin/yarn.js "$fakeroot_dir"/usr/bin/yarn
+  	ln -s /usr/lib/node_modules/yarn/bin/yarn.js "$fakeroot_dir"/usr/bin/yarnpkg
+}

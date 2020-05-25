@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=alsa-plugins
+pkgver=1.1.8
+
+dependencies=(
+    "!$pkgname"
+	'alsa-lib'
+	'pulseaudio'
+)
+sources=(
+	"ftp://ftp.alsa-project.org/pub/plugins/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

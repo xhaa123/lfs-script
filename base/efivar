@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=efivar
+pkgver=git
+giturl=https://github.com/rhinstaller/efivar
+
+dependencies=(
+    "!$pkgname"
+	'popt'
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	sed 's|-O0|-Os|g' -i Make.defaults || true	
+	sed 's|-rpath,$(TOPDIR)/src|-rpath,$(libdir)|g' -i src/test/Makefile || true
+		
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}"
+	make libdir="/usr/lib/" bindir="/usr/bin/" mandir="/usr/share/man/" includedir="/usr/include/" V=1 -j1
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make -j1 V=1 DESTDIR="${fakeroot_dir}/" libdir="/usr/lib/" bindir="/usr/bin/" mandir="/usr/share/man/" includedir="/usr/include/" install
+}

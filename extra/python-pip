@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=python-pip
+_pkgname=pip
+pkgver=9.0.1
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'Python3'
+	'python-setuptools'
+)
+sources=(
+	"https://pypi.io/packages/source/p/pip/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python3 setup.py build
+	python3 setup.py install --prefix=/usr --root="$fakeroot_dir"
+}
+

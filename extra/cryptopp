@@ -1,0 +1,42 @@
+pkgbuild_version=5
+pkgname=cryptopp
+pkgver=git
+giturl=https://github.com/weidai11/cryptopp
+
+dependencies=(
+    "!$pkgname"
+
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	CXXFLAGS+=" -DNDEBUG -fPIC" make -f GNUmakefile-cross
+	make libcryptopp.so
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	install -d ${fakeroot_dir}/usr/{lib/pkgconfig,include/cryptopp}
+  	install -m644 *.h ${fakeroot_dir}/usr/include/cryptopp/
+  	install -m644 libcryptopp.so "${fakeroot_dir}/usr/lib/libcryptopp.so"
+cat > "${fakeroot_dir}/usr/lib/pkgconfig/libcrypto++.pc" <<EOF
+
+prefix=/usr
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libcrypto++-5.6.5
+Description: Class library of cryptographic schemes
+Version: 5.6.5
+Libs: -L${libdir} -lcryptopp
+Cflags: -I${includedir} 
+EOF
+
+}

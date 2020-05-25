@@ -1,0 +1,53 @@
+pkgbuild_version=5
+pkgname=google-chrome-beta
+pkgver=current
+
+
+dependencies=(
+    "!$pkgname"
+#	'cups'
+#	'gconf'
+	'atk'
+	'gtk+2'
+	'gtk+3'
+)
+sources=(
+	"https://dl.google.com/linux/direct/${pkgname}_${pkgver}_amd64.deb"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	mkdir $build_dir/chrome
+	cd $build_dir/chrome
+	cp $sources_dir/"${pkgname}_${pkgver}_amd64.deb" .
+	echo "Extracting the package"
+	ar x "${pkgname}_${pkgver}_amd64.deb"
+  	tar -xvf data.tar.xz
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+
+	mkdir -pv "$fakeroot_dir"/{opt,usr}
+	cd "$build_dir"/chrome
+	cp -R opt "$fakeroot_dir"/
+	cp -R usr "$fakeroot_dir"/
+	echo "Fixing icons"
+	for i in 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256; do
+	install -Dm644 opt/google/chrome-beta/product_logo_${i/x*}_beta.png \
+	"$fakeroot_dir"/usr/share/icons/hicolor/$i/apps/google-chrome-beta.png
+	done
+	echo "Removing Debian Cron job and duplicate product logos"
+	rm -r "$fakeroot_dir"/opt/google/chrome-beta/cron/
+	rm "$fakeroot_dir"/opt/google/chrome-beta/product_logo_*.png
+	chmod 4755 "${fakeroot_dir}/opt/google/chrome-beta/chrome-sandbox"
+	echo "Removing source file"
+	rm $sources_dir/"${pkgname}_${pkgver}_amd64.deb"
+}
+
+

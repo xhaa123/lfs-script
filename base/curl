@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=curl
+pkgver=7.65.3
+
+dependencies=(
+    "!$pkgname"
+    'openssl'
+    'zlib'
+)
+sources=(
+    "https://curl.haxx.se/download/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure --prefix=/usr     \
+    	--disable-static    \
+    	--enable-threaded-resolver \
+	--with-ca-path=/etc/ssl/certs
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR=${fakeroot_dir} install
+}
+
+# vim:set syntax=sh et:

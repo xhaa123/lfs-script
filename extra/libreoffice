@@ -1,0 +1,105 @@
+pkgbuild_version=5
+pkgname=libreoffice
+kgver=6.2.3.2
+dependencies=(
+    	"!$pkgname"
+	'glibc'
+	'Archive-Zip'
+	'unzip'
+	'wget'
+	'which'
+	'zip'
+	'boost'
+	'cups'
+	'curl'
+	'dbus-glib'
+	'libjpeg-turbo'
+	'glu'
+	'graphite2'
+	'gst-plugins-base'
+	'gtk+3'
+	'harfbuzz'
+	'icu'
+	'librsvg'
+	'libxml2'
+	'libxslt'
+	'mesa'
+	'neon'
+	'nss'
+	'openssl'
+	'gnutls'
+	'Python3'
+	'dconf'
+	'desktop-file-utils'
+	'nasm'
+	'telepathy-glib'
+)
+
+sources=(
+	"http://download.documentfoundation.org/libreoffice/src/${pkgver:0:5}/${pkgname}-${pkgver}.tar.xz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/libreoffice/make-pyuno-work-with-system-wide-module-install.diff"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" --no-overwrite-dir -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -e "/gzip -f/d"   \
+    	-e "s|.1.gz|.1|g" \
+    	-i bin/distro-install-desktop-integration
+
+	sed -e "/distro-install-file-lists/d" -i Makefile.in
+	patch -Np1 -i ${sources_dir}/make-pyuno-work-with-system-wide-module-install.diff
+	./autogen.sh --prefix=/usr      \
+             --sysconfdir=/etc          \
+             --with-vendor=eCORP        \
+             --with-lang='fr en-US'     \
+             --with-help                \
+             --with-myspell-dicts       \
+             --with-alloc=system        \
+             --without-junit            \
+	     --disable-postgresql-sdbc 	\
+             --without-system-dicts     \
+             --disable-odk              \
+	     --disable-avahi		\
+	     --without-java		\
+             --disable-firebird-sdbc    \
+             --enable-release-build=yes \
+             --enable-python=system     \
+             --with-system-boost        \
+             --with-system-cairo        \
+             --with-system-curl         \
+             --with-system-expat        \
+             --with-system-graphite     \
+             --with-system-harfbuzz     \
+             --with-system-icu          \
+             --with-system-jpeg         \
+             --with-system-lcms2        \
+             --with-system-libpng       \
+             --with-system-libxml       \
+             --with-system-neon         \
+             --with-system-nss          \
+             --with-system-openssl      \
+             --with-system-zlib
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed "s/check-if-root//" -i Makefile
+	sed -i 's/xlocale/locale/' \
+	workdir/UnpackedTarball/icu/source/i18n/digitlst.cpp
+	make build-nocheck
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" distro-pack-install
+}
+
+lfs_me_postinstall(){
+	update-desktop-database
+	gtk-update-icon-cache -f /usr/share/icons/hicolor
+}

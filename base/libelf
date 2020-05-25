@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=libelf
+_pkgname=elfutils
+pkgver=0.177
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	"https://sourceware.org/ftp/elfutils/${pkgver}/${_pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	#GCC 8 fix
+	#sed -e '/ALIGN_PRSTATUS)/{ 
+        #s/__attribute/attribute_packed &/
+        #s/packed, //}' \
+    	#-i backends/linux-core-note.c
+	
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	#fix warning treated as error
+	sed -i "s/-Werror//" src/Makefile
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" -C libelf install
+	install -vm644 config/libelf.pc ${fakeroot_dir}/usr/lib/pkgconfig
+}

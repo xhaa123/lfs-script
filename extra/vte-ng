@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=vte-ng
+pkgver=0.50.2.a
+
+dependencies=(
+    "!$pkgname"
+	'gtk-doc'
+)
+sources=(
+	"https://github.com/thestinger/vte-ng/archive/$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	 sed -i '/Werror/d' configure.ac
+	./autogen.sh --prefix=/usr --sysconfdir=/etc \
+      --libexecdir=/usr/lib/vte \
+      --localstatedir=/var --disable-static \
+      --enable-introspection
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

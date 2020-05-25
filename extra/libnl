@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=libnl
+pkgver=3.4.0
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"https://github.com/thom311/libnl/releases/download/libnl3_4_0/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --disable-static
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+}

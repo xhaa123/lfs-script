@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=loop-AES
+pkgver=3.7j
+
+dependencies=(
+	"!$pkgname"
+	'util-linux-aes'
+	'gnupg'
+)
+sources=(
+	"https://sourceforge.net/projects/loop-aes/files/loop-aes/v3.7j/${pkgname}-v${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-v${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-v${pkgver}"
+	make INTELAES=y
+}
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+
+	return
+}
+

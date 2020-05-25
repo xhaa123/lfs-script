@@ -1,0 +1,42 @@
+pkgbuild_version=5
+pkgname=gst-plugins-base
+pkgver=1.16.0
+
+dependencies=(
+    "!$pkgname"
+	'gstreamer'
+	'alsa-lib'
+	'cdparanoia'
+	'gobject-introspection'
+	'iso-codes'
+	'libogg'
+	'libtheora'
+	'libvorbis'
+	'xorg-libraries'
+)
+sources=(
+	"https://gstreamer.freedesktop.org/src/gst-plugins-base/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-examples 		    \
+            --with-package-name="GStreamer Base Plugins eCORP Linux" \
+            --with-package-origin="eCORP Linux"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

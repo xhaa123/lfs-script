@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=links
+pkgver=2.19
+
+dependencies=(
+    "!$pkgname"
+#	'gpm'
+	'openssl'
+	'libtiff'
+)
+sources=(
+	"http://links.twibright.com/download/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure --prefix=/usr --mandir=/usr/share/man \
+	--enable-graphics
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	install -v -d -m755 "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+	install -v -m644 doc/links_cal/* KEYS BRAILLE_HOWTO \
+	"${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+}
+
+# vim:set syntax=sh et:

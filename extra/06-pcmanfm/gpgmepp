@@ -1,0 +1,67 @@
+pkgbuild_version=5
+pkgname=gpgmepp
+pkgver=16.08.3
+
+dependencies=(
+	"!$pkgname"
+	'boost'
+	'extra-cmake-modules'
+	'docbook-xml'
+	'docbook-xsl-nons'
+	'giflib'
+	'libepoxy'
+	'libgcrypt'
+	'libjpeg-turbo'
+	'libpng'
+	'libxslt'
+	'lmdb'
+	'qtwebkit'
+	'phonon'
+	'shared-mime-info'
+	'URI'
+	'wget'
+	'aspell'
+	'avahi'
+	'libdbusmenu-qt'
+	'networkmanager'
+	'polkit-qt'
+	'bluez'
+	'modemmanager'
+	'oxygen-fonts'
+	'noto-fonts'
+)
+
+sources=(
+	"http://download.kde.org/stable/applications/${pkgver}/src/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+	dc2e62d3c4fe864ee4c0b6b5568bee8ca4900913
+)
+
+lfs_me_prepare() {
+    tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+    cd "${build_dir}/${pkgname}-${pkgver}"
+	cmake -DCMAKE_INSTALL_PREFIX=$KF5_PREFIX \
+            -DCMAKE_PREFIX_PATH=$QT5DIR        \
+            -DCMAKE_BUILD_TYPE=Release         \
+            -DLIB_INSTALL_DIR=lib              \
+            -DBUILD_TESTING=OFF                \
+            -Wno-dev .
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j5
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+    cd "${build_dir}/${pkgname}-${pkgver}"
+    make DESTDIR="$fakeroot_dir" install
+}
+
+# vim:set ts=4 syntax=sh:

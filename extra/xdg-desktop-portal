@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=xdg-desktop-portal
+pkgver=git
+giturl=https://github.com/flatpak/xdg-desktop-portal
+
+dependencies=(
+	"!$pkgname"
+	'flatpak'
+	'glib'
+	'pipewire'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	NOCONFIGURE=1 ./autogen.sh
+	./configure --prefix=/usr --libexecdir=/usr/lib
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+}

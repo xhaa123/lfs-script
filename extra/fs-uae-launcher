@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=fs-uae-launcher
+pkgver=git
+giturl=https://github.com/FrodeSolheim/fs-uae-launcher
+
+dependencies=(
+	"!$pkgname"
+	'fs-uae'
+	'python3-sip'
+	'pyqt5'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	sed '/OpenGL/d' -i setup.py
+	./bootstrap
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make install DESTDIR="${fakeroot_dir}" prefix=/usr
+
+	echo "install lhafile from pip3 for lha support"
+
+}

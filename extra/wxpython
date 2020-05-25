@@ -1,0 +1,52 @@
+pkgbuild_version=5
+pkgname=wxpython
+_pkgname=wxPython-src
+pkgver=3.0.2.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'Python2'
+	'wxgtk'
+	'glu'
+	'mesa'
+)
+
+sources=(
+	"https://downloads.sourceforge.net/wxpython/${_pkgname}-${pkgver}.tar.bz2"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/wxpython/fix-plot.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/wxPython-src-${pkgver}.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	find . -type f -exec sed -i 's/env python/env python2/' {} \;
+	patch -Np1 -i $sources_dir/fix-plot.patch
+	./configure \
+        --prefix=/usr \
+        --libdir=/usr/lib \
+        --includedir=/usr/include \
+        --with-gtk=2 \
+        --with-opengl \
+        --enable-unicode \
+        --enable-graphics_ctx \
+        --disable-precomp-headers \
+        --with-regex=sys \
+        --with-libpng=sys \
+        --with-libxpm=sys \
+        --with-libjpeg=sys \
+        --with-libtiff=sys
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/wxPython"
+    	python2 setup.py WXPORT=gtk2 UNICODE=1 build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/wxPython"
+	python2 setup.py WXPORT=gtk2 UNICODE=1 install --root="${fakeroot_dir}"
+}

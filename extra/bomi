@@ -1,0 +1,47 @@
+pkgbuild_version=5
+pkgname=bomi
+pkgver=git
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'libbluray'
+	'libchardet'
+	'ffmpeg'
+	'qt'
+	'libdvdread'
+	'libdvdnav'
+	'pulseaudio'
+	'fribidi'
+	'libass'
+	'libcdio'
+	'cdparanoia'
+	'libvdpau'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://github.com/d-s-x/bomi/
+	cd "${build_dir}/${pkgname}"
+	./configure --prefix=/usr
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DEST_DIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall(){
+	gtk-update-icon-cache -f /usr/share/icons/hicolor
+}

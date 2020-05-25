@@ -1,0 +1,58 @@
+pkgbuild_version=5
+pkgname=xine-lib
+pkgver=1.2.9
+
+dependencies=(
+	"!$pkgname"
+	'xorg-server'
+	'ffmpeg'
+	'pulseaudio'
+	'libdvdnav'
+	'aalib'
+	'faad2'
+	'flac'
+	'gdk-pixbuf'
+	'glu'
+	'imagemagick'
+	'liba52'
+	'libmad'
+	'libmng'
+	'libtheora'
+	'libvdpau'
+	'libvorbis'
+	'libvpx'
+	'mesa'
+	'sdl'
+	'speex'
+	'v4l-utils'
+)
+sources=(
+	"https://downloads.sourceforge.net/xine/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	sed -e 's|wand/magick_wand.h|MagickWand/MagickWand.h|' \
+    	-i src/video_dec/image.c
+
+	sed -e 's/\(xcb-shape >= 1.0\)/xcb \1/' \
+    	-i m4/video_out.m4
+
+	./configure --prefix=/usr          \
+        --disable-vcd          \
+        --with-external-dvdnav \
+        --docdir=/usr/share/doc/xine-lib-${pkgver}
+
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

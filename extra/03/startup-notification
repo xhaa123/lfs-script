@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=startup-notification
+pkgver=0.12
+
+dependencies=(
+	"!$pkgname"
+	'xorg-libraries'
+	'xcb-util'
+
+)
+sources=(
+	"http://www.freedesktop.org/software/${pkgname}/releases/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure --prefix=/usr --disable-static
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+
+	install -v -D doc/startup-notification.txt \
+        "${fakeroot_dir}/usr/share/doc/startup-notification-${pkgver}/startup-notification.txt"
+}
+
+# vim:set ts=4 syntax=sh:

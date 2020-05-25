@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=libwebp
+pkgver=1.0.3
+
+dependencies=(
+    "!$pkgname"
+	'libjpeg-turbo'
+	'libpng'
+	'libtiff'
+	'freeglut'
+	'giflib'
+)
+sources=(
+	"http://downloads.webmproject.org/releases/webp/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr           \
+            --enable-libwebpmux     \
+            --enable-libwebpdemux   \
+            --enable-libwebpdecoder \
+            --enable-libwebpextras  \
+            --enable-swap-16bit-csp \
+            --disable-static
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

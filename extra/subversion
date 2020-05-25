@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=subversion
+pkgver=1.12.2
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'apr-util'
+	'sqlite'
+	'serf'
+	'lz4'
+)
+
+sources=(
+	"https://archive.apache.org/dist/subversion/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--disable-static	  \
+	--with-utf8proc=internal  \
+	--with-apache-libexecdir
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	export LD_LIBRARY_PATH="${fakeroot_dir}"/usr/lib:${LD_LIBRARY_PATH}
+	make DESTDIR="$fakeroot_dir" install
+}

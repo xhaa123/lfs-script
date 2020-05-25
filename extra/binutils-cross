@@ -1,0 +1,58 @@
+pkgbuild_version=5
+pkgname=binutils-cross
+_pkgname=binutils
+pkgver=2.27
+
+
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'zlib'
+)
+sources=(
+	"https://ftp.gnu.org/gnu/${_pkgname}/${_pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+	7ac75404ddb3c4910c7594b51ddfc76d4693debb
+	7e0350ed0ce3ca2037e84cbe14f0d27398a0fd98
+	4728ea12b44834bad839ec2243145c9bf00c7d1f
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+
+
+
+	mkdir "../${_pkgname}-build"
+	cd "../${_pkgname}-build"
+
+	"../${_pkgname}-${pkgver}/configure" \
+				--prefix=/opt/cross	\
+				--target=i686-elf	\
+				--with-sysroot \
+				--disable-nls \
+				--disable-werror
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-build"
+	make
+}
+
+lfs_me_check() {
+	cd "${build_dir}/${_pkgname}-build"
+	make -k check
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-build"
+	make DESTDIR="$fakeroot_dir" install
+
+}
+
+# vim:set syntax=sh et:

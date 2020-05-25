@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=libchamplain
+pkgver=0.12.14
+
+dependencies=(
+    "!$pkgname"
+	'clutter'
+	'gtk+3'
+	'libsoup'
+	'clutter-gtk'
+	'gobject-introspection'
+	'vala'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/libchamplain/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr    \
+            --enable-vala    \
+            --disable-static
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" DOCDIR="/usr/share/doc/${pkgname}-${pkgver}" install
+}
+

@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=python-requests
+_pkgname=requests
+pkgver=2.18.4
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'python-setuptools'
+)
+sources=(
+	"https://github.com/kennethreitz/requests/archive/v${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+	return
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python3 setup.py build
+	python3 setup.py install -O1 --root="$fakeroot_dir" 
+}
+

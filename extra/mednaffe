@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=mednaffe
+pkgver=0.8.4
+
+dependencies=(
+    "!$pkgname"
+	'mednafen'
+	'gtk+3'
+)
+sources=(
+	"https://sites.google.com/site/amatcoder/mednaffe/downloads/$pkgname-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --enable-gtk3
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make prefix="$fakeroot_dir"/usr install
+}
+

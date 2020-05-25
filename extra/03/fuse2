@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=fuse2
+_pkgname=fuse
+pkgver=2.9.7
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"https://github.com/libfuse/libfuse/releases/download/${_pkgname}-${pkgver}/${_pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr    \
+            --disable-static \
+            --exec-prefix=/ 
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+
+	rm -rf  "${fakeroot_dir}/tmp/init.d"
+
+	install -v -m755 -d "${fakeroot_dir}/usr/share/doc/fuse-${pkgver}"
+}

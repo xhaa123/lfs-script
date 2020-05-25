@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=seahorse
+pkgver=git
+giturl=https://github.com/GNOME/seahorse
+LC_ALL=en_US.UTF-8
+
+dependencies=(
+	"!$pkgname"
+	'gtk+3'
+	'gcr'
+	'libsecret'
+	'libsoup'
+	'desktop-file-utils'
+	'dconf'
+	'gpgme'
+	'gnome-keyring'
+	'gobject-introspection'
+	'openssh'
+	'vala'
+	'git'
+	'openldap'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	mkdir build
+	cd build
+	meson --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}/build"
+	ninja
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	DESTDIR=${fakeroot_dir} ninja install
+}
+
+lfs_me_postinstall() {
+	glib-compile-schemas /usr/share/glib-2.0/schemas/
+}

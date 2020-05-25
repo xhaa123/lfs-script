@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=unrar
+pkgver=5.7.5
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"http://www.rarlab.com/rar/unrarsrc-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/unrarsrc-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/unrar"
+	make -f makefile
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/unrar"
+	mkdir -p ${fakeroot_dir}/usr/bin
+	install -v -m755 unrar ${fakeroot_dir}/usr/bin
+
+
+}
+

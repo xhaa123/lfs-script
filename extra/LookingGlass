@@ -1,0 +1,27 @@
+pkgbuild_version=5
+pkgname=LookingGlass
+pkgver=git
+giturl=httpss://github.com/gnif/LookingGlass
+
+dependencies=(
+	"!$pkgname"
+	'sdl2-ttf'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	cd client
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/client"
+	install -Dm755 bin/looking-glass-client "${fakeroot_dir}/usr/bin/looking-glass-client"
+}

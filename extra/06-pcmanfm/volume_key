@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=volume_key
+pkgver=0.3.11
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'cryptsetup'
+	'glib'
+	'gpgme'
+	'Python2'
+	'nss'
+)
+
+sources=(
+	"https://releases.pagure.org/volume_key/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	sed -i '/config.h/d' ${fakeroot_dir}/usr/include/volume_key/libvolume_key.h
+}

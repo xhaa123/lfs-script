@@ -1,0 +1,42 @@
+pkgbuild_version=5
+pkgname=libblockdev
+pkgver=2.21
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'libbytesize'
+	'parted'
+	'volume_key'
+	'gobject-introspection'
+	'yaml'
+)
+
+sources=(
+	"https://github.com/storaged-project/libblockdev/releases/download/${pkgver}-1/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --with-python3    \
+	    --without-nvdimm  \
+            --without-gtk-doc \
+            --without-dm  
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

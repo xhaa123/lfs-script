@@ -1,0 +1,50 @@
+pkgbuild_version=5
+pkgname=xdriinfo
+pkgver=1.0.6
+
+dependencies=(
+	"!$pkgname"
+	'xorg-build-environment'
+	'libpng'
+	'mesa'
+	'xbitmaps'
+	'xcb-util'
+	'Linux-PAM'
+)
+
+sources=(
+	"https://xorg.freedesktop.org/releases/individual/app/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+	11682ae1f04a311b832651d78bbf4c6ac77f0ed9
+)
+
+lfs_me_prepare() {
+    tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+    cd "${build_dir}/${pkgname}-${pkgver}"
+	
+	if [[ "$pkgname" == "luit" ]]; then
+	 sed -i -e "/D_XOPEN/s/5/6/" configure
+	fi
+#	if [[ "$pkgname" == "sessreg" ]]; then
+#
+#	sed -e 's/\$(CPP) \$(DEFS)/$(CPP) -P $(DEFS)/' -i man/Makefile.in
+#	fi
+
+	./configure $XORG_CONFIG
+}
+
+lfs_me_build() {
+    return
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+    cd "${build_dir}/${pkgname}-${pkgver}"
+    make DESTDIR="$fakeroot_dir" install
+}
+# vim:set ts=4 syntax=sh:

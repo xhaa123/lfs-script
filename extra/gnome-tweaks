@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=gnome-tweaks
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://gitlab.gnome.org/GNOME/gnome-tweaks.git
+	cd "${build_dir}/${pkgname}"
+	mkdir build
+	cd build
+	meson --prefix=/usr ..
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}/build"
+	ninja
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	DESTDIR="$fakeroot_dir" ninja install
+}
+
+lfs_me_postinstall () {
+	gtk-update-icon-cache /usr/share/icons/hicolor
+}

@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=NetworkManager-openconnect
+pkgver=git
+giturl=https://gitlab.gnome.org/GNOME/NetworkManager-openconnect
+
+dependencies=(
+	"!$pkgname"
+	'openconnect'
+	'libsecret'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	NOCONFIGURE=1 ./autogen.sh
+	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    	--libexecdir=/usr/lib --disable-static
+  	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+}

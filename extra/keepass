@@ -1,0 +1,81 @@
+pkgbuild_version=5
+pkgname=keepass
+pkgver=2.38
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'mono'
+	'desktop-file-utils'
+	'xdg-utils'
+	'shared-mime-info'
+	'xsel'
+	'xdotool'
+)
+sources=(
+	"http://downloads.sourceforge.net/keepass/KeePass-$pkgver-Source.zip"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	unzip ${sources_dir}/KeePass-$pkgver-Source.zip -d ${build_dir}/${pkgname}-${pkgver}
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	icotool -x KeePass/KeePass.ico
+	pushd Build &>/dev/null
+  	LANG=en_US.UTF-8 bash PrepMonoDev.sh
+  	popd &>/dev/null
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	xbuild /target:KeePass /property:Configuration=Release
+  	cp Ext/KeePass.exe.config Build/KeePass/Release/
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -dm755 "$fakeroot_dir"/usr/bin
+  	install -dm755 "$fakeroot_dir"/usr/share/keepass/XSL
+
+  	install -Dm755 Build/KeePass/Release/KeePass.exe "$fakeroot_dir"/usr/share/keepass/KeePass.exe
+  	install -Dm755 Ext/KeePass.config.xml "$fakeroot_dir"/usr/share/keepass/KeePass.config.xml
+  	install -Dm755 Ext/KeePass.exe.config "$fakeroot_dir"/usr/share/keepass/KeePass.exe.config
+
+  	install -m644 Ext/XSL/* "$fakeroot_dir"/usr/share/keepass/XSL
+cat > ${fakeroot_dir}/usr/bin/keepass << EOF
+#!/bin/sh
+exec mono --verify-all /usr/share/keepass/KeePass.exe "$@"
+EOF
+	chmod +x ${fakeroot_dir}/usr/bin/keepass
+
+cat > keepass.desktop << EOF
+[Desktop Entry]
+Type=Application
+Name=KeePass Password Safe
+GenericName=Cross-platform password manager
+Comment=The free, open source, light-weight and easy-to-use password manager
+Exec=keepass
+Icon=keepass
+MimeType=application/x-keepass2;
+Terminal=false
+StartupNotify=false
+Categories=Utility;
+StartupWMClass=KeePass2
+EOF
+
+
+# Proper installation of .desktop file
+  	desktop-file-install -m 644 --dir "$fakeroot_dir"/usr/share/applications/ keepass.desktop
+
+# Install icons
+  	for size in 16 32 48 256; do
+    	install -Dm644 \
+    	KeePass_*_${size}x${size}x32.png \
+    	"$fakeroot_dir"/usr/share/icons/hicolor/${size}x${size}/apps/keepass.png
+  	done
+
+  	# Needed for postinst with xdg-utils
+#  	install -Dm644 keepass.xml "$fakeroot_dir"/usr/share/mime/packages/keepass.xml
+}

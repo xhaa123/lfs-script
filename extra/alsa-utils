@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=alsa-utils
+pkgver=1.1.8
+
+dependencies=(
+	"!$pkgname"
+	'alsa-lib'
+)
+sources=(
+	"ftp://ftp.alsa-project.org/pub/utils/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+./configure --disable-alsaconf \
+            --disable-bat   \
+            --with-curses=ncursesw
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+
+}

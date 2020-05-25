@@ -1,0 +1,46 @@
+pkgbuild_version=5
+pkgname=gst-plugins-good
+pkgver=1.16.0
+
+dependencies=(
+    "!$pkgname"
+	'gst-plugins-base'
+	'cairo'
+	'flac'
+	'gdk-pixbuf'
+	'libjpeg-turbo'
+	'libpng'
+	'libsoup'
+	'libvpx'
+	'xorg-libraries'
+	'aalib'
+	'libdv'
+	'libgudev'
+	'pulseaudio'
+	'speex'
+	'taglib'
+)
+sources=(
+	"https://gstreamer.freedesktop.org/src/gst-plugins-good/${pkgname}-${pkgver}.tar.xz"
+	"http://www.linuxfromscratch.org/patches/blfs/8.4/gst-plugins-good-1.14.4-vpx_1.8-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	patch -Np1 -i $sources_dir/gst-plugins-good-1.14.4-vpx_1.8-1.patch
+	autoreconf -fvi
+	./configure --prefix=/usr \
+        --with-package-name="GStreamer Good Plugins eCORP Linux" \
+        --with-package-origin="eCORP Linux"
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

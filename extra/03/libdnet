@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=libdnet
+pkgver=1.12
+
+dependencies=(
+    "!$pkgname"
+	'pyrex'
+	'Python2'
+)
+sources=(
+	"https://github.com/dugsong/libdnet/archive/${pkgname}-${pkgver}.tar.gz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/libdnet/libdnet-1.12.pyrex2.7.patch"	
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgname}-${pkgver}"
+	patch -p0 <"${sources_dir}"/libdnet-1.12.pyrex2.7.patch
+	rm -f python/dnet.c
+	autoreconf -I config --force --install
+	./configure --prefix=/usr --sbindir=/usr/bin
+	pyrexc python/dnet.pyx
+}
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	cd python
+	python2 setup.py install --root="${fakeroot_dir}"
+}
+

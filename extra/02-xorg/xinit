@@ -1,0 +1,46 @@
+pkgbuild_version=5
+pkgname=xinit
+pkgver=1.4.1
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"https://xorg.freedesktop.org/releases/individual/app/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure $XORG_CONFIG --with-xinitdir=/etc/X11/app-defaults
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+
+	cat > xserverrc << "EOF"
+#!/bin/sh
+if [ -z "$XDG_VTNR" ]; then
+	exec /usr/bin/X -nolisten tcp "$@"
+else
+	exec /usr/bin/X -nolisten tcp "$@" vt$XDG_VTNR
+fi
+EOF
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	install -v -D xserverrc "${fakeroot_dir}/etc/X11/xinit/xserverrc"
+}
+
+# vim:set ts=4 syntax=sh:

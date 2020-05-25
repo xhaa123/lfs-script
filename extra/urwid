@@ -1,0 +1,34 @@
+pkgbuild_version=5
+pkgname=urwid
+pkgver=1.3.1
+
+dependencies=(
+    "!$pkgname"
+	'Python2'
+	
+)
+sources=(
+	"https://pypi.python.org/packages/source/u/urwid/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	 python setup.py build
+
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	python setup.py install --prefix=/usr --root="$fakeroot_dir" --optimize=1
+}
+

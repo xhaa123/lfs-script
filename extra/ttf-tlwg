@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=ttf-tlwg
+pkgver=0.6.1
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+
+"https://linux.thai.net/pub/thailinux/software/thai-ttf/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+}
+
+lfs_me_build() {
+return
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	install -d "${fakeroot_dir}/usr/share/fonts/TTF"
+	install -d "${fakeroot_dir}/etc/fonts/conf.avail"
+
+	install -m644 *.ttf "${fakeroot_dir}/usr/share/fonts/TTF"
+	install -m644 etc/fonts/conf.avail/* "${fakeroot_dir}/etc/fonts/conf.avail"
+
+}
+
+lfs_me_postinstall() {
+	fc-cache -s > /dev/null
+	mkfontscale /usr/share/fonts/TTF
+	mkfontdir /usr/share/fonts/TTF
+}
+
+# vim:set ts=4 syntax=sh:

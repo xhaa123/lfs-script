@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=exfat-nofuse
+pkgver=git
+giturl=https://github.com/dorimanx/exfat-nofuse
+
+dependencies=(
+	"!$pkgname"
+
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	install -m644 -b -D exfat.ko ${fakeroot_dir}/lib/modules/$(uname -r)/kernel/fs/exfat/exfat.ko
+}
+
+lfs_me_postinstall() {
+	depmod -a
+}
+

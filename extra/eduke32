@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=eduke32
+pkgver=20180117-6582
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	"http://dukeworld.duke4.net/eduke32/synthesis/latest/${pkgname}_src_${pkgver}.tar.xz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/eduke32/eduke32.desktop"
+	"https://github.com/fanboimsft/lfs-script/raw/master/patches/eduke32/eduke32.png"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}_src_${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}_${pkgver}"
+	return
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}_${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}_${pkgver}"
+	install -d "$fakeroot_dir"/usr/bin
+  	install -m755 eduke32 mapster32 "$fakeroot_dir"/usr/bin
+  	install -Dm644 ${sources_dir}/$pkgname.png "$fakeroot_dir"/usr/share/pixmaps/$pkgname.png
+  	install -Dm644 ${sources_dir}/$pkgname.desktop "$fakeroot_dir"/usr/share/applications/$pkgname.desktop
+
+}

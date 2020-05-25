@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=iasl
+pkgver=20180531
+
+dependencies=(
+	"!$pkgname"
+	"flex"
+	"bison"
+)
+sources=(
+"http://acpica.org/sites/acpica/files/acpica-unix-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/acpica-unix-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/acpica-unix-${pkgver}"
+	return
+}
+
+lfs_me_build() {
+	cd "${build_dir}/acpica-unix-${pkgver}"
+	make clean
+	export CFLAGS="${CFLAGS} -Wno-error=format-overflow"
+	make
+	return
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/acpica-unix-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+}
+
+# vim:set ts=4 syntax=sh:

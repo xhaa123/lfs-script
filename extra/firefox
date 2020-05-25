@@ -1,0 +1,157 @@
+pkgbuild_version=5
+pkgname=firefox
+pkgver=67.0.1
+link=3db9e3d52b17563efca181ccbb50deb8660c59ae
+
+dependencies=(
+    "!$pkgname"
+	'alsa-lib'
+	'autoconf-firefox'
+	'gtk+3'
+	'gtk+2'
+	'nss'
+	'unzip'
+	'yasm'
+	'zip'
+	'icu'
+	'libevent'
+	'sqlite'
+	'curl'
+	'dbus-glib'
+	'gconf'
+	'libwebp'
+	'ffmpeg'
+	'pulseaudio'
+	'startup-notification'
+	'wget'
+	'liboauth'
+	'rustc'
+	'llvm'
+	'cbindgen'
+	'node-js'
+)
+sources=(
+"https://archive.mozilla.org/pub/firefox/releases/$pkgver/source/firefox-$pkgver.source.tar.xz"
+#"http://www.linuxfromscratch.org/patches/blfs/svn/firefox-${pkgver}-system_graphite2_harfbuzz-1.patch"
+#"http://www.linuxfromscratch.org/patches/blfs/svn/firefox-$pkgver-ffmpeg4.0-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/firefox-$pkgver.source.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/firefox-$pkgver"
+
+	cat > mozconfig << "EOF"
+# If you have a multicore machine, all cores will be used by default.
+# If desired, you can reduce the number of cores used, e.g. to 1, by
+# uncommenting the next line and setting a valid number of CPU cores.
+#mk_add_options MOZ_MAKE_FLAGS="-j1"
+
+# If you have installed dbus-glib, comment out this line:
+#ac_add_options --disable-dbus
+
+# If you have installed dbus-glib, and you have installed (or will install)
+# wireless-tools, and you wish to use geolocation web services, comment out
+# this line
+ac_add_options --disable-necko-wifi
+
+# Uncomment these lines if you have installed optional dependencies:
+#ac_add_options --enable-system-hunspell
+ac_add_options --enable-startup-notification
+
+# Comment out following option if you have PulseAudio installed
+#ac_add_options --disable-pulseaudio
+
+# If you have installed GConf, comment out this line
+#ac_add_options --disable-gconf
+
+# Comment out following options if you have not installed
+# recommended dependencies:
+ac_add_options --enable-system-sqlite
+ac_add_options --with-system-libevent
+#ac_add_options --with-system-libvpx
+ac_add_options --with-system-nspr
+ac_add_options --with-system-nss
+#ac_add_options --with-system-icu
+
+# The gold linker is no-longer the default
+ac_add_options --enable-linker=gold
+
+# If you are going to apply the patch for system graphite
+# and system harfbuzz, uncomment these lines:
+#ac_add_options --with-system-graphite2
+#ac_add_options --with-system-harfbuzz
+
+# Stripping is now enabled by default.
+# Uncomment these lines if you need to run a debugger:
+#ac_add_options --disable-strip
+#ac_add_options --disable-install-strip
+
+# The BLFS editors recommend not changing anything below this line:
+ac_add_options --prefix=/usr
+ac_add_options --enable-application=browser
+
+ac_add_options --disable-crashreporter
+ac_add_options --disable-updater
+ac_add_options --disable-tests
+
+ac_add_options --enable-optimize="-O2"
+
+ac_add_options --enable-official-branding
+
+# From firefox-40, using system cairo causes firefox to crash
+# frequently when it is doing background rendering in a tab.
+ac_add_options --enable-system-ffi
+ac_add_options --enable-system-pixman
+
+ac_add_options --with-system-bz2
+ac_add_options --with-system-jpeg
+ac_add_options --with-system-png
+ac_add_options --with-system-zlib
+
+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/firefox-build-dir
+EOF
+
+#	patch -Np1 -i ${sources_dir}/firefox-${pkgver}-system_graphite2_harfbuzz-1.patch
+#	patch -Np1 -i ${sources_dir}/firefox-$pkgver-ffmpeg4.0-1.patch
+}
+
+lfs_me_build(){
+	cd "${build_dir}/firefox-$pkgver"
+	export CC=clang CXX=clang++ AR=llvm-ar NM=llvm-nm RANLIB=llvm-ranlib
+	./mach build
+	unset CC CXX AR NM RANLIB
+}
+
+lfs_me_install() {
+	cd "${build_dir}/firefox-$pkgver"
+	DESTDIR="$fakeroot_dir" ./mach install
+	chown -R 0:0 ${fakeroot_dir}/usr/lib/firefox
+	mkdir -pv    ${fakeroot_dir}/usr/lib/mozilla/plugins
+	ln    -sfv /usr/lib/mozilla/plugins ${fakeroot_dir}/usr/lib/firefox/browser/
+
+	mkdir -pv ${fakeroot_dir}/usr/share/applications
+	mkdir -pv ${fakeroot_dir}/usr/share/pixmaps
+
+	ln -sfv /usr/lib/firefox/browser/chrome/icons/default/default128.png \
+        ${fakeroot_dir}/usr/share/pixmaps/firefox.png
+
+cat > cat > ${fakeroot_dir}/usr/share/applications/firefox.desktop << "EOF"
+[Desktop Entry]
+Encoding=UTF-8
+Name=Firefox Web Browser
+Comment=Browse the World Wide Web
+GenericName=Web Browser
+Exec=firefox %u
+Terminal=false
+Type=Application
+Icon=firefox
+Categories=GNOME;GTK;Network;WebBrowser;
+MimeType=application/xhtml+xml;text/xml;application/xhtml+xml;application/vnd.mozilla.xul+xml;text/mml;x-scheme-handler/http;x-scheme-handler/https;
+StartupNotify=true
+EOF
+
+}

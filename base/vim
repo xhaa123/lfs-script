@@ -1,0 +1,62 @@
+pkgbuild_version=5
+pkgname=vim
+pkgver=8.1.1846
+
+dependencies=(
+    "!$pkgname"
+    'ncurses'
+    'perl'
+    'gawk'
+)
+sources=(
+    "https://github.com/vim/vim/archive/v${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	#remove the save the children message in version .c
+	sed -i s/"Help poor children in Uganda!"/"eCORP"/ src/version.c
+	echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+#	ln -sv vim ${fakeroot_dir}/usr/bin/vi
+	for L in  ${fakeroot_dir}/usr/share/man/{,*/}man1/vim.1; do
+    	ln -sv vim.1 $(dirname $L)/vi.1
+	done
+
+
+}
+
+lfs_me_postinstall(){
+cat > /etc/vimrc << "EOF"
+" Begin /etc/vimrc
+
+set nocompatible
+set backspace=2
+syntax on
+if (&term == "iterm") || (&term == "putty")
+  set background=dark
+endif
+
+" End /etc/vimrc
+EOF
+}
+
+
+# vim:set syntax=sh et:

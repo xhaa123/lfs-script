@@ -1,0 +1,70 @@
+pkgbuild_version=5
+pkgname=gzdoom
+pkgver=3.2.4
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'libgme'
+	'sdl2'
+	'libjpeg-turbo'
+	'cmake'
+	'desktop-file-utils'
+	'fluidsynth'
+	'gtk+3'
+	'openal'
+)
+
+sources=(
+	"https://github.com/coelckers/gzdoom/archive/g${pkgver}.tar.gz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/gzdoom/fluidsynth-path.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/g${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-g${pkgver}"
+	patch -p1 -i ${sources_dir}/fluidsynth-path.patch
+	cmake -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_C_FLAGS="$CFLAGS -DSHARE_DIR=/usr/share/doom \
+          -DCMAKE_CXX_FLAGS="$CXXFLAGS -DSHARE_DIR=/usr/share/doom \
+          -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS -Wl,-z,noexecstack" \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DINSTALL_PATH=bin \
+          -DINSTALL_PK3_PATH=share/doom .
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-g${pkgver}"
+	make -j5
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-g${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	install -D -m644 gzdoom.sf2 ${fakeroot_dir}/usr/share/doom
+	
+	install -D -m644 src/posix/zdoom.xpm \
+            "$fakeroot_dir"/usr/share/icons/hicolor/48x48/apps/gzdoom.xpm
+			
+	mkdir -pv ${fakeroot_dir}/usr/share/applications/
+	cat > ${fakeroot_dir}/usr/share/applications/gzdoom.desktop <<EOF
+	[Desktop Entry]
+Type=Application
+Version=1.0
+Name=GZDoom
+GenericName=Advanced Doom source port with OpenGL support
+Icon=gzdoom
+Exec=gzdoom %F
+Terminal=false
+MimeType=application/x-doom-wad;
+Categories=Game;ActionGame;
+EOF
+
+}
+
+lfs_me_postinstall() {
+        gtk-update-icon-cache /usr/share/icons/hicolor
+}

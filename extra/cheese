@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=cheese
+pkgver=3.32.1
+
+dependencies=(
+    "!$pkgname"
+	'clutter-gst'
+	'clutter-gtk'
+	'gnome-desktop'
+	'gnome-video-effects'
+	'gst-plugins-bad'
+	'gst-plugins-good'
+	'itstool'
+	'libcanberra'
+	'libgudev'
+	'librsvg'
+	'gobject-introspection'
+	'vala'
+	'appstream-glib'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/cheese/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

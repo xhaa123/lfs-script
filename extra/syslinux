@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=syslinux
+pkgver=6.03
+
+dependencies=(
+    	"!$pkgname"
+	'util-linux'
+	'dosfstools'
+	'efibootmgr'	
+)
+
+sources=(
+	"https://cdn.kernel.org/pub/linux/utils/boot/syslinux/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	truncate --size 0 mk/devel.mk
+	export LDFLAGS+=--no-dynamic-linker
+	export EXTRA_CFLAGS=-fno-PIE 
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make bios efi64 install INSTALLROOT=${fakeroot_dir}
+
+	install -d "$fakeroot_dir"/usr/lib/syslinux/bios
+#  	mv "$fakeroot_dir"/usr/lib/syslinux/{*.bin,*.c32,*.0,memdisk} "$fakeroot_dir"/usr/lib/syslinux/bios
+}
+

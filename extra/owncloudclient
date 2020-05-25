@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=owncloudclient
+pkgver=2.5.0.10650
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'extra-cmake-modules'
+	'qtkeychain'
+	'gnome-keyring'
+)
+sources=(
+	"https://download.owncloud.com/desktop/stable/$pkgname-$pkgver.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	cmake .. \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DCMAKE_BUILD_TYPE=Release \
+	-DNO_SHIBBOLETH=1	   \
+        -DCMAKE_INSTALL_SYSCONFDIR=/etc/$pkgname
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall(){
+	gtk-update-icon-cache -f /usr/share/icons/hicolor
+}

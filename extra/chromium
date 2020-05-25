@@ -1,0 +1,172 @@
+pkgbuild_version=5
+pkgname=chromium
+pkgver=64.0.3282.167
+
+dependencies=(
+	"!$pkgname"
+	'alsa-lib'
+	'cups'
+	'desktop-file-utils'
+	'dbus'
+	'gtk+2'
+	'hicolor-icon-theme'
+	'krb5'
+	'mesa'
+	'ninja'
+	'nss'
+	'Python2'
+	'usbutils'
+	'flac'
+	'git'
+	'libevent'
+	'libexif'
+	'libsecret'
+	'libwebp'
+	'pciutils'
+	'pulseaudio'
+	'xdg-utils'
+	'yasm'
+	'ffmpeg'
+	'gconf'
+	'icu'
+	'libjpeg-turbo'
+	'libpng'
+	'libxml2'
+	'libvpx'
+)
+
+sources=(
+	"https://commondatastorage.googleapis.com/chromium-browser-official/${pkgname}-${pkgver}.tar.xz"
+#	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/chromium/chromium-webrtc-r0.patch"
+	"http://www.linuxfromscratch.org/patches/blfs/svn/chromium-64.0.3282.119-constexpr-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	patch -Np1 -i ${sources_dir}/chromium-64.0.3282.119-constexpr-1.patch
+
+	for LIB in flac freetype harfbuzz-ng libjpeg \
+           libjpeg_turbo libwebp libxslt yasm; do
+    find -type f -path "*third_party/$LIB/*"      \
+        \! -path "*third_party/$LIB/chromium/*"   \
+        \! -path "*third_party/$LIB/google/*"     \
+        \! -path "*base/third_party/icu/*"        \
+        \! -path './third_party/yasm/run_yasm.py' \
+        \! -regex '.*\.\(gn\|gni\|isolate\|py\)'  \
+        \! -path './third_party/freetype/src/src/psnames/pstables.h' \
+        -delete
+done
+
+	python2 build/linux/unbundle/replace_gn_files.py \
+    	--system-libraries flac libwebp libxml libxslt opus yasm libjpeg libevent
+	python2 third_party/libaddressinput/chromium/tools/update-strings.py 
+
+	GN_CONFIG=("google_api_key=\"AIzaSyDxKL42zsPjbke5O8_rPVpVrLrJ8aeE9rQ\""
+	"google_default_client_id=\"595013732528-llk8trb03f0ldpqq6nprjp1s79596646.apps.googleusercontent.com\""
+	"google_default_client_secret=\"5ntt6GbbkjnTVXx-MSxbmx5e\""
+	'clang_use_chrome_plugins=false'
+	'enable_hangout_services_extension=true'
+	'enable_nacl=false'
+	'enable_nacl_nonsfi=false'
+	'enable_widevine=false'
+	'fatal_linker_warnings=false'
+	'ffmpeg_branding="Chrome"'
+	'fieldtrial_testing_like_official_build=true'
+	'is_debug=false'
+	'is_clang=false'
+	'link_pulseaudio=true'
+	'linux_use_bundled_binutils=false'
+	'proprietary_codecs=true'
+	'remove_webcore_debug_symbols=true'
+	'symbol_level=0'
+	'treat_warnings_as_errors=false'
+	'use_allocator="none"'
+	'use_cups=true'
+	'use_gconf=false'
+	'use_gnome_keyring=false'
+	'use_gold=false'
+	'use_gtk3=true'
+	'use_kerberos=true'
+	'use_pulseaudio=true'
+	'use_sysroot=false'
+	'use_system_freetype=true'
+	'use_system_harfbuzz=true')
+
+	python2 tools/gn/bootstrap/bootstrap.py --gn-gen-args "${GN_CONFIG[*]}"
+	out/Release/gn gen out/Release --args="${GN_CONFIG[*]}"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	mkdir -p third_party/node/linux/node-linux-x64/bin
+  	ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
+
+	ninja -C out/Release chrome chrome_sandbox chromedriver widevinecdmadapter
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -vDm755  out/Release/chrome ${fakeroot_dir}/usr/lib/chromium/chromium
+
+	install -vDm4755 out/Release/chrome_sandbox ${fakeroot_dir}/usr/lib/chromium/chrome-sandbox
+
+	install -vDm755  out/Release/chromedriver ${fakeroot_dir}/usr/lib/chromium/chromedriver
+
+	install -vm755 out/Release/libwidevinecdmadapter.so ${fakeroot_dir}/usr/lib/chromium/ 
+
+	install -vDm644 out/Release/icudtl.dat ${fakeroot_dir}/usr/lib/chromium 
+
+	install -vDm644 out/Release/gen/content/content_resources.pak ${fakeroot_dir}/usr/lib/chromium/
+
+	install -vm644 out/Release/{*.pak,*.bin} ${fakeroot_dir}/usr/lib/chromium/ 
+
+	cp -av out/Release/locales ${fakeroot_dir}/usr/lib/chromium/ 
+
+	chown -Rv root:root ${fakeroot_dir}/usr/lib/chromium/locales
+
+	install -vDm644 out/Release/chrome.1 ${fakeroot_dir}/usr/share/man/man1/chromium.1
+
+	for size in 16 32; do
+   	 install -vDm644 \
+        "chrome/app/theme/default_100_percent/chromium/product_logo_$size.png" \
+        "${fakeroot_dir}/usr/share/icons/hicolor/${size}x${size}/apps/chromium.png"
+	done
+
+	for size in 22 24 48 64 128 256; do
+    	install -vDm644 "chrome/app/theme/chromium/product_logo_$size.png" \
+        "${fakeroot_dir}/usr/share/icons/hicolor/${size}x${size}/apps/chromium.png"
+	done
+
+	mkdir -pv ${fakeroot_dir}/usr/share/applications/
+
+cat > ${fakeroot_dir}/usr/share/applications/chromium.desktop << "EOF"
+[Desktop Entry]
+Encoding=UTF-8
+Name=Chromium Web Browser
+Comment=Access the Internet
+GenericName=Web Browser
+Exec=chromium %u
+Terminal=false
+Type=Application
+Icon=chromium
+Categories=GTK;Network;WebBrowser;
+MimeType=application/xhtml+xml;text/xml;application/xhtml+xml;text/mml;x-scheme-handler/http;x-scheme-handler/https;
+EOF
+
+}
+
+lfs_me_postinstall(){
+	ln -s /usr/lib/chromium/chromium /bin/chromium
+	gtk-update-icon-cache -f /usr/share/icons/hicolor
+}
+
+lfs_me_postremove(){
+	rm /bin/chromium
+}

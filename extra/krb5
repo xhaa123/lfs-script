@@ -1,0 +1,101 @@
+pkgbuild_version=5
+pkgname=krb5
+pkgver=1.17
+
+export CFLAGS=
+export CXXFLAGS=
+
+
+dependencies=(
+	"!$pkgname"
+
+)
+sources=(
+	"https://web.mit.edu/kerberos/dist/krb5/${pkgver:0:4}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+overwrite=(
+	"/usr/include/com_err.h"
+	"/usr/bin/compile_et"
+	"/usr/share/et/et_h.awk"
+	"/usr/share/et/et_c.awk"
+	"/usr/share/man/man1/compile_et.1"
+	"/usr/lib/libcom_err.so"
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cd src
+
+	sed -e 's@\^u}@^u cols 300}@' \
+    	-i tests/dejagnu/config/default.exp
+
+	sed -e '/eq 0/{N;s/12 //}' \
+    	-i plugins/kdb/db2/libdb2/test/run.test
+
+./configure --prefix=/usr            \
+            --sysconfdir=/etc        \
+            --localstatedir=/var/lib \
+            --with-system-et         \
+            --with-system-ss         \
+            --with-system-verto=no   \
+            --enable-dns-for-realm
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/src"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/src"
+	make DESTDIR="${fakeroot_dir}" install
+
+for f in gssapi_krb5 gssrpc k5crypto kadm5clnt kadm5srv \
+         kdb5 kdb_ldap krad krb5 krb5support verto ; do
+
+    find ${fakeroot_dir}/usr/lib -type f -name "lib$f*.so*" -exec chmod -v 755 {} \;    
+done          
+
+	mkdir -pv ${fakeroot_dir}/etc
+
+	cat > ${fakeroot_dir}/etc/krb5.conf << "EOF"
+# Begin /etc/krb5.conf
+
+[libdefaults]
+    default_realm = <EXAMPLE.ORG>
+    encrypt = true
+
+[realms]
+    <EXAMPLE.ORG> = {
+        kdc = <belgarath.example.org>
+        admin_server = <belgarath.example.org>
+        dict_file = /usr/share/dict/words
+    }
+
+[domain_realm]
+    .<example.org> = <EXAMPLE.ORG>
+
+[logging]
+    kdc = SYSLOG:INFO:AUTH
+    admin_server = SYSLOG:INFO:AUTH
+    default = SYSLOG:DEBUG:DAEMON
+
+# End /etc/krb5.conf
+EOF
+
+}
+
+lfs_me_postinstall(){
+	chmod -v 755 /usr/bin/ksu
+
+}
+
+# vim:set ts=4 syntax=sh:

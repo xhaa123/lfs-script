@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=ca-certificates
+pkgver=0.8
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+"https://github.com/djlucas/make-ca/archive/v$pkgver/make-ca-$pkgver.tar.gz")
+
+lfs_me_prepare() {
+	tar xvf ${sources_dir}/make-ca-$pkgver.tar.gz -C $build_dir
+}
+
+lfs_me_build(){
+	return
+}
+	
+lfs_me_install(){
+	cd $build_dir/make-ca-$pkgver
+	install -vdm755 $fakeroot_dir/etc/ssl/local
+	wget http://www.cacert.org/certs/root.crt
+	wget http://www.cacert.org/certs/class3.crt
+openssl x509 -in root.crt -text -fingerprint -setalias "CAcert Class 1 root" \
+        -addtrust serverAuth -addtrust emailProtection -addtrust codeSigning \
+        > $fakeroot_dir/etc/ssl/local/CAcert_Class_1_root.pem
+openssl x509 -in class3.crt -text -fingerprint -setalias "CAcert Class 3 root" \
+        -addtrust serverAuth -addtrust emailProtection -addtrust codeSigning \
+        > $fakeroot_dir/etc/ssl/local/CAcert_Class_3_root.pem
+
+	make DESTDIR=$fakeroot_dir install
+	mkdir -p $fakeroot_dir/usr/bin
+	mv $fakeroot_dir/usr/sbin/make-ca $fakeroot_dir/usr/bin/
+	rmdir $fakeroot_dir/usr/sbin
+}
+
+lfs_me_postinstall(){
+        sed -e 's%= /etc/ssl;%= "/etc/ssl";%' \
+        -e 's%= /usr;%= "/usr";%'         \
+        -i /usr/bin/c_rehash
+
+	make-ca -g
+}

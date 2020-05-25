@@ -1,0 +1,46 @@
+pkgbuild_version=5
+pkgname=mono
+_pkgname=mono
+pkgver=5.12.0.226
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'zlib'
+	'libgdiplus'
+	'ca-certificates'
+	'Python3'
+)
+sources=(
+"https://download.mono-project.com/sources/mono/mono-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./autogen.sh  \
+    	--prefix=/usr \
+    	--sysconfdir=/etc \
+    	--bindir=/usr/bin \
+    	--sbindir=/usr/bin \
+    	--with-mcs-docs=no
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	ln -sv /usr/bin/mcs ${fakeroot_dir}/usr/bin/gmcs
+}
+
+lfs_me_postinstall() {
+	cert-sync /etc/ssl/ca-certificates.crt
+}

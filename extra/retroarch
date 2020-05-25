@@ -1,0 +1,58 @@
+pkgbuild_version=5
+pkgname=retroarch
+_pkgname=RetroArch
+pkgver=1.7.5
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'pulseaudio'
+	'libusb'
+	'mesa'
+	'openal'
+	'sdl2'
+	'zlib'
+	'retroarch-assets'
+)
+
+sources=(
+	"https://github.com/libretro/RetroArch/archive/v${pkgver}.tar.gz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/retroarch/config.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+	cd ${build_dir}
+	git clone https://github.com/libretro/retroarch-joypad-autoconfig
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	patch -Np0 -i ${sources_dir}/config.patch
+	./configure 	\
+    	--prefix='/usr' \
+    	--disable-cg 	\
+    	--disable-jack 	\
+    	--disable-oss 	\
+    	--disable-sdl
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+  	make -C libretro-common/audio/dsp_filters
+  	make -C gfx/video_filters
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	install -Dm 644 libretro-common/audio/dsp_filters/*.{dsp,so} -t "${fakeroot_dir}"/usr/lib/retroarch/filters/audio/
+  	install -Dm 644 gfx/video_filters/*.{filt,so} -t "${fakeroot_dir}"/usr/lib/retroarch/filters/video/
+	mkdir -pv /opt/libretro/info
+	chmod -R 777 /opt/libretro
+
+	cd ${build_dir}/retroarch-joypad-autoconfig/
+	install -dm 755 "${fakeroot_dir}"/usr/share/retroarch/autoconfig
+  	cp -dr --no-preserve='ownership' udev "${fakeroot_dir}"/usr/share/retroarch/autoconfig/
+}

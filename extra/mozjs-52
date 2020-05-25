@@ -1,0 +1,46 @@
+pkgbuild_version=5
+pkgname=mozjs-52
+_pkgname=mozjs
+pkgver=52.2.1gnome1
+
+dependencies=(
+	"!$pkgname"
+	'autoconf-firefox'
+	'icu'
+	'xorg-libraries'
+	'yasm'
+	'nspr'
+	'Python2'
+	'zip'
+	
+)
+sources=(
+	"https://ftp.gnome.org/pub/gnome/teams/releng/tarballs-needing-help/mozjs/${_pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	cd js/src
+SHELL=/bin/bash	./configure --prefix=/usr       \
+            --with-intl-api     \
+            --with-system-zlib  \
+            --with-system-nspr  \
+            --with-system-icu   \
+            --enable-threadsafe \
+            --enable-readline 
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/js/src"
+SHELL=/bin/sh	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/js/src"
+SHELL=/bin/bash	make DESTDIR="$fakeroot_dir" install
+	rm ${fakeroot_dir}/usr/lib/libjs_static.ajs
+}

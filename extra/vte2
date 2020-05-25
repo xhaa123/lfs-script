@@ -1,0 +1,46 @@
+pkgbuild_version=5
+pkgname=vte2
+_pkgname=vte
+pkgver=0.28.2
+
+dependencies=(
+	"!$pkgname"
+	"gtk+2"
+	'gobject-introspection'
+	'pygtk'
+
+)
+sources=(
+	
+	"http://ftp.gnome.org/pub/gnome/sources/vte/0.28/${_pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+	e0d10e8b4494383c7e366ac80a942ba45a705a96
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--libexecdir=/usr/lib/vte --disable-static                
+				
+
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+
+}
+
+
+# vim:set ts=4 syntax=sh:

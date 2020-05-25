@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=skype-bin
+pkgver=8.13.76.8
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'gtk+2'
+	'gconf'
+	'alsa-lib'
+	'nss'
+	'gnome-keyring'
+	'libgnome-keyring'
+)
+sources=(
+	"https://repo.skype.com/deb/pool/main/s/skypeforlinux/skypeforlinux_${pkgver}_amd64.deb"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	mkdir "${build_dir}/${pkgname}-${pkgver}"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cp ${sources_dir}/skypeforlinux_${pkgver}_amd64.deb .
+	ar x skypeforlinux_${pkgver}_amd64.deb
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	tar -xJC "${fakeroot_dir}" -f data.tar.xz
+	rm -rf "${fakeroot_dir}/opt"
+
+}

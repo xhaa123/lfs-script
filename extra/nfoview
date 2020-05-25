@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=nfoview
+pkgver=git
+
+dependencies=(
+ 	"!$pkgname"
+	'glibc'
+	'Python3'
+	'pygobject3'
+	'gtk+3'
+	'terminus-font'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://github.com/otsaloma/nfoview
+	cd "${build_dir}/${pkgname}"
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	python3 setup.py install --prefix=/usr --root="$fakeroot_dir"
+}
+
+lfs_me_postinstall(){
+	gtk-update-icon-cache -f /usr/share/icons/hicolor
+}

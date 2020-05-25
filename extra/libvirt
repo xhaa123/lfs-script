@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=libvirt
+pkgver=4.3.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'avahi'
+#	'ceph'
+	'curl'
+	'fuse'
+	'gettext'
+	'gnutls'
+	'iproute2'
+	'iptables'
+	'libcap-ng'
+	'libgcrypt'
+	'libgpg-error'
+	'libnl'
+	'libpciaccess'
+	'yajl'
+)
+
+sources=(
+"https://libvirt.org/sources/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

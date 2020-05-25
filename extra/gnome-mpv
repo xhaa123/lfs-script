@@ -1,0 +1,44 @@
+pkgbuild_version=5
+pkgname=gnome-mpv
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'mpv'
+	'autoconf-archive'
+	'gtk+3'
+	'lua'
+	'libepoxy'
+	'youtube-dl'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://github.com/gnome-mpv/gnome-mpv
+	cd "${build_dir}/${pkgname}"
+	./autogen.sh
+	./configure --prefix=/usr
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall(){
+	glib-compile-schemas /usr/share/glib-2.0/schemas/
+	gtk-update-icon-cache /usr/share/icons/hicolor/
+}

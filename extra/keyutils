@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=keyutils
+pkgver=1.6
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+"https://people.redhat.com/~dhowells/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	patch -Np0 -i ${sources_dir}/request-key.conf.patch
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make SBINDIR='/usr/bin' BINDIR='/usr/bin'
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" SBINDIR='/usr/bin' BINDIR='/usr/bin' LIBDIR='/usr/lib' USRLIBDIR='/usr/lib' install
+}

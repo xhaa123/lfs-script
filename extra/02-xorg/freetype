@@ -1,0 +1,92 @@
+pkgbuild_version=5
+pkgname=freetype
+pkgver=2.10.1
+
+dependencies=(
+	"!$pkgname"
+	'which'
+	'libpng'
+)
+sources=(
+	"http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.xz"
+	"http://downloads.sourceforge.net/${pkgname}/${pkgname}-doc-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	tar -xf "${sources_dir}/${pkgname}-doc-${pkgver}.tar.xz" --strip-components=2 -C docs
+	sed -ri "s:.*(AUX_MODULES.*valid):\1:" modules.cfg
+	sed -r "s:.*(#.*SUBPIXEL_(RENDERING|HINTING 2)) .*:\1:g" \
+    	-i include/freetype/config/ftoption.h
+	./configure --prefix=/usr --disable-static
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	install -v -m755 -d "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+	cp -v -R docs/*     "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+
+	mkdir -pv ${fakeroot_dir}/etc/profile.d/
+
+	cat > ${fakeroot_dir}/etc/profile.d/freetype2.sh << "EOF"
+# Subpixel hinting mode can be chosen by setting the right TrueType interpreter
+# version. The available settings are:
+#
+#     truetype:interpreter-version=35  # Classic mode (default in 2.6)
+#     truetype:interpreter-version=38  # Infinality mode
+#     truetype:interpreter-version=40  # Minimal mode (default in 2.7)
+#
+# There are more properties that can be set, separated by whitespace. Please
+# refer to the FreeType documentation for details.
+
+# Uncomment and configure below
+export FREETYPE_PROPERTIES="truetype:interpreter-version=38"
+
+#enable anti-aliasing fonts in java applications
+export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true'
+
+EOF
+
+
+	mkdir -pv ${fakeroot_dir}/etc/fonts
+	cat > ${fakeroot_dir}/etc/fonts/local.conf << "EOF"
+<?xml version='1.0'?>
+<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+<fontconfig>
+  <match target="font">
+    <edit name="rgba" mode="assign">
+      <const>rgb</const>
+    </edit>
+    <edit name="hinting" mode="assign">
+      <bool>true</bool>
+    </edit>
+    <edit name="autohint" mode="assign">
+      <bool>true</bool>
+    </edit>
+    <edit name="antialias" mode="assign">
+      <bool>true</bool>
+    </edit>
+    <edit name="hintstyle" mode="assign">
+      <const>hintslight</const>
+    </edit>
+    <edit name="lcdfilter" mode="assign">
+      <const>lcddefault</const>
+    </edit>
+  </match>
+</fontconfig>
+
+EOF
+
+}
+
+# vim:set ts=4 syntax=sh:

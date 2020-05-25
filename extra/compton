@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=compton
+pkgver=git
+giturl=https://github.com/chjj/compton
+
+dependencies=(
+    "!$pkgname"
+	'libconfig'
+	'asciidoc'
+	'libxslt'
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}"
+	PREFIX=/usr make compton docs
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	PREFIX="$fakeroot_dir/usr" make install
+}

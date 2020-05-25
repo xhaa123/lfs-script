@@ -1,0 +1,27 @@
+pkgbuild_version=5
+pkgname=xorriso
+pkgver=1.4.8
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"https://www.gnu.org/software/xorriso/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	rm ${fakeroot_dir}/usr/share/info/dir
+}
+

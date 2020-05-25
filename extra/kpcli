@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=kpcli
+pkgver=3.1
+
+dependencies=(
+	"!$pkgname"
+	'Clone'
+	'Crypt-Rijndael'
+	'Sort-Naturally'
+	'TermReadKey'
+	'File-KeePass'
+	'Term-ShellUI'
+	'Term-ReadLine'
+	'Term-ReadLine-Gnu'
+)
+sources=(
+	"http://downloads.sourceforge.net/project/kpcli/${pkgname}-${pkgver}.pl"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	return
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	install -Dm755 "${sources_dir}/kpcli-${pkgver}.pl" "${fakeroot_dir}/usr/bin/kpcli"
+}

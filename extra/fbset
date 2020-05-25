@@ -1,0 +1,34 @@
+pkgbuild_version=5
+pkgname=fbset
+pkgver=2.1
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+sources=(
+	"http://users.telenet.be/geertu/Linux/fbdev/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j1
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -D -m755 fbset "${fakeroot_dir}/usr/bin/fbset"
+	install -D -m644 fb.modes.5 "${fakeroot_dir}/usr/share/man/man5/fb.modes.5"
+	install -D -m644 fbset.8 "${fakeroot_dir}/usr/share/man/man8/fbset.8"
+	install -D -m644 etc/fb.modes.ATI "${fakeroot_dir}/etc/fb.modes"
+}

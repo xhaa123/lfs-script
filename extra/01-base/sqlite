@@ -1,0 +1,50 @@
+pkgbuild_version=5
+pkgname=sqlite
+pkgver=3.29
+_urlver=3290000
+
+dependencies=(
+	"!$pkgname"
+	'unzip'
+)
+sources=(
+	"http://sqlite.org/2019/${pkgname}-autoconf-${_urlver}.tar.gz"
+	"http://sqlite.org/2019/${pkgname}-doc-${_urlver}.zip"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-autoconf-${_urlver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-autoconf-${_urlver}"
+	unzip -q "${sources_dir}/${pkgname}-doc-${_urlver}.zip"
+
+	./configure --prefix=/usr --disable-static      \
+		--enable-fts5				\
+	        CFLAGS="-g -O2 -DSQLITE_ENABLE_FTS3=1   \
+		-DSQLITE_ENABLE_COLUMN_METADATA=1       \
+		-DSQLITE_ENABLE_UNLOCK_NOTIFY=1         \
+		-DSQLITE_SECURE_DELETE=1		\
+		-DSQLITE_ENABLE_DBSTAT_VTAB=1		\
+		-DSQLITE_ENABLE_FTS3_TOKENIZER=1"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-autoconf-${_urlver}"
+	make
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-autoconf-${_urlver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	install -v -m755 -d "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+	cp -v -R sqlite-doc-${_urlver}/* "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+}
+
+# vim:set ts=4 syntax=sh:

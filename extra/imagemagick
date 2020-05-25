@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=imagemagick
+_pkgname=ImageMagick
+pkgver=7.0.8-29
+
+dependencies=(
+    "!$pkgname"
+)
+
+sources=(
+	"https://www.imagemagick.org/download/releases/${_pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	sed -i '/seems to be moved/ s/^/true #/' config/ltmain.sh
+	./configure --prefix=/usr     \
+        --sysconfdir=/etc \
+        --enable-hdri     \
+	--with-rsvg	  \
+        --with-modules    \
+	--with-perl	  \
+        --disable-static
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" DOCUMENTATION_PATH=/usr/share/doc/imagemagick-${pkgver} install
+	find  ${fakeroot_dir}/usr/lib/perl5/ -name perllocal.pod -delete
+}

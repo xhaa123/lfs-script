@@ -1,0 +1,61 @@
+pkgbuild_version=5
+pkgname=qtwebkit
+_pkgname=qtwebkit-opensource-src
+pkgver=5.9.0
+
+dependencies=(
+    "!$pkgname"
+	'icu'
+	'libjpeg-turbo'
+	'libpng'
+	'libwebp'
+	'libxslt'
+	'qt'
+	'ruby'
+	'sqlite'
+	'gst-plugins-base'
+	'flex'
+)
+sources=(
+	"http://download.qt.io/community_releases/${pkgver:0:3}/${pkgver}-final/${_pkgname}-${pkgver}.tar.xz"
+#	"http://www.linuxfromscratch.org/patches/blfs/svn/qtwebkit-5.9.0-icu_59-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+#	patch -Np1 -i ${sources_dir}/qtwebkit-5.9.0-icu_59-1.patch
+	sed -e '/CONFIG/a QMAKE_CXXFLAGS += -Wno-expansion-to-defined' \
+    	-i Tools/qmake/mkspecs/features/unix/default_pre.prf
+	
+	SAVEPATH=$PATH
+	export PATH=$PWD/bin:$PATH
+	mkdir build
+	cd build
+	qmake ../WebKit.pro
+	make
+	export PATH=$SAVEPATH
+	unset SAVEPATH
+}
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/build"
+	make INSTALL_ROOT="$fakeroot_dir" install
+	
+}
+
+lfs_me_postinstall(){
+	find $QT5DIR/lib/pkgconfig -name "*.pc" -exec perl -pi -e "s, -L$PWD/?\S+,,g" {} \;
+	find $QT5DIR/ -name qt_lib_bootstrap_private.pri \
+        -exec sed -i -e "s:$PWD/qtbase:/$QT5DIR/lib/:g" {} \;
+
+	find $QT5DIR/ -name \*.prl \
+        -exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+}

@@ -1,0 +1,56 @@
+pkgbuild_version=5
+pkgname=evolution-data-server
+pkgver=3.32.1
+
+dependencies=(
+    "!$pkgname"
+	'berkeley-db'
+	'gcr'
+	'libical'
+	'libgdata'
+	'libsoup'
+	'Python2'
+	'sqlite'
+	'gobject-introspection'
+	'gtk+3'
+	'icu'
+	'vala'
+	'openldap'
+	'libgweather'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/evolution-data-server/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr   \
+      	-DENABLE_UOA=OFF              \
+      	-DENABLE_VALA_BINDINGS=ON     \
+      	-DENABLE_INSTALLED_TESTS=ON   \
+      	-DENABLE_GOOGLE=ON            \
+      	-DENABLE_GOOGLE_AUTH=OFF      \
+      	-DWITH_OPENLDAP=ON            \
+      	-DWITH_KRB5=ON               \
+      	-DENABLE_INTROSPECTION=ON     \
+      	-DENABLE_GTK_DOC=OFF          \
+      	..
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make -j6
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make DESTDIR="$fakeroot_dir" install
+}

@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=hdparm
+pkgver=9.58
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	
+"https://downloads.sourceforge.net/hdparm/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make binprefix=/usr DESTDIR="$fakeroot_dir" install
+}

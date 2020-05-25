@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=libgit2
+pkgver=0.26.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'libssh2'
+)
+
+sources=(
+"https://github.com/libgit2/libgit2/archive/v0.26.0.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DTHREADSAFE=OFF
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

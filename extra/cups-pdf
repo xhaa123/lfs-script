@@ -1,0 +1,47 @@
+pkgbuild_version=5
+pkgname=cups-pdf
+pkgver=3.0.1
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'cups'
+#	'ghostscript'
+)
+
+sources=(
+	"http://www.cups-pdf.de/src/cups-pdf_$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}_${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/src"
+	CC=gcc
+	$CC $CFLAGS -s cups-pdf.c -o cups-pdf -lcups
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/src"
+	install -D -m700 cups-pdf $fakeroot_dir/usr/lib/cups/backend/cups-pdf
+
+  	# Install Postscript Color printer
+  	cd ../extra
+  	install -D -m644 CUPS-PDF_noopt.ppd $fakeroot_dir/usr/share/cups/model/CUPS-PDF_noopt.ppd
+  	install -D -m644 CUPS-PDF_opt.ppd $fakeroot_dir/usr/share/cups/model/CUPS-PDF_opt.ppd
+
+  	# Install config file
+  	install -D -m644 cups-pdf.conf $fakeroot_dir/etc/cups/cups-pdf.conf
+
+  	# Install docs
+  	install -D -m 644 ../README "$fakeroot_dir"/usr/share/doc/$pkgname/README
+  	# use lp group from cups pkg FS#36769
+  	chgrp -R lp ${fakeroot_dir}/etc/cups
+}

@@ -1,0 +1,26 @@
+pkgbuild_version=5
+pkgname=argon2
+_pkgname=phc-winner-argon2
+pkgver=git
+giturl=https://github.com/P-H-C/phc-winner-argon2
+
+dependencies=(
+	"!$pkgname"
+
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $_pkgname
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}"
+	make OPTTARGET=none LIBRARY_REL='lib'
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}"
+	make OPTTARGET=none LIBRARY_REL='lib' DESTDIR=${fakeroot_dir} install 
+}

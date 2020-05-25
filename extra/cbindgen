@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=cbindgen
+pkgver=0.8.7
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'rustc'
+)
+
+sources=(
+	"https://github.com/eqrion/cbindgen/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	return
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cargo build --release
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir -pv $fakeroot_dir/usr/bin/
+	install -Dm755 target/release/cbindgen $fakeroot_dir/usr/bin/
+}

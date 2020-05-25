@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=libxaw3dxft
+_pkgname=libXaw3dXft
+pkgver=1.6.2e
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+sources=(
+	"http://sourceforge.net/projects/sf-xpaint/files/$pkgname/${_pkgname}-$pkgver.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./autogen.sh
+	./configure --prefix=/usr --enable-internationalization \
+    	--enable-multiplane-bitmaps \
+    	--enable-gray-stipples \
+    	--enable-arrow-scrollbars
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

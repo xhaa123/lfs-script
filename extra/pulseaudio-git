@@ -1,0 +1,44 @@
+pkgbuild_version=5
+pkgname=pulseaudio
+pkgver=git
+
+dependencies=(
+	"!$pkgname"
+	'json-c'
+	'libsndfile'
+)
+sources=(
+#	"http://freedesktop.org/software/${pkgname}/releases/${pkgname}-${pkgver}.tar.xz"
+#	"https://bugs.freedesktop.org/attachment.cgi?id=136998"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+#	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+#	cd "${build_dir}/${pkgname}-${pkgver}"
+#	patch -Np1 -i ${sources_dir}/attachment.cgi\?id\=136998
+	cd ${build_dir}
+	git clone https://github.com/pulseaudio/pulseaudio
+	cd pulseaudio
+
+	./bootstrap.sh --prefix=/usr    \
+            --sysconfdir=/etc    	\
+	    --libexecdir=/usr/lib	\
+            --localstatedir=/var 	\
+            --disable-bluez4     	\
+	    --disable-bluez5	 	\
+            --disable-rpath
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="${fakeroot_dir}" install
+	rm ${fakeroot_dir}/etc/dbus-1/system.d/pulseaudio-system.conf
+}

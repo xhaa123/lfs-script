@@ -1,0 +1,39 @@
+#vim:
+pkgbuild_version=5
+pkgname=at-spi2-atk
+pkgver=2.32.0
+
+dependencies=(
+	"!$pkgname"
+	'at-spi2-core'
+)
+sources=(
+	"https://ftp.gnome.org/pub/gnome/sources/at-spi2-atk/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=/usr ..               
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	ninja
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	DESTDIR="${fakeroot_dir}" ninja install
+}
+
+
+
+# vim:set ts=4 syntax=sh:

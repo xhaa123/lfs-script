@@ -1,0 +1,58 @@
+pkgbuild_version=5
+pkgname=util-linux-aes
+_pkgname=util-linux
+pkgver=2.28.2
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"https://www.kernel.org/pub/linux/utils/util-linux/v2.28/${_pkgname}-${pkgver}.tar.xz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/util-linux-aes/util-linux-2.28.2.diff"
+)
+
+overwrite=(
+	"/usr/share/man/man8/swapoff.8"
+	"/usr/share/man/man8/swapon.8"
+	"/usr/share/man/man8/losetup.8"
+	"/usr/share/man/man8/umount.8"
+	"/usr/share/man/man8/mount.8"
+	"/usr/share/man/man5/fstab.5"
+	"/bin/swapoff"
+	"/bin/swapon"
+	"/bin/losetup"
+	"/bin/umount"
+	"/bin/mount"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	patch -Np1 -i ${sources_dir}/util-linux-2.28.2.diff
+	./autogen.sh
+	CFLAGS="-O2 -Wall" ./configure --disable-shared --enable-static --disable-pylibmount
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make -j5
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+
+
+	rm -f ${fakeroot_dir}/usr/share/man/man8/{mount,umount,losetup,swapon,swapoff}.8.gz
+    	rm -f ${fakeroot_dir}/usr/share/man/man5/fstab.5.gz
+	mkdir -pv ${fakeroot_dir}/bin
+        mkdir -pv ${fakeroot_dir}/usr/share/man/{man5,man8}
+	install -m 4755 -o root mount umount ${fakeroot_dir}/bin
+    	install -m 755 losetup swapon swapoff ${fakeroot_dir}/bin
+    	cd sys-utils
+   	install -m 644 mount.8 umount.8 ${fakeroot_dir}/usr/share/man/man8
+   	install -m 644 losetup.8 swapon.8 swapoff.8 ${fakeroot_dir}/usr/share/man/man8
+   	install -m 644 fstab.5 ${fakeroot_dir}/usr/share/man/man5
+	
+}

@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=tor-browser
+_pkgname=tor-browser-linux64
+_language=en-US
+pkgver=7.0.3
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+sources=(
+	"https://dist.torproject.org/torbrowser/${pkgver}/${_pkgname}-${pkgver}_${_language}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	return
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}"
+	mkdir -pv ${fakeroot_dir}/opt
+	mkdir -pv ${fakeroot_dir}/usr/bin
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}_${_language}.tar.xz" -C ${fakeroot_dir}/opt/
+	ln -s /opt/tor-browser_en-US/Browser/start-tor-browser ${fakeroot_dir}/usr/bin/tor-browser
+}
+lfs_me_postinstall(){
+	chown -R dbz:dbz ${fakeroot_dir}/opt/tor-browser_en-US
+}
+

@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=libdbusmenu-qt
+pkgver=0.9.3+16.04.20160218
+_pkgver=_0.9.3+16.04.20160218.orig
+dependencies=(
+    "!$pkgname"
+	'qt>5.7'
+)
+sources=(
+	"http://launchpad.net/ubuntu/+archive/primary/+files/${pkgname}${_pkgver}.tar.gz")
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}${_pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      	-DCMAKE_BUILD_TYPE=Release  \
+      	-DWITH_DOC=OFF              \
+      	-Wno-dev .
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

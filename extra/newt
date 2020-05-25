@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=newt
+pkgver=0.52.21
+
+dependencies=(
+    "!$pkgname"
+	'popt'
+	'slang'
+#	'gpm'
+)
+sources=(
+	"http://fedorahosted.org/releases/n/e/newt/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+ 	./configure --prefix=/usr --with-gpm-support
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

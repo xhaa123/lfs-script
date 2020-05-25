@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=json-c
+pkgver=0.13.1
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"https://s3.amazonaws.com/json-c_releases/releases/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i s/-Werror// Makefile.in tests/Makefile.in 
+	./configure --prefix=/usr  --disable-static
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j1
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+}

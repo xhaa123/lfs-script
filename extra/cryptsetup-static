@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=cryptsetup
+pkgver=1.7.5
+
+dependencies=(
+	"!$pkgname"
+	'lvm2'
+	'libgcrypt'
+	'popt'
+	'util-linux'
+)
+sources=(
+	
+"https://cdn.kernel.org/pub/linux/utils/cryptsetup/v1.7/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure --prefix=/usr --sbindir=/usr/bin --enable-static-cryptsetup \
+	--enable-static
+}
+
+lfs_me_check() {
+	return
+}
+
+# vim:set ts=4 syntax=sh:

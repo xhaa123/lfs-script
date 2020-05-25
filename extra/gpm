@@ -1,0 +1,65 @@
+pkgbuild_version=5
+pkgname=gpm
+pkgver=1.20.7
+unitver=20180105
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"http://anduin.linuxfromscratch.org/BLFS/gpm/${pkgname}-${pkgver}.tar.bz2"
+	"http://www.linuxfromscratch.org/blfs/downloads/svn/blfs-systemd-units-$unitver.tar.bz2"
+	"http://www.linuxfromscratch.org/patches/blfs/svn/gpm-${pkgver}-glibc_2.26-1.patch"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xvf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	tar -xvf "${sources_dir}/blfs-systemd-units-$unitver.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i -e 's:<gpm.h>:"headers/gpm.h":' src/prog/{display-buttons,display-coords,get-versions}.c
+	patch -Np1 -i ${sources_dir}/gpm-${pkgver}-glibc_2.26-1.patch
+	./autogen.sh
+	./configure --prefix=/usr --sysconfdir=/etc
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+
+	ln -sfv libgpm.so.2.1.0 "${fakeroot_dir}/usr/lib/libgpm.so"
+	install -v -Dm644 conf/gpm-root.conf "${fakeroot_dir}/etc/gpm-root.conf"
+
+	install -v -m755 -d "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}/support"
+	install -v -m644    doc/support/*                     \
+	                    "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}/support"
+	install -v -m644    doc/{FAQ,HACK_GPM,README*}        \
+						"${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+	
+	#install systemd unit
+	cd "${build_dir}/blfs-systemd-units-$unitver"
+	mv Makefile{,.orig}
+	grep -v systemctl Makefile.orig > Makefile
+	make DESTDIR="$fakeroot_dir" install-gpm
+}
+
+lfs_me_postinstall() {
+    echo "Adding info pages"
+    install-info  "/usr/share/info/${pkgname}.info" /usr/share/info/dir
+}
+
+lfs_me_preremove() {
+    echo "Adding info pages"
+    install-info  --delete "/usr/share/info/${pkgname}.info" /usr/share/info/dir
+}

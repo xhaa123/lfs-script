@@ -1,0 +1,26 @@
+pkgbuild_version=5
+pkgname=arandr
+pkgver=git
+giturl=git://anonscm.debian.org/arandr/arandr.git
+
+dependencies=(
+	"!$pkgname"
+	'xrandr'
+	'python2-docutils'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	python2 setup.py install --root=$fakeroot_dir
+}

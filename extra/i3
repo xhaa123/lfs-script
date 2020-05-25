@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=i3
+pkgver=4.14.1
+
+dependencies=(
+	"!$pkgname"
+	'libev'
+	'libxkbcommon'
+	'pango'
+	'startup-notification'
+	'xcb-util-cursor'
+	'xcb-util-keysyms'
+	'xcb-util-wm'
+	'xcb-util-xrm'
+	'yajl'
+)
+
+sources=(	
+	"http://i3wm.org/downloads/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	 cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/x86_64-pc-linux-gnu"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/x86_64-pc-linux-gnu"
+	make DESTDIR="${fakeroot_dir}" install
+}

@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=cpio
+pkgver=2.12
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+)
+sources=(
+	"http://ftp.gnu.org/pub/gnu/cpio/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+        --bindir=/bin \
+        --enable-mt   \
+        --with-rmt=/usr/libexec/rmt
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	make
+	makeinfo --html            -o doc/html      doc/cpio.texi
+	makeinfo --html --no-split -o doc/cpio.html doc/cpio.texi
+	makeinfo --plaintext       -o doc/cpio.txt  doc/cpio.texi
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	install -v -m755 -d ${fakeroot_dir}/usr/share/doc/cpio-${pkgver}/html
+	install -v -m644    doc/html/* \
+        ${fakeroot_dir}/usr/share/doc/cpio-${pkgver}/html
+	install -v -m644    doc/cpio.{html,txt} \
+        ${fakeroot_dir}/usr/share/doc/cpio-${pkgver}
+
+	rm  ${fakeroot_dir}/usr/share/info/dir
+}

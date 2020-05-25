@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=playonlinux
+pkgver=4.2.12
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'cabextract'
+	'gnupg'
+	'icoutils'
+	'imagemagick'
+	'p7zip'
+	'unzip'
+	'wget'
+	'xterm'
+	'netcat'
+)
+
+sources=(
+	"http://www.playonlinux.com/script_files/PlayOnLinux/${pkgver/.0/}/PlayOnLinux_${pkgver/.0/}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/PlayOnLinux_${pkgver/.0/}.tar.gz" -C "$build_dir"
+	return
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	install -d $fakeroot_dir/usr/share/$pkgname
+  	install -d $fakeroot_dir/usr/bin
+  	cp -r $build_dir/$pkgname  $fakeroot_dir/usr/share/
+
+  	echo "#!/bin/bash" > $fakeroot_dir/usr/bin/$pkgname
+  	echo "/usr/share/$pkgname/$pkgname \"\$@\"" >> $fakeroot_dir/usr/bin/$pkgname
+  	chmod +x  $fakeroot_dir/usr/bin/$pkgname
+}

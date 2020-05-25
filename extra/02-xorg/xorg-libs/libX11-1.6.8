@@ -1,0 +1,58 @@
+pkgbuild_version=5
+pkgname=libX11
+pkgver=1.6.8
+
+dependencies=(
+	"!$pkgname"
+	'xorg-build-environment'
+	'fontconfig'
+	'libxcb'
+)
+
+sources=(
+	"https://xorg.freedesktop.org/releases/individual/lib/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+	f1ea96fe472a981d378b4f2eec90dcd063f9a407
+)
+
+lfs_me_prepare() {
+    tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+    cd "${build_dir}/${pkgname}-${pkgver}"
+	
+	case "$pkgname" in
+		libxshmfence)
+		./configure $XORG_CONFIG CFLAGS="$CFLAGS -D_GNU_SOURCE"
+		;;
+		libICE)
+		./configure $XORG_CONFIG ICE_LIBS=-lpthread
+		;;
+
+		libXfont)
+		./configure $XORG_CONFIG --disable-devel-docs
+		;;
+		libXt)
+		./configure $XORG_CONFIG \
+		--with-appdefaultdir=/etc/X11/app-defaults
+		;;
+	
+		*)
+			./configure $XORG_CONFIG	
+	esac
+}
+
+lfs_me_build() {
+    return
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+    cd "${build_dir}/${pkgname}-${pkgver}"
+    make DESTDIR="$fakeroot_dir" install
+}
+
+# vim:set ts=4 syntax=sh:

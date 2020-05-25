@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=gnome-online-accounts
+pkgver=3.32.0
+
+dependencies=(
+    "!$pkgname"
+	'gcr'
+	'json-glib'
+	'rest'
+	'telepathy-glib'
+	'vala'
+	'webkitgtk'
+	'gobject-introspection'
+	'krb5'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/gnome-online-accounts/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static --enable-kerberos \
+	--with-google-client-secret=5ntt6GbbkjnTVXx-MSxbmx5e \
+	--with-google-client-id=595013732528-llk8trb03f0ldpqq6nprjp1s79596646.apps.googleusercontent.com
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

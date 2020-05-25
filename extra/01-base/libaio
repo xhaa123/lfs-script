@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=libaio
+pkgver=0.3.112
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+"http://ftp.de.debian.org/debian/pool/main/liba/$pkgname/${pkgname}_${pkgver}.orig.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}_${pkgver}.orig.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make prefix="$fakeroot_dir/usr" install
+}

@@ -1,0 +1,62 @@
+pkgbuild_version=5
+pkgname=gcc-cross
+_pkgname=gcc
+pkgver=6.2.0
+
+_info_pages=(
+	'libquadmath.info'
+	'cppinternals.info'
+	'gccint.info'
+	'cpp.info'
+	'libitm.info'
+	'gccinstall.info'
+	'libgomp.info'
+	'gcc.info'
+)
+
+dependencies=(
+    "!$pkgname"
+	'binutils'
+	'mpc'
+)
+sources=(
+	"http://ftp.gnu.org/gnu/${_pkgname}/${_pkgname}-${pkgver}/${_pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+	3f303f403053f0ce79530dae832811ecef91197e
+	d01ead56609594d4d6e53720b86e4e1aae0b5d91
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	
+
+	
+	mkdir -v "../${_pkgname}-build"
+	cd "../${_pkgname}-build"
+	
+	SED=sed				\
+	"../${_pkgname}-${pkgver}/configure"	\
+			--prefix=/opt/cross \
+			--target=i686-elf    \
+			--disable-nls \
+			--enable-languages=c,c++	\
+			--without-headers
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-build"
+	make all-gcc
+	make all-target-libgcc
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-build"
+	make DESTDIR="$fakeroot_dir" install-gcc
+	make DESTDIR="$fakeroot_dir" install-target-libgcc
+}
+

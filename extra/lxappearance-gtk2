@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=lxappearance-gtk2
+_pkgname=lxappearance
+pkgver=0.6.3
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'gtk+2'
+)
+
+sources=(
+"https://downloads.sourceforge.net/lxde/$_pkgname-$pkgver.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --sysconfdir=/etc --prefix=/usr --enable-dbus
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=psutil
+_pkgname=psutil-release
+pkgver=5.0.1
+
+dependencies=(
+    "!$pkgname"
+	'Python2'
+)
+sources=(
+	
+	"https://github.com/giampaolo/psutil/archive/release-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/release-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py build
+	
+}
+
+lfs_me_build(){
+	return
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py build install --root="$fakeroot_dir" --optimize=1
+
+}
+

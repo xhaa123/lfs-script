@@ -1,0 +1,42 @@
+pkgbuild_version=5
+pkgname=libical
+pkgver=3.0.5
+
+dependencies=(
+    "!$pkgname"
+	'cmake'
+	'gobject-introspection'
+	'icu'
+)
+sources=(
+	"https://github.com/libical/libical/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=Release  \
+      -DSHARED_ONLY=yes           \
+      -DENABLE_GTK_DOC=OFF	  \
+      .. 
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}/build/"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make DESTDIR="$fakeroot_dir" install
+}
+

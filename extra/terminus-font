@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=terminus-font
+pkgver=4.40
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'bdftopcf'
+)
+sources=(
+	"http://downloads.sourceforge.net/project/$pkgname/$pkgname-$pkgver/$pkgname-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	chmod +x configure
+	./configure \
+	--prefix=/usr \
+    	--x11dir=/usr/share/fonts/misc \
+    	--psfdir=/usr/share/kbd/consolefonts
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	install -Dm644 75-yes-terminus.conf \
+    	"$fakeroot_dir/etc/fonts/conf.avail/75-yes-terminus.conf"
+
+	install -d "${fakeroot_dir}/etc/fonts/conf.d"
+	ln -s ../conf.avail/75-yes-terminus.conf ${fakeroot_dir}/etc/fonts/conf.d/
+}

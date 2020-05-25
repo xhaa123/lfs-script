@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=aspell
+pkgver=0.60.7
+
+dependencies=(
+    "!$pkgname"
+	'which'
+)
+sources=(
+	"https://ftp.gnu.org/gnu/aspell/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i '/ top.do_check ==/s/top.do_check/*&/' modules/filter/tex.cpp
+	sed -i '/word ==/s/word/*&/' prog/check_funs.cpp
+	./configure --prefix=/usr
+}
+
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	ln -svfn aspell-0.60 ${fakeroot_dir}/usr/lib/aspell
+
+	install -v -m 755 scripts/ispell ${fakeroot_dir}/usr/bin/
+	install -v -m 755 scripts/spell ${fakeroot_dir}/usr/bin/
+	rm ${fakeroot_dir}/usr/share/info/dir
+}
+
+

@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=notification-daemon
+pkgver=3.20.0
+
+dependencies=(
+    "!$pkgname"
+	'gtk+3'
+	'libcanberra'
+
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/notification-daemon/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --disable-static
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" DOCDIR="/usr/share/doc/${pkgname}-${pkgver}" install
+}
+

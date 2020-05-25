@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=keepassx
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'qt'
+	'libgcrypt'
+	'zlib'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd $build_dir
+	git clone https://github.com/keepassx/keepassx
+	cd "${build_dir}/${pkgname}"
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+}
+
+lfs_me_build(){
+	cd $build_dir/keepassx/build
+	make -j5
+	}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall(){
+	gtk-update-icon-cache /usr/share/icons/hicolor/
+}

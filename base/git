@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=git
+pkgver=2.22.0
+
+dependencies=(
+    "!$pkgname"
+    'openssl'
+    'perl'
+    'curl'
+)
+sources=(
+    "https://cdn.kernel.org/pub/software/scm/${pkgname}/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure --prefix=/usr \
+	--without-python \
+	--with-gitconfig=/etc/gitconfig
+}
+
+lfs_me_check() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make test
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	# remove conflicting file
+	rm -rvf "${fakeroot_dir}/usr/lib/perl5"
+}
+
+# vim:set syntax=sh et:

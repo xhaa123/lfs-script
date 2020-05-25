@@ -1,0 +1,46 @@
+pkgbuild_version=5
+pkgname=mate-settings-daemon
+pkgver=1.21.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'libcanberra'
+	'libmatekbd'
+	'libmatemixer'
+	'libnotify'
+	'mate-desktop'
+	'nss'
+	'polkit'
+)
+
+sources=(
+"https://pub.mate-desktop.org/releases/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure \
+        --prefix=/usr \
+        --libexecdir=/usr/lib/${pkgname} \
+        --sysconfdir=/etc \
+        --enable-polkit \
+        --enable-pulse
+
+    	#https://bugzilla.gnome.org/show_bug.cgi?id=656231
+    	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

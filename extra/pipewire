@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=pipewire
+pkgver=git
+giturl=https://github.com/PipeWire/pipewire
+LC_ALL=en_US.UTF-8
+
+dependencies=(
+	"!$pkgname"
+
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	mkdir build
+	cd build
+	meson --prefix=/usr ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}/build"
+	ninja
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	DESTDIR=${fakeroot_dir} ninja install
+}

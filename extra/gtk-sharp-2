@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=gtk-sharp-2
+_pkgname=gtk-sharp
+pkgver=2.12.45
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'mono'
+	'libglade'
+	'gtk+2'
+)
+sources=(
+	"https://download.mono-project.com/sources/gtk-sharp212/gtk-sharp-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc --disable-static
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

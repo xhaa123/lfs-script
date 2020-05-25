@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=gnome-menus
+pkgver=3.32.0
+LC_ALL=en_US.UTF-8
+
+dependencies=(
+    "!$pkgname"
+	'glib'
+)
+sources=(
+	
+"http://ftp.gnome.org/pub/gnome/sources/gnome-menus/3.13/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --disable-static
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

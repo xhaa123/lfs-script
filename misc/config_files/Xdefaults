@@ -1,0 +1,3 @@
+URxvt.font:xft:LuxiMono:size=11
+URxvt.saveLines:10000
+

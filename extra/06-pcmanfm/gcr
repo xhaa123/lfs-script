@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=gcr
+pkgver=3.28.1
+
+dependencies=(
+    "!$pkgname"
+	'glib'
+	'libgcrypt'
+	'libtasn1'
+	'p11-kit'
+	'gnupg'
+	'gobject-introspection'
+	'gtk+3'
+	'libxslt'
+	'vala'
+	
+
+)
+sources=(
+	"https://ftp.gnome.org/pub/gnome/sources/gcr/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i -r 's:"(/desktop):"/org/gnome\1:' schema/*.xml
+	./configure --prefix=/usr     \
+        --sysconfdir=/etc	      \
+	--without-gtk-doc
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

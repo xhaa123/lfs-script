@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=jack
+_pkgname=jack-audio-connection-kit
+pkgver=0.125.0
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+)
+sources=(
+	"http://jackaudio.org/downloads/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+        --libdir=/usr/lib
+}
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	mkdir -pv ${fakeroot_dir}/etc/security/limits.d/
+	cat > ${fakeroot_dir}/etc/security/limits.d/99-audio.conf <<EOF
+@audio 	- rtprio 	99
+@audio 	- memlock 	unlimited
+EOF
+	mkdir -pv ${fakeroot_dir}/usr/lib/udev/rules.d/
+	cat > ${fakeroot_dir}/usr/lib/udev/rules.d/40-hpet-permissions.rules <<EOF
+KERNEL=="rtc0", GROUP="audio"
+KERNEL=="hpet", GROUP="audio"
+EOF
+	
+}

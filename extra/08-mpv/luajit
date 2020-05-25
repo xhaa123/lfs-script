@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=luajit
+_pkgname=LuaJIT
+pkgver=2.0.5
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"http://luajit.org/download/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	sed -i 's:/usr/local:/usr:' Makefile
+}
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make -j5
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=libepoxy
+pkgver=1.5.3
+
+dependencies=(
+	"!$pkgname"
+	'mesa'
+	'Python2'
+)
+sources=(
+	"https://github.com/anholt/libepoxy/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	autoreconf -fvi
+	./configure --prefix=/usr
+}
+
+
+lfs_me_check() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -k check
+}
+
+# vim:set ts=4 syntax=sh:

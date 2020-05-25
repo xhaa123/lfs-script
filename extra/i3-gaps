@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=i3-gaps
+pkgver=git
+
+dependencies=(
+	"!$pkgname"
+	'libev'
+	'libxkbcommon'
+	'pango'
+	'startup-notification'
+	'xcb-util-cursor'
+	'xcb-util-keysyms'
+	'xcb-util-wm'
+	'yajl'
+	'xcb-util-xrm'
+)
+sources=(
+	
+)
+sha1sums=(
+	e0d10e8b4494383c7e366ac80a942ba45a705a96
+)
+
+lfs_me_prepare() {
+	cd $build_dir
+	git clone https://www.github.com/Airblader/i3 i3-gaps
+	cd i3-gaps		
+	autoreconf -fi
+	rm -rf build
+	mkdir -p build
+	cd build
+	../configure --prefix=/usr --sysconfdir=/etc
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}/build"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	make DESTDIR="${fakeroot_dir}" install
+}
+# vim:set ts=4 syntax=sh:

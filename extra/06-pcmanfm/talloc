@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=talloc
+pkgver=2.2.0
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"https://www.samba.org/ftp/talloc/${pkgname}-${pkgver}.tar.gz"
+)
+
+overwrite=(
+	"/usr/lib/python3.7/site-packages/talloc.cpython-37m-x86_64-linux-gnu.so"
+	"/usr/share/man/man3/talloc.3"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

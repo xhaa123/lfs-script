@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=python2-libxml2
+_pkgname=libxml2
+pkgver=2.9.8
+
+dependencies=(
+	"!$pkgname"
+	'Python2'
+)
+sources=(
+	"http://xmlsoft.org/sources/libxml2-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/$_pkgname-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}/python"
+	python2 setup.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/python"
+	python2 setup.py install --optimize=1 --root="$fakeroot_dir"
+}

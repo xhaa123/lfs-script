@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=ranger
+pkgver=1.9.2
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'Python3'
+)
+
+sources=(
+	"https://github.com/ranger/ranger/archive/v${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	python3 setup.py -q install --root="${fakeroot_dir}" --optimize=1
+}

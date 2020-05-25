@@ -1,0 +1,27 @@
+pkgbuild_version=5
+pkgname=retroarch-assets
+pkgver=git
+giturl=https://github.com/libretro/retroarch-assets
+
+dependencies=(
+	"!$pkgname"
+
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	install -dm 755 "${fakeroot_dir}"/usr/share/retroarch/assets
+  	cp -dr --no-preserve='ownership' xmb "${fakeroot_dir}"/usr/share/retroarch/assets/
+
+}

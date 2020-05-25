@@ -1,0 +1,50 @@
+pkgbuild_version=5
+pkgname=xhost
+pkgver=1.0.8
+
+dependencies=(
+	"!$pkgname"
+	'xorg-build-environment'
+	'libpng'
+	'mesa'
+	'xbitmaps'
+	'xcb-util'
+	'Linux-PAM'
+)
+
+sources=(
+	"https://xorg.freedesktop.org/releases/individual/app/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+	971670858a464d4f8eeb6f4e182f9fcd94149790
+)
+
+lfs_me_prepare() {
+    tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+    cd "${build_dir}/${pkgname}-${pkgver}"
+	
+	if [[ "$pkgname" == "luit" ]]; then
+	 sed -i -e "/D_XOPEN/s/5/6/" configure
+	fi
+#	if [[ "$pkgname" == "sessreg" ]]; then
+#
+#	sed -e 's/\$(CPP) \$(DEFS)/$(CPP) -P $(DEFS)/' -i man/Makefile.in
+#	fi
+
+	./configure $XORG_CONFIG
+}
+
+lfs_me_build() {
+    return
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+    cd "${build_dir}/${pkgname}-${pkgver}"
+    make DESTDIR="$fakeroot_dir" install
+}
+# vim:set ts=4 syntax=sh:

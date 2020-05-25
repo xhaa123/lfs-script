@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=gnu-efi
+pkgver=3.0.9
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+sources=(
+	"https://downloads.sourceforge.net/gnu-efi/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	#sed -i "s#-Werror##g" Make.defaults
+}
+
+lfs_me_build(){
+	echo "rebuild package a second time as first time fails"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j1 all
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+	make INSTALLROOT="$fakeroot_dir" PREFIX=/usr LIBDIR=/usr/lib install
+
+	install -v -dm755 "${fakeroot_dir}/usr/share/gnu-efi/apps/x86_64"
+	install -v -m644  x86_64/apps/*.efi \
+			"${fakeroot_dir}/usr/share/gnu-efi/apps/x86_64/"
+}

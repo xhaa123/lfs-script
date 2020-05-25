@@ -1,0 +1,13 @@
+#!/bin/bash
+if [ -z "$1" ]
+then
+echo "Usage: install-kernel [kernel-directory]"
+echo "For example: install-kernel linux-4.9.8"
+exit 1
+fi
+echo "Backing up old Kernel"
+cp /boot/vmlinuz /boot/vmlinuz-old
+echo "Copying new Kernel"
+cp /usr/src/$1/arch/x86/boot/bzImage /boot/vmlinuz
+cp .config /boot/kernel-config
+echo "All Done!"

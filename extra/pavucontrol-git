@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=pavucontrol
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'libcanberra'
+	'gtkmm'
+	'pulseaudio'
+)
+sources=(
+#"http://freedesktop.org/software/pulseaudio/pavucontrol/pavucontrol-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+#	tar xvf ${sources_dir}/${pkgname}-${pkgver}.tar.xz -C ${build_dir}
+	cd $build_dir
+	git clone https://github.com/pulseaudio/pavucontrol
+	cd "${build_dir}/${pkgname}"
+	NOCONFIGURE=1 ./bootstrap.sh
+        ./configure --prefix=/usr --enable-gtk3
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}

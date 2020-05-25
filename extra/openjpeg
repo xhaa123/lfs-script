@@ -1,0 +1,44 @@
+pkgbuild_version=5
+pkgname=openjpeg
+pkgver=2.3.1
+
+dependencies=(
+    "!$pkgname"
+	'cmake'
+	'lcms2'
+	'libpng'
+	'libtiff'
+)
+
+sources=(
+	"https://github.com/uclouvain/openjpeg/archive/v${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}/build/"
+	make
+
+}
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build/"
+	make DESTDIR="$fakeroot_dir" install
+	pushd ../doc 
+	for man in man/man?/* ; do
+    	install -v -D -m 644 $man "${fakeroot_dir}/usr/share/$man"
+	done
+        popd
+
+}
+

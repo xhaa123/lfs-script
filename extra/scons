@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=scons
+pkgver=3.1.1
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'Python2'
+)
+sources=(
+	"http://downloads.sourceforge.net/sourceforge/$pkgname/$pkgname-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	python2 setup.py install --standard-lib \
+        --prefix=/usr \
+        --install-data=/usr/share \
+        --optimize=1 \
+        --root="$fakeroot_dir"
+
+	sed -i 's:^#!.*bin/env python:#!/usr/bin/env python2:' \
+    	"$fakeroot_dir"/usr/bin/*
+}

@@ -1,0 +1,26 @@
+pkgbuild_version=5
+pkgname=iio-sensor-proxy
+pkgver=git
+giturl=https://github.com/hadess/iio-sensor-proxy
+
+dependencies=(
+	"!$pkgname"
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	./autogen.sh
+	./configure --prefix=/usr --sbindir=/usr/bin --sysconfdir=/etc
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+}

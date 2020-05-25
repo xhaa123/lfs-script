@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=xrdp
+pkgver=git
+
+dependencies=(
+    	"!$pkgname"
+	'glibc'
+	'which'
+	'yasm'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://github.com/neutrinolabs/xrdp
+	cd "${build_dir}/${pkgname}"
+	./bootstrap
+	./configure --prefix=/usr \
+	--with-systemdsystemdunitdir=/usr/lib/systemd/system \
+	      --enable-jpeg \
+              --enable-fuse \
+	      --enable-pixman \
+	      --enable-vsock
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}

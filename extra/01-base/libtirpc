@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=libtirpc
+pkgver=1.1.4
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	#glibc 2.27 fix
+	#sed '/stdlib.h/a#include <stdint.h>' -i src/xdr_sizeof.c
+	#sed '/key_secret_is/s/secret/secretkey/' -i src/libtirpc.map
+	./configure --prefix=/usr	\
+	--sysconfdir=/etc 		\
+	--disable-static 		\
+	--disable-gssapi
+}
+
+lfs_me_check() {
+	return
+}
+
+# vim:set syntax=sh et:

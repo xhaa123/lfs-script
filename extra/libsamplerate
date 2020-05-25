@@ -1,0 +1,28 @@
+pkgbuild_version=5
+pkgname=libsamplerate
+pkgver=0.1.9
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'libsndfile'
+)
+sources=(
+	"http://www.mega-nerd.com/SRC/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

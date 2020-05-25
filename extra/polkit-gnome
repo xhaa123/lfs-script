@@ -1,0 +1,47 @@
+pkgbuild_version=5
+pkgname=polkit-gnome
+pkgver=0.105
+
+dependencies=(
+    "!$pkgname"
+	'gtk+3'
+	'polkit'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/polkit-gnome/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	mkdir -p ${fakeroot_dir}/etc/xdg/autostart 
+	cat > $fakeroot_dir/etc/xdg/autostart/polkit-gnome-authentication-agent-1.desktop << "EOF"
+	[Desktop Entry]
+	Name=PolicyKit Authentication Agent
+	Comment=PolicyKit Authentication Agent
+	Exec=/usr/libexec/polkit-gnome-authentication-agent-1
+	Terminal=false
+	Type=Application
+	Categories=
+	NoDisplay=true
+	OnlyShowIn=GNOME;XFCE;Unity;
+	AutostartCondition=GNOME3 unless-session gnome
+EOF
+
+}

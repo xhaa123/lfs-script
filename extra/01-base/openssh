@@ -1,0 +1,70 @@
+pkgbuild_version=5
+pkgname=openssh
+pkgver=8.0p1
+unitver=20180105
+dependencies=(
+	"!$pkgname"
+	'openssl'
+#	'Linux-PAM'
+)
+sources=(
+	"http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/${pkgname}-${pkgver}.tar.gz"
+	"http://www.linuxfromscratch.org/blfs/downloads/svn/blfs-systemd-units-${unitver}.tar.bz2"
+)
+backup=(
+	"/etc/ssh/sshd_config"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	tar -xf "${sources_dir}/blfs-systemd-units-${unitver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	            --sysconfdir=/etc/ssh \
+		    --with-md5-passwords    \
+		    --with-privsep-path=/var/lib/sshd
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_check() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make test
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	install -v -m755 contrib/ssh-copy-id "${fakeroot_dir}/usr/bin"
+	install -v -m644 contrib/ssh-copy-id.1 "${fakeroot_dir}/usr/share/man/man1"
+	install -v -m755 -d "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+	install -v -m644 INSTALL LICENCE OVERVIEW README* "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+	install -v -m700 -d "${fakeroot_dir}/var/lib/sshd"
+	cd ${build_dir}/blfs-systemd-units-${unitver}
+	make DESTDIR="$fakeroot_dir" install-sshd
+
+}
+
+lfs_me_postinstall() {
+	chown -v root:sys /var/lib/sshd
+	groupadd -g 50 sshd
+	useradd -c 'sshd PrivSep' -d /var/lib/sshd -g sshd -s /bin/false -u 50 sshd
+	sed 's@d/login@d/sshd@g' /etc/pam.d/login > /etc/pam.d/sshd
+	chmod 644 /etc/pam.d/sshd
+	echo "UsePAM yes" >> /etc/ssh/sshd_config
+	ssh-keygen -A
+}
+
+lfs_me_postremove() {
+	groupdel sshd
+	userdel sshd
+}
+
+# vim:set ts=4 syntax=sh:

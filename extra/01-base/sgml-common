@@ -1,0 +1,57 @@
+pkgbuild_version=5
+pkgname=sgml-common
+pkgver=0.6.3
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"ftp://sources.redhat.com/pub/docbook-tools/new-trials/SOURCES/${pkgname}-${pkgver}.tgz"
+	"http://www.linuxfromscratch.org/patches/blfs/svn/sgml-common-0.6.3-manpage-1.patch"
+)
+sha1sums=(
+	2e7a045cc88491df4f08e0f4023c15fcbdf170d6
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tgz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	patch -Np1 -i "${sources_dir}/sgml-common-0.6.3-manpage-1.patch"
+	autoreconf -f -i
+
+	./configure --prefix=/usr --sysconfdir=/etc
+}
+
+lfs_me_check() {
+	return
+}
+lfs_me_build(){
+return
+}
+
+lfs_me_install(){
+
+cd "${build_dir}/${pkgname}-${pkgver}"
+make  DESTDIR="${fakeroot_dir}" docdir="${fakeroot_dir}/usr/share/doc" install
+
+}
+
+lfs_me_postinstall(){
+install-catalog --add /etc/sgml/sgml-ent.cat \
+    /usr/share/sgml/sgml-iso-entities-8879.1986/catalog &&
+
+install-catalog --add /etc/sgml/sgml-docbook.cat \
+    /etc/sgml/sgml-ent.cat
+
+}
+lfs_me_preremove(){
+install-catalog --remove /etc/sgml/sgml-ent.cat \
+    /usr/share/sgml/sgml-iso-entities-8879.1986/catalog &&
+
+install-catalog --remove /etc/sgml/sgml-docbook.cat \
+    /etc/sgml/sgml-ent.cat
+}
+
+
+# vim:set ts=4 syntax=sh:

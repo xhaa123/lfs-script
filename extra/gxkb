@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=gxkb
+pkgver=git
+giturl=https://github.com/zen-tools/gxkb
+
+dependencies=(
+	"!$pkgname"
+	'gtk+2'
+	'libwnck2'
+	'libxklavier'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	./autogen.sh
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+}

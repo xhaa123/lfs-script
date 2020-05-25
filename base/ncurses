@@ -1,0 +1,65 @@
+pkgbuild_version=5
+pkgname=ncurses
+pkgver=6.1
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'pkg-config'
+)
+sources=(
+	"http://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	sed -i '/LIBTOOL_INSTALL/d' c++/Makefile.in
+
+	./configure --prefix=/usr	\
+	--with-pkg-config-libdir=/usr/lib/pkgconfig \
+	--mandir=/usr/share/man 	\
+	--with-shared           	\
+	--without-debug         	\
+	--without-normal        	\
+	--enable-pc-files       	\
+	--enable-widec
+}
+
+lfs_me_check() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	return
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	for lib in ncurses form panel menu ; do
+		rm -vf                    "${fakeroot_dir}/usr/lib/lib${lib}.so"
+		echo "INPUT(-l${lib}w)" > "${fakeroot_dir}/usr/lib/lib${lib}.so"
+		ln -sfv ${lib}w.pc        "${fakeroot_dir}/usr/lib/pkgconfig/${lib}.pc"
+	done
+
+
+	rm -vf                     "${fakeroot_dir}/usr/lib/libcursesw.so"
+	echo "INPUT(-lncursesw)" > "${fakeroot_dir}/usr/lib/libcursesw.so"
+	rm -vf			   "${fakeroot_dir}/usr/lib/{libncurses.so,libcursesw.so}"
+	ln -sfv libncurses.so      "${fakeroot_dir}/usr/lib/libcurses.so"
+	ln -sfv libncursesw.so	   "${fakeroot_dir}/usr/lib/libncurses.so"
+	ln -sfv libncursesw.so     "${fakeroot_dir}/usr/lib/libcursesw.so"
+	mkdir -pv       "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+	cp -v -R doc/* "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+}
+
+# vim:set syntax=sh et:

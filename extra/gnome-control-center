@@ -1,0 +1,51 @@
+pkgbuild_version=5
+pkgname=gnome-control-center
+pkgver=3.32.1
+
+dependencies=(
+    "!$pkgname"
+	'accountsservice'
+	'clutter-gtk'
+	'colord-gtk'
+	'gnome-online-accounts'
+	'gnome-settings-daemon'
+	'grilo'
+	'libgtop'
+	'libpwquality'
+	'krb5'
+	'shared-mime-info'
+	'cups'
+	'gnome-color-manager'
+	'ibus'
+	'modemmanager'
+	'network-manager-applet'
+	'cheese'
+	'gnome-bluetooth'	
+	'samba'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/gnome-control-center/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	ninja
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	DESTDIR="$fakeroot_dir" ninja install
+}
+

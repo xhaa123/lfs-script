@@ -1,0 +1,74 @@
+pkgbuild_version=5
+pkgname=samba
+pkgver=4.10.6
+
+dependencies=(
+    "!$pkgname"
+	'Python2'
+	'libtirpc'
+	'rpcsvc-proto'
+	'Parse-Yapp'
+	'git'
+)
+sources=(
+	"https://download.samba.org/pub/samba/stable/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+backup=(
+	"/etc/smb/smb.conf"
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	echo "^samba4.rpc.echo.*on.*ncacn_np.*with.*object.*nt4_dc" >> selftest/knownfail
+	CFLAGS="-I/usr/include/tirpc"     \
+	LDFLAGS="-ltirpc"		  \
+	./configure                       \
+       --prefix=/usr                      \
+       --sysconfdir=/etc                  \
+       --localstatedir=/var               \
+       --with-piddir=/run/samba           \
+       --without-ad-dc			  \
+       --without-ldap			  \
+       --without-ads			  \
+       --without-pam			  \
+       --without-libarchive		  \
+       --without-json			  \
+       --enable-fhs
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+
+	install -v -m644    examples/smb.conf.default ${fakeroot_dir}/etc/samba
+	mkdir -pv ${fakeroot_dir}/etc/openldap/schema  
+	install -v -m644    examples/LDAP/README              \
+                    ${fakeroot_dir}/etc/openldap/schema/README.LDAP
+
+	install -v -m644    examples/LDAP/samba*              \
+                    ${fakeroot_dir}/etc/openldap/schema
+	install -v -m755    examples/LDAP/{get*,ol*} \
+                    ${fakeroot_dir}/etc/openldap/schema
+	mkdir -pv ${fakeroot_dir}/etc/samba
+
+cat > ${fakeroot_dir}/etc/samba/smb.conf << EOF
+[global]
+    workgroup = MYGROUP
+    dos charset = cp850
+    unix charset = ISO-8859-1
+EOF
+
+}

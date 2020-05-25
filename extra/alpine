@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=alpine
+pkgver=2.21
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	"http://anduin.linuxfromscratch.org/BLFS/alpine/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	LIBS+="-lcrypto" ./configure --prefix=/usr       \
+                             --sysconfdir=/etc   \
+                             --without-ldap      \
+                             --without-krb5      \
+                             --without-pam       \
+                             --without-tcl       \
+                             --with-ssl-dir=/usr \
+                             --with-passfile=.pine-passfile
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

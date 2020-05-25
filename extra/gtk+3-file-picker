@@ -1,0 +1,61 @@
+pkgbuild_version=5
+pkgname=gtk+3
+pkgname2=gtk+
+pkgver=3.22.26
+_patchver=543fa1dc7173d896f8d87bece94ae23944dd1e76
+_commit=3a1a7135a276f2b6336c7566f6342da739a41d39
+
+dependencies=(
+	"!$pkgname"
+	'atk'
+	'at-spi2-core'
+	'at-spi2-atk'
+	'gdk-pixbuf'
+	'libepoxy'
+	'pango'
+	'hicolor-icon-theme'
+	'gobject-introspection'
+	'colord'
+	'cups'
+	'json-glib'
+	'libxkbcommon'
+	'rest'
+	'wayland'
+	'wayland-protocols'
+	'librsvg'
+	'six'
+)
+sources=(
+	"https://gist.githubusercontent.com/Dudemanguy911/c172394e30e1e7d0f477ad15c719bc71/raw/$_patchver/gtk3-filechooser-icon-view.patch"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd $build_dir
+	git clone git://git.gnome.org/gtk+
+	cd $pkgname2
+	git checkout $_commit
+	patch -Np1 -i ${sources_dir}/gtk3-filechooser-icon-view.patch
+
+	./configure --prefix=/usr \
+    	--sysconfdir=/etc \
+    	--localstatedir=/var \
+    	--enable-x11-backend \
+    	--enable-broadway-backend \
+    	--enable-wayland-backend
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname2}"
+	make
+}
+lfs_me_install() {
+        cd "${build_dir}/${pkgname2}"
+        make DESTDIR="${fakeroot_dir}" install
+}
+
+lfs_me_postinstall() {
+	gtk-query-immodules-3.0 --update-cache
+	glib-compile-schemas /usr/share/glib-2.0/schemas
+}

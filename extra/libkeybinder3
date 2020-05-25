@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=libkeybinder3
+_pkgname=keybinder-3.0
+pkgver=0.3.1
+
+dependencies=(
+    "!$pkgname"
+	'gtk+3'
+	'gobject-introspection'
+	'lua-lgi'
+)
+sources=(
+	"http://archive.ubuntu.com/ubuntu/pool/universe/k/${_pkgname}/${_pkgname}_${pkgver}.orig.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}_${pkgver}.orig.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make 
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

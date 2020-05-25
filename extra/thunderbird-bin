@@ -1,0 +1,67 @@
+pkgbuild_version=5
+pkgname=thunderbird-bin
+_pkgname=thunderbird
+pkgver=63.0b1
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'gtk+2'
+)
+sources=(
+	"https://download-installer.cdn.mozilla.net/pub/thunderbird/releases/${pkgver}/linux-x86_64/en-US/thunderbird-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	mkdir "${build_dir}/${pkgname}-${pkgver}"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cp ${sources_dir}/${_pkgname}-${pkgver}.tar.bz2 .
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir ${fakeroot_dir}/opt/
+	mkdir -pv ${fakeroot_dir}/usr/bin
+	mkdir -pv ${fakeroot_dir}/etc/profile.d
+	cat > ${fakeroot_dir}/etc/profile.d/thunderbird.sh << "EOF"
+# Begin /etc/profile.d/thunderbird.sh
+
+THUNDERDIR=/opt/thunderbird
+export THUNDERDIR
+pathappend $THUNDERDIR
+
+# End /etc/profile.d/thunderbird.sh
+EOF
+
+	tar -xiC "${fakeroot_dir}/opt/" -f ${_pkgname}-${pkgver}.tar.bz2
+
+mkdir -pv ${fakeroot_dir}/usr/share/{applications,pixmaps}
+
+cat > ${fakeroot_dir}/usr/share/applications/thunderbird.desktop << "EOF"
+[Desktop Entry]
+Encoding=UTF-8
+Name=Thunderbird Mail
+Comment=Send and receive mail with Thunderbird
+GenericName=Mail Client
+Exec=/opt/thunderbird/thunderbird %u
+Terminal=false
+Type=Application
+Icon=thunderbird
+Categories=Application;Network;Email;
+MimeType=application/xhtml+xml;text/xml;application/xhtml+xml;application/xml;application/rss+xml;x-scheme-handler/mailto;
+StartupNotify=true
+EOF
+
+ln -sfv /opt/thunderbird/chrome/icons/default/default256.png \
+        ${fakeroot_dir}/usr/share/pixmaps/thunderbird.png
+
+ln -sfv /opt/thunderbird/thunderbird ${fakeroot_dir}/usr/bin/thunderbird
+}

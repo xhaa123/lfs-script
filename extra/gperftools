@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=gperftools
+pkgver=2.6.3
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'perl'
+)
+
+sources=(
+"https://github.com/gperftools/gperftools/releases/download/gperftools-$pkgver/gperftools-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --enable-frame-pointers
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

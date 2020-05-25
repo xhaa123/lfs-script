@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=slstatus
+pkgver=git
+giturl=git://git.drkhsh.at/slstatus.git
+
+dependencies=(
+    "!$pkgname"
+
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+
+cat > config.def.h << "EOF"
+#define UPDATE_INTERVAL 1
+#define UNKNOWN_STR "n/a"
+#define MAXLEN 2048
+static const struct arg args[] = {
+        /* function format          argument */
+        { cpu_perc, "[CPU %3s%%]", NULL    },
+        { ram_perc, "[RAM %2s%%]", NULL    },
+        { datetime, "[%s]",       "%F %T" },
+        { uptime, "[%s]", NULL },
+};
+EOF
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make PREFIX=/usr DESTDIR=$fakeroot_dir install
+}

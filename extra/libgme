@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=libgme
+_pkgname=game-music-emu
+pkgver=0.6.1
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'cmake'
+)
+
+sources=(
+	"https://bitbucket.org/mpyne/game-music-emu/downloads/$_pkgname-$pkgver.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	cmake -DCMAKE_INSTALL_PREFIX=/usr .
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

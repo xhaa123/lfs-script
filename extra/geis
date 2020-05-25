@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=geis
+pkgver=2.2.17
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'grail'
+	'pygobject3'
+)
+
+sources=(
+	"http://launchpad.net/${pkgname}/trunk/${pkgver}/+download/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	CFLAGS="$CFLAGS -Wno-format -Wno-misleading-indentation -Wno-error" ./configure --prefix=/usr --disable-static
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

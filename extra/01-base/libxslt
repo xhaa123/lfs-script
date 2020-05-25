@@ -1,0 +1,27 @@
+pkgbuild_version=5
+pkgname=libxslt
+pkgver=1.1.33
+
+dependencies=(
+	"!$pkgname"
+	'libxml2'
+#	'docbook-xml'
+#	'docbook-xsl'
+#	'libgcrypt'
+#	'Python2'
+)
+sources=(
+	"http://xmlsoft.org/sources/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i "/seems to be moved/s/^/#/" ltmain.sh
+	./configure --prefix=/usr --disable-static
+}
+
+# vim:set ts=4 syntax=sh:

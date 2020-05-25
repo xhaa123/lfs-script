@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=serf
+pkgver=1.3.9
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'apr-util'
+	'openssl'
+	'scons'
+)
+
+sources=(
+	"https://archive.apache.org/dist/serf/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i "/Append/s:RPATH=libdir,::"          SConstruct
+	sed -i "/Default/s:lib_static,::"           SConstruct
+	sed -i "/Alias/s:install_static,::"         SConstruct
+	sed -i "/  print/{s/print/print(/; s/$/)/}" SConstruct
+
+	scons PREFIX=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -d ${fakeroot_dir}/usr
+	scons install --install-sandbox=${fakeroot_dir}
+}

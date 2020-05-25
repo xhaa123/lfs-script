@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=qmmp
+pkgver=svn
+giturl=http://svn.code.sf.net/p/qmmp-dev/code/trunk/qmmp/
+
+dependencies=(
+	"!$pkgname"
+	'qt'
+	'unzip'
+	'libmad'
+	'libvorbis'
+	'taglib'
+	'curl'
+	'cmake'
+	'libcdio-paranoia'
+	'opusfile'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	svn checkout $giturl qmmp
+	cd $pkgname
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DLIB_DIR=lib \
+	..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	make DESTDIR=${fakeroot_dir} install
+}
+
+lfs_me_postinstall() {
+        gtk-update-icon-cache /usr/share/icons/hicolor
+}

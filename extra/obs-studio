@@ -1,0 +1,34 @@
+pkgbuild_version=5
+pkgname=obs-studio
+pkgver=git
+giturl=https://github.com/jp9000/obs-studio
+
+dependencies=(
+	"!$pkgname"
+	'ffmpeg'
+	'pulseaudio'
+	'qt'
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	mkdir build
+	cd build
+	cmake -DUNIX_STRUCTURE=1 \
+	-DCMAKE_INSTALL_PREFIX="/usr" \
+	..
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	make DESTDIR=${fakeroot_dir} install
+}

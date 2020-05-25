@@ -1,0 +1,2 @@
+#!/bin/bash
+ln -svf /usr/bin/python2 /usr/bin/python

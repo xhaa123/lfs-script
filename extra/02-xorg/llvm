@@ -1,0 +1,53 @@
+pkgbuild_version=5
+pkgname=llvm
+pkgver=8.0.1
+
+dependencies=(
+	"!$pkgname"
+	'libffi'
+	'Python2'
+	'cmake'
+)
+sources=(
+	"https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/${pkgname}-${pkgver}.src.tar.xz"
+	"https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/cfe-${pkgver}.src.tar.xz"
+	"https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/compiler-rt-${pkgver}.src.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.src.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}.src"
+
+	tar -xf "${sources_dir}/cfe-${pkgver}.src.tar.xz" -C tools
+	tar -xf "${sources_dir}/compiler-rt-${pkgver}.src.tar.xz" -C projects
+
+	mv "tools/cfe-${pkgver}.src" tools/clang
+	mv "projects/compiler-rt-${pkgver}.src" projects/compiler-rt
+	mkdir -v build
+	cd build
+        CC=gcc CXX=g++                         \
+	cmake -DCMAKE_INSTALL_PREFIX=/usr      \
+        -DLLVM_ENABLE_FFI=ON                   \
+        -DCMAKE_BUILD_TYPE=Release             \
+	-DLLVM_BUILD_LLVM_DYLIB=ON	       \
+	-DLLVM_LINK_LLVM_DYLIB=ON              \
+	-DLLVM_ENABLE_RTTI=ON		       \
+        -DLLVM_TARGETS_TO_BUILD="host;AMDGPU;BPF"  \
+        -Wno-dev -G Ninja ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}.src/build"
+	ninja
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}.src/build"
+	DESTDIR="$fakeroot_dir" ninja install
+}
+
+# vim:set ts=4 syntax=sh:

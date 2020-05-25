@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=libxdg-basedir
+pkgver=1.2.0
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+)
+sources=(
+	"https://github.com/devnev/$pkgname/archive/$pkgname-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgname}-${pkgver}"
+	patch -Np0 -i "${sources_dir}/overflow.patch"
+	./autogen.sh --prefix=/usr
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgname}-${pkgver}"
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

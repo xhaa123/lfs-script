@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=modemmanager
+_pkgname=ModemManager
+pkgver=1.10.0
+
+dependencies=(
+    "!$pkgname"
+	'libgudev'
+	'gobject-introspection'
+	'libmbim'
+	'libqmi'
+	'polkit'
+	'vala'
+
+)
+sources=(
+	"http://www.freedesktop.org/software/ModemManager/${_pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr                 \
+            --sysconfdir=/etc             \
+            --localstatedir=/var          \
+            --enable-more-warnings=no     \
+            --with-suspend-resume=systemd \
+            --disable-static
+}
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

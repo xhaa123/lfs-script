@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=pyrex
+pkgver=0.9.9
+
+dependencies=(
+    "!$pkgname"
+	'Python2'
+)
+sources=(
+	"http://www.cosc.canterbury.ac.nz/~greg/python/Pyrex/Pyrex-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/Pyrex-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/Pyrex-${pkgver}"
+	python2 setup.py build
+	
+
+}
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/Pyrex-${pkgver}"
+	python2 setup.py install -O1 --root="${fakeroot_dir}" --prefix=/usr
+
+}
+

@@ -1,0 +1,94 @@
+pkgbuild_version=5
+pkgname=liberation-fonts-ttf
+pkgver=2.00.1
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"https://releases.pagure.org/liberation-fonts/liberation-fonts-ttf-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	mkdir -pv "${fakeroot_dir}"/etc/fonts/conf.avail
+  	mkdir -pv "${fakeroot_dir}"/usr/share/fonts/TTF
+
+  	install -m644 *.ttf "${fakeroot_dir}"/usr/share/fonts/TTF/
+
+cat > "$fakeroot_dir/etc/fonts/conf.avail/30-$pkgname-mono.conf" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontconfig SYSTEM "../fonts.dtd">
+<fontconfig>
+	 <!-- Microsoft -->
+	<alias binding="same">
+          <family>Courier New</family>
+            <accept>
+              <family>Liberation Mono</family>
+            </accept>
+        </alias>
+        <alias binding="same">
+          <family>Liberation Mono</family>
+            <default>
+               <family>Courier New</family>
+            </default>
+        </alias>
+</fontconfig>
+EOF
+
+cat > "$fakeroot_dir/etc/fonts/conf.avail/30-$pkgname-sans.conf" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontconfig SYSTEM "../fonts.dtd">
+<fontconfig>
+         <!-- Microsoft -->
+        <alias binding="same">
+          <family>Arial</family>
+            <accept>
+              <family>Liberation Sans</family>
+            </accept>
+        </alias>
+        <alias binding="same">
+          <family>Liberation Sans</family>
+            <default>
+              <family>Arial</family>
+            </default>
+        </alias>
+</fontconfig>
+EOF
+
+cat > "$fakeroot_dir/etc/fonts/conf.avail/30-$pkgname-serif.conf" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontconfig SYSTEM "../fonts.dtd">
+<fontconfig>
+	 <!-- Microsoft -->
+        <alias binding="same">
+          <family>Times New Roman</family>
+            <accept>
+               <family>Liberation Serif</family>
+            </accept>
+        </alias>
+        <alias binding="same">
+          <family>Liberation Serif</family>
+	    <default>
+              <family>Times New Roman</family>
+	    </default>
+        </alias>
+</fontconfig>
+EOF
+
+}
+

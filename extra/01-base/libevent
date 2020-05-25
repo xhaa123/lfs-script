@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=libevent
+pkgver=2.1.11
+
+dependencies=(
+	"!$pkgname"
+	'openssl'
+)
+sources=(
+	"https://github.com/libevent/libevent/releases/download/release-${pkgver}-stable/${pkgname}-${pkgver}-stable.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}-stable.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}-stable"
+	./configure --prefix=/usr --disable-static
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}-stable"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}-stable"
+	make DESTDIR="${fakeroot_dir}" install
+
+}
+
+
+
+# vim:set ts=4 syntax=sh:

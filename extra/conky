@@ -1,0 +1,42 @@
+pkgbuild_version=5
+pkgname=conky
+pkgver=1.10.6
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'docbook2X'
+)
+sources=(
+	
+"https://github.com/brndnmtthws/conky/archive/v${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cmake \
+	-D CMAKE_BUILD_TYPE=Release \
+	-D MAINTAINER_MODE=ON \
+	-D BUILD_WLAN=ON \
+	-D BUILD_XDBE=OFF \
+	-D BUILD_IMLIB2=ON \
+	-D BUILD_CURL=ON \
+	-D BUILD_RSS=OFF \
+	-D BUILD_WEATHER_METAR=ON \
+	-D BUILD_WEATHER_XOAP=OFF \
+	-D BUILD_PULSEAUDIO=ON \
+	-D CMAKE_INSTALL_PREFIX=/usr \
+	.
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

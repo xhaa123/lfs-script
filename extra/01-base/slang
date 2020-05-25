@@ -1,0 +1,44 @@
+pkgbuild_version=5
+pkgname=slang
+pkgver=2.3.2
+
+dependencies=(
+    "!$pkgname"
+	'libpng'
+	'pcre' 
+)
+
+sources=(
+	"http://www.jedsoft.org/releases/slang/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --with-readline=gnu
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j1
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+        make -j1 DESTDIR=$fakeroot_dir install-all
+	}
+
+lfs_me_postinstall(){
+
+	chmod -v 755 /usr/lib/libslang.so.${pkgver} \
+             /usr/lib/slang/v2/modules/*.so
+
+}

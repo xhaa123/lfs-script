@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=sdl
+_pkgname=SDL
+pkgver=1.2.15
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	" http://www.libsdl.org/release/${_pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	sed -e '/_XData32/s:register long:register _Xconst long:' -i src/video/x11/SDL_x11sym.h
+	./configure --prefix=/usr --disable-static
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+}
+
+
+
+# vim:set ts=4 syntax=sh:

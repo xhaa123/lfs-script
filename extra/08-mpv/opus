@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=opus
+pkgver=1.3.1
+
+dependencies=(
+    "!$pkgname"
+)
+
+sources=(
+	"https://archive.mozilla.org/pub/opus/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/opus-${pkgver}
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

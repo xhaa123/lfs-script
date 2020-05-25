@@ -1,0 +1,54 @@
+pkgbuild_version=5
+pkgname=fluidsynth
+pkgver=1.1.8
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'jack'
+	'pulseaudio'
+	'cmake'
+	'gst-plugins-bad'
+)
+
+sources=(
+	"https://github.com/FluidSynth/fluidsynth/archive/v${pkgver}.tar.gz"
+	"https://www.dropbox.com/s/4x27l49kxcwamp5/GeneralUser_GS_1.471.zip"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cmake . -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DLIB_SUFFIX=""
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	mkdir -pv ${fakeroot_dir}/usr/share/soundfont
+	unzip -j ${sources_dir}/GeneralUser_GS_1.471.zip -d ${fakeroot_dir}/usr/share/soundfont
+
+	mkdir -pv ${fakeroot_dir}/usr/lib/systemd/user/
+	cat > ${fakeroot_dir}/usr/lib/systemd/user/fluidsynth.service <<EOF
+[Unit]
+Description=FluidSynth Daemon
+After=sound.target
+
+[Service]
+ExecStart=/usr/bin/fluidsynth -is -a pulseaudio "/usr/share/soundfont/GeneralUser GS v1.471.sf2"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+}

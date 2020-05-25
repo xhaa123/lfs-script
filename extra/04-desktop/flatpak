@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=flatpak
+pkgver=git
+
+dependencies=(
+    	"!$pkgname"
+	'libostree'
+	'libseccomp'
+	'gnupg'
+	'appstream-glib'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone https://github.com/flatpak/flatpak
+	cd "${build_dir}/${pkgname}"
+	NOCONFIGURE=1 ./autogen.sh
+	CFLAGS="" CXXFLAGS="" \
+	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+        --sbindir=/usr/bin --libexecdir=/usr/lib --disable-static \
+        --enable-gtk-doc --with-priv-mode=setuid
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+	install -d -o root -g 102 -m 750 "$fakeroot_dir/usr/share/polkit-1/rules.d"
+}

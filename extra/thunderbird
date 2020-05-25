@@ -1,0 +1,125 @@
+pkgbuild_version=5
+pkgname=thunderbird
+pkgver=60.7.0
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'alsa-lib'
+	'gtk+2'
+	'zip'
+	'unzip'
+	'yasm'
+	'libevent'
+	'libvpx'
+	'nspr'
+	'nss'
+	'startup-notification'
+)
+sources=(
+	"https://ftp.mozilla.org/pub/mozilla.org/thunderbird/releases/${pkgver}/source/${pkgname}-${pkgver}.source.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.source.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cat > mozconfig << "EOF"
+# If you have a multicore machine, the build may be faster if using parallel
+# jobs. The build system automatically adds -jN to the "make" flags, where N
+# is the number of CPU cores. The option below is therefore useless, unless
+# you want to use a smaller number of jobs:
+#mk_add_options MOZ_MAKE_FLAGS="-j2"
+
+# If you have installed dbus-glib, comment out this line:
+#ac_add_options --disable-dbus
+
+# If you have installed wireless-tools comment out this line:
+ac_add_options --disable-necko-wifi
+
+# Uncomment these lines if you have installed optional dependencies:
+#ac_add_options --enable-system-hunspell
+ac_add_options --enable-startup-notification
+
+# Comment out following option if you have PulseAudio installed
+#ac_add_options --disable-pulseaudio
+
+# Comment out following option if you have gconf installed
+#ac_add_options --disable-gconf
+
+# If you want to compile the Mozilla Calendar, uncomment this line:
+ac_add_options --enable-calendar
+
+# Comment out following options if you have not installed
+# recommended dependencies:
+# Do not use system SQLite for Thunderbird 45.x
+ac_add_options --enable-system-sqlite
+ac_add_options --with-system-libevent
+ac_add_options --with-system-libvpx
+ac_add_options --with-system-nspr
+ac_add_options --with-system-nss
+ac_add_options --with-system-icu
+
+# The BLFS editors recommend not changing anything below this line:
+ac_add_options --prefix=/usr
+ac_add_options --enable-application=comm/mail
+
+ac_add_options --disable-crashreporter
+ac_add_options --disable-updater
+ac_add_options --disable-debug
+ac_add_options --disable-tests
+
+ac_add_options --enable-optimize=-O2
+ac_add_options --enable-strip
+ac_add_options --enable-install-strip
+
+ac_add_options --enable-official-branding
+
+# Use internal cairo due to reports of unstable execution with
+# system cairo
+#ac_add_options --enable-system-cairo
+ac_add_options --enable-system-ffi
+ac_add_options --enable-system-pixman
+
+ac_add_options --with-pthreads
+
+ac_add_options --with-system-bz2
+ac_add_options --with-system-jpeg
+ac_add_options --with-system-png
+ac_add_options --with-system-zlib
+EOF
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./mach build
+}
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	DESTDIR="$fakeroot_dir" ./mach install INSTALL_SDK=
+	chown -R 0:0 ${fakeroot_dir}/usr/lib/thunderbird-${pkgver}
+
+mkdir -pv ${fakeroot_dir}/usr/share/{applications,pixmaps}
+
+cat > ${fakeroot_dir}/usr/share/applications/thunderbird.desktop << "EOF"
+[Desktop Entry]
+Encoding=UTF-8
+Name=Thunderbird Mail
+Comment=Send and receive mail with Thunderbird
+GenericName=Mail Client
+Exec=thunderbird %u
+Terminal=false
+Type=Application
+Icon=thunderbird
+Categories=Application;Network;Email;
+MimeType=application/xhtml+xml;text/xml;application/xhtml+xml;application/xml;application/rss+xml;x-scheme-handler/mailto;
+StartupNotify=true
+EOF
+
+ln -sfv /usr/lib/thunderbird-${pkgver}/chrome/icons/default/default256.png \
+        ${fakeroot_dir}/usr/share/pixmaps/thunderbird.png
+}

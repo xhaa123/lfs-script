@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=streamlink
+pkgver=git
+giturl=https://github.com/streamlink/streamlink
+
+dependencies=(
+    	"!$pkgname"
+	'Python2'
+#	'python2-requests'
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}"
+	python setup.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	python setup.py install --root=${fakeroot_dir} --optimize=1
+}
+
+lfs_me_postinstall() {
+	pip install PySocks
+	pip install websocket-client
+	pip install iso3166
+	pip install iso-639
+	pip install backports.shutil_get_terminal_size
+	pip install backports.shutil_which
+	pip install pycryptodome
+	pip install requests
+	pip install singledispatch
+	pip install futures
+}

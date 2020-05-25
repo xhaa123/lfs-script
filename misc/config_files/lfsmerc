@@ -1,0 +1,7 @@
+index_dir=/var/lfs-me/index
+log_dir=/var/log/lfs-me
+build_dir=/var/build
+sources_dir=/var/sources
+run_checks=false
+verify_checksums=false
+

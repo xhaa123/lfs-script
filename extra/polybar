@@ -1,0 +1,34 @@
+pkgbuild_version=5
+pkgname=polybar
+pkgver=git
+giturl=https://github.com/jaagr/polybar
+
+dependencies=(
+	"!$pkgname"
+	'cmake'
+	'cairo'
+	'libxcb'
+	'Python2'
+	'xcb-util-cursor'
+	'xcb-util-image'
+	'xcb-util-wm'
+	'xcb-util-xrm'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	git submodule update --init --recursive
+	cmake -DCMAKE_INSTALL_PREFIX=/usr .
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	cmake --build .
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	cmake --build . --target install -- DESTDIR=${fakeroot_dir} install
+}

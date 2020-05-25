@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=python2-pycryptodome
+_pkgname=pycryptodome
+pkgver=3.4.6
+
+dependencies=(
+	"!$pkgname"
+	'Python2'
+)
+sources=(
+	"https://github.com/Legrandin/pycryptodome/archive/v${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py install --root="${fakeroot_dir}" --optimize=1
+}

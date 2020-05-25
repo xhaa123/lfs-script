@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=boost
+pkgver=1.70.0
+_pkgver=1_70_0
+
+dependencies=(
+    "!$pkgname"
+	'which'
+	'icu'
+	'Python3'
+)
+sources=(
+	"https://downloads.sourceforge.net/project/boost/boost/${pkgver}/${pkgname}_${_pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}_${_pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}_${_pkgver}"
+	sed -e '/using python/ s@;@: /usr/include/python${PYTHON_VERSION/3*/${PYTHON_VERSION}m} ;@' \
+    	-i bootstrap.sh
+	sed -e '1 i#ifndef Q_MOC_RUN' \
+        -e '$ a#endif'            \
+       -i boost/type_traits/detail/has_binary_operator.hpp
+	./bootstrap.sh --prefix=/usr --with-python=python3
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}_${_pkgver}"
+	./b2 stage threading=multi link=shared
+
+}
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}_${_pkgver}"
+	./b2 --prefix=${fakeroot_dir}/usr install threading=multi link=shared 
+}
+

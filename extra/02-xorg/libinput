@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=libinput
+pkgver=1.14.0
+LC_ALL=en_US.utf8
+dependencies=(
+	"!$pkgname"
+	'xorg-libraries'
+	'libevdev'
+	'mtdev'
+	'Check'
+)
+sources=(
+	"http://www.freedesktop.org/software/${pkgname}/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=$XORG_PREFIX	\
+	-Dudev-dir=/usr/lib/udev	\
+	-Ddebug-gui=false		\
+	-Dtests=false			\
+	-Ddocumentation=false		\
+	-Dlibwacom=false		\
+	..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	ninja
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	DESTDIR=${fakeroot_dir} ninja install
+}
+
+# vim:set ts=4 syntax=sh:

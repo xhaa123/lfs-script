@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=ttf-noto
+pkgver=20160917
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'fontconfig'
+)
+sources=(
+	"https://noto-website-2.storage.googleapis.com/pkgs/Noto-hinted.zip"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	unzip ${sources_dir}/Noto-hinted.zip -d ${build_dir}/${pkgname}-${pkgver}
+
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	install -dm 755 $fakeroot_dir/usr/share/fonts/{TTF,OTF}
+	install -D -m644 *.ttf $fakeroot_dir/usr/share/fonts/TTF
+	install -D -m644 *.otf $fakeroot_dir/usr/share/fonts/OTF
+}

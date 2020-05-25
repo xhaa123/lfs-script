@@ -1,0 +1,28 @@
+#!/bin/bash
+lfs=/mnt/iso/lib
+
+cp -a /usr/lib/libgraphite2.so* $lfs
+cp -a /usr/lib/libharfbuzz.so* $lfs
+cp -a /usr/lib/libtheoraenc.so* $lfs
+cp -a /usr/lib/libfdk-aac.so* $lfs
+cp -a /usr/lib/libxcb-xfixes.so* $lfs
+cp -a /usr/lib/libxcb-shape.so* $lfs
+cp -a /usr/lib/libvdpau.so*	$lfs
+cp -a /usr/lib/libtheora.so* $lfs
+cp -a /usr/lib/libmp3lame.so* $lfs
+cp -a /usr/lib/libass.so* $lfs
+cp -a /usr/lib/libxcb-shm.so* $lfs
+cp -a /usr/lib/libXext.so* $lfs
+cp -a /usr/lib/libxcb.so* $lfs
+cp -a /usr/lib/liblcms2.so* $lfs
+cp -a /usr/lib/libXfixes.so* $lfs
+cp -a /usr/lib/libdrm.so* $lfs
+cp -a /usr/lib/libogg.so* $lfs
+cp -a /usr/lib/libfontconfig.so* $lfs
+cp -a /usr/lib/libvorbisenc.so* $lfs
+cp -a /usr/lib/libvorbis.so* $lfs
+cp -a /usr/lib/libtheoradec.so* $lfs
+cp -a /usr/lib/libopus.so* $lfs
+cp -a /usr/lib/libwebp.so* $lfs
+cp -a /usr/lib/libwebpmux.so* $lfs
+

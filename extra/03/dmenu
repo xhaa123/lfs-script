@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=dmenu
+pkgver=4.9
+
+dependencies=(
+	"!$pkgname"
+	'freetype'
+)
+sources=(
+	
+	"http://dl.suckless.org/tools/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+	e0d10e8b4494383c7e366ac80a942ba45a705a96
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make FREETYPEINC=/usr/include/freetype2
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make PREFIX=/usr DESTDIR="${fakeroot_dir}" install
+}
+# vim:set ts=4 syntax=sh:

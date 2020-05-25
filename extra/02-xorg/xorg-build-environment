@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=xorg-build-environment
+pkgver=0
+export XORG_PREFIX=/usr
+dependencies=(
+	"!$pkgname"
+)
+
+lfs_me_prepare() {
+	return
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	return
+}
+
+lfs_me_postinstall(){
+cat > /etc/profile.d/xorg.sh << EOF
+XORG_PREFIX="$XORG_PREFIX"
+XORG_CONFIG="--prefix=\$XORG_PREFIX --sysconfdir=/etc --localstatedir=/var --disable-static"
+export XORG_PREFIX XORG_CONFIG
+EOF
+chmod 644 /etc/profile.d/xorg.sh
+echo "Run "source /etc/profile""
+}
+
+# vim:set ts=4 syntax=sh:

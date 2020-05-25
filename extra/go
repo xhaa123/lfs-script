@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=go
+_pkgname=go-linux-amd64-bootstrap
+pkgver=1.11.5
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+sources=(
+	"https://redirector.gvt1.com/edgedl/go/go${pkgver}.src.tar.gz"
+	"https://dl.google.com/go/go$pkgver.linux-amd64.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+#	tar -xf "${sources_dir}/${pkgname}${pkgver}.src.tar.gz" -C "$build_dir"
+#	tar -xf "${sources_dir}/${pkgname}${pkgver}.linux-amd64.tar.gz" -C "$build_dir"
+#	cd "${build_dir}/${pkgname}/src"
+#	GOROOT_BOOTSTRAP=$build_dir/go GOOS=linux GOARCH=amd64 ./bootstrap.bash
+return
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}/src"
+	GOROOT_BOOTSTRAP=$build_dir/go GOOS=linux GOARCH=amd64 \
+	./make.bash
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}/"
+	mkdir -pv $fakeroot_dir/usr/bin
+	mkdir -pv $fakeroot_dir/usr/lib/go
+	cp -a bin pkg src lib misc api test $fakeroot_dir/usr/lib/go
+	ln -sf /usr/lib/go/bin/go $fakeroot_dir/usr/bin/go
+	ln -sf /usr/lib/go/bin/gofmt $fakeroot_dir/usr/bin/gofmt
+	rm -rf $fakeroot_dir/usr/lib/go/pkg/bootstrap $fakeroot_dir/usr/lib/go/pkg/tool/*/api
+}

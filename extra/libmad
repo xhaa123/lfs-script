@@ -1,0 +1,48 @@
+pkgbuild_version=5
+pkgname=libmad
+pkgver=0.15.1b
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"http://downloads.sourceforge.net/mad/${pkgname}-${pkgver}.tar.gz"
+	"http://www.linuxfromscratch.org/patches/blfs/svn/libmad-0.15.1b-fixes-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	patch -Np1 -i ${sources_dir}/libmad-0.15.1b-fixes-1.patch
+	sed "s@AM_CONFIG_HEADER@AC_CONFIG_HEADERS@g" -i configure.ac 
+	touch NEWS AUTHORS ChangeLog
+	autoreconf -fi
+	./configure --prefix=/usr --disable-static
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	mkdir -pv ${fakeroot_dir}/usr/lib/pkgconfig/
+	cat > ${fakeroot_dir}/usr/lib/pkgconfig/mad.pc << "EOF"	
+	prefix=/usr
+	exec_prefix=${prefix}
+	libdir=${exec_prefix}/lib
+	includedir=${prefix}/include
+
+	Name: mad
+	Description: MPEG audio decoder
+	Requires:
+	Version: 0.15.1b
+	Libs: -L${libdir} -lmad
+	Cflags: -I${includedir}
+EOF
+
+
+}
+

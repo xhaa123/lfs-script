@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=pyqt5
+_pkgname=PyQt5_gpl
+pkgver=5.9.2
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'qt'
+	'python3-sip'
+)
+
+sources=(
+	"http://sourceforge.net/projects/pyqt/files/PyQt5/PyQt-$pkgver/PyQt5_gpl-$pkgver.tar.gz"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/pyqt5/pyqt-support-new-qt.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/PyQt5_gpl-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	patch -p1 -i ${sources_dir}/pyqt-support-new-qt.patch
+	sed -i '/target_config.dbus_inc_dirs = \[\]/d' configure.py
+	python3 configure.py \
+    	--no-sip-files \
+    	--qsci-api \
+	--confirm-license
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+  	find -name 'Makefile' | xargs sed -i 's|-Wl,-rpath,/usr/lib||g;s|-Wl,-rpath,.* ||g'
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" INSTALL_ROOT=${fakeroot_dir} install
+}

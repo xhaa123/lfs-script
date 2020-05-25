@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=adwaita-icon-theme
+pkgver=3.32.0
+
+dependencies=(
+    "!$pkgname"
+	'git'
+	'librsvg'
+	'gtk+2'
+	'gtk+3'	
+)
+sources=(
+	"https://ftp.gnome.org/pub/gnome/sources/adwaita-icon-theme/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	echo "REBUILD libpng gdk-pixbuf and librsvg in case of error"
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	gdk-pixbuf-query-loaders --update-cache
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr 
+}
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir"  install
+}
+
+lfs_me_postinstall(){
+	gtk-update-icon-cache /usr/share/icons/Adwaita
+}
+

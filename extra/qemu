@@ -1,0 +1,49 @@
+pkgbuild_version=5
+pkgname=qemu
+pkgver=4.0.0
+
+dependencies=(
+	"!$pkgname"
+	'glib'
+	'Python2'
+	'sdl2'
+	"curl"
+	"libusb"
+)
+sources=(
+	"http://wiki.qemu.org/download/${pkgname}-${pkgver}.tar.bz2"
+#	"https://gitweb.gentoo.org/repo/gentoo.git/plain/app-emulation/qemu/files/qemu-2.11.0-glibc-2.27.patch"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+#	patch -Np1 -i ${sources_dir}/qemu-2.11.0-glibc-2.27.patch
+	mkdir -vp build
+	cd build
+
+../configure --prefix=/usr               	\
+             --sysconfdir=/etc           	\
+             --target-list=x86_64-softmmu       \
+	     --python=/usr/bin/python2 		\
+             --audio-drv-list="pa alsa"       	\
+	     --with-gtkabi=3.0			\
+	     --with-sdlabi=2.0			\
+	     --enable-modules			\
+             --docdir=/usr/share/doc/qemu-${pkgver}
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	make DESTDIR="${fakeroot_dir}" install
+}
+# vim:set ts=4 syntax=sh:

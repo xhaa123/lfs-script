@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=tzdata
+pkgver=2019b
+tzone=Asia/Bangkok
+
+timezones=('africa' 'antarctica' 'asia' 'australasia' 'europe' 'northamerica' 'southamerica'
+           'pacificnew' 'etcetera' 'backward' 'systemv' 'factory')
+
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"http://www.iana.org/time-zones/repository/releases/tzdata${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	mkdir ${build_dir}/tzdata
+	tar -xf "${sources_dir}/${pkgname}${pkgver}.tar.gz" -C "$build_dir/tzdata"
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+  	zic -y ./yearistype -d ${fakeroot_dir}/usr/share/zoneinfo ${timezones[@]}
+  	zic -y ./yearistype -d ${fakeroot_dir}/usr/share/zoneinfo/posix ${timezones[@]}
+  	zic -y ./yearistype -d ${fakeroot_dir}/usr/share/zoneinfo/right -L leapseconds ${timezones[@]}
+  	zic -y ./yearistype -d ${fakeroot_dir}/usr/share/zoneinfo -p America/New_York
+  	install -m444 -t ${fakeroot_dir}/usr/share/zoneinfo iso3166.tab zone1970.tab
+}
+
+lfs_me_postinstall() {
+	echo "setting timezone to" ${tzone}
+	ln -sfv /usr/share/zoneinfo/"${tzone}" /etc/localtime
+}

@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=openbox
+pkgver=git
+giturl=git://git.openbox.org/mikachu/openbox
+
+dependencies=(
+	"!$pkgname"
+	'imlib2'
+	'librsvg'
+	'libxml2'
+	'pango'
+	'startup-notification'
+	'dmenu'
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	./bootstrap
+	./configure --prefix=/usr \
+    	--with-x \
+    	--enable-startup-notification
+	sed 's/Konqueror/dmenu/' -i data/rc.xml
+	sed 's/kfmclient openProfile filemanagement/dmenu_run/' -i data/rc.xml
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+}

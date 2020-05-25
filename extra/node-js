@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=node-js
+_pkgname=node
+pkgver=10.16.2
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'Python2'
+	'c-ares'
+	'icu'
+	'openssl'
+)
+sources=(
+	"https://nodejs.org/dist/v${pkgver}/${_pkgname}-v${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-v${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-v${pkgver}"
+	./configure --prefix=/usr          \
+            --shared-cares                 \
+            --shared-openssl               \
+            --shared-zlib                  \
+            --with-intl=system-icu	
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-v${pkgver}"
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-v${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

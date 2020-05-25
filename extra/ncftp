@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=ncftp
+pkgver=3.2.6
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"ftp://ftp.ncftp.com/${pkgname}/${pkgname}-${pkgver}-src.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}-src.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -d "${fakeroot_dir}/usr/share"
+	make prefix=${fakeroot_dir}/usr mandir=${fakeroot_dir}/usr/share/man install
+}
+

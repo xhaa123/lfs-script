@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=autoconf-firefox
+_pkgname=autoconf
+pkgver=2.13
+
+
+dependencies=(
+    "!$pkgname"
+	'm4'
+	'bash'
+)
+sources=(
+	"https://ftp.gnu.org/gnu/autoconf/${_pkgname}-${pkgver}.tar.gz"
+	"http://www.linuxfromscratch.org/patches/blfs/svn/autoconf-2.13-consolidated_fixes-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	patch -Np1 -i "${sources_dir}/autoconf-2.13-consolidated_fixes-1.patch"
+	mv -v autoconf.texi autoconf213.texi
+	rm -v autoconf.info     
+
+	./configure --prefix=/usr --program-suffix=2.13
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+}

@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=pidgin
+pkgver=2.13.0
+
+dependencies=(
+    "!$pkgname"
+	'startup-notification'
+	'libidn'
+	'nss'
+	'Python3'
+	'hicolor-icon-theme'
+	'libxml2'
+)
+sources=(
+	"http://downloads.sourceforge.net/project/pidgin/Pidgin/${pkgver}/pidgin-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--disable-gtkspell 	\
+	--disable-vv 		\
+	--disable-meanwhile 	\
+	--disable-avahi		\
+	--disable-tcl		\
+	--disable-tk
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall() {
+	gtk-update-icon-cache  /usr/share/icons/hicolor/
+}

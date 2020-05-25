@@ -1,0 +1,53 @@
+pkgbuild_version=5
+pkgname=ibus
+pkgver=1.5.20
+
+dependencies=(
+    "!$pkgname"
+	'dconf'
+	'iso-codes'
+	'gobject-introspection'
+	'gtk+2'
+	'libnotify'
+	'vala'
+	'libxkbcommon'
+	'wayland'
+	'dbus-python'
+	'pygobject3'
+)
+sources=(
+	"https://github.com/ibus/ibus/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i 's@/desktop/ibus@/org/freedesktop/ibus@g'  \
+	data/ibus.schemas.in data/dconf/org.freedesktop.ibus.gschema.xml.in
+
+
+	./configure --prefix=/usr     \
+        --sysconfdir=/etc             \
+        --enable-python-library       \
+	--enable-wayland 	      \
+	--disable-emoji-dict 	      \
+	--disable-unicode-dict	      \
+	--with-python=python3
+
+	rm -f tools/main.c
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

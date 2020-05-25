@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=hplip
+pkgver=3.17.11
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	"https://downloads.sourceforge.net/${pkgname}/$pkgname-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	 export AUTOMAKE='automake --foreign'
+	autoreconf --force --install
+	./configure --prefix=/usr \
+	--disable-network-build   \
+	--disable-scan-build      \
+	--enable-qt5 \
+        --disable-qt4 \
+        --enable-hpcups-install \
+        --enable-cups-drv-install \
+        --enable-pp-build
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j1 rulesdir=/usr/lib/udev/rules.d DESTDIR="$fakeroot_dir/" install
+}

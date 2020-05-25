@@ -1,0 +1,47 @@
+pkgbuild_version=5
+pkgname=gtk-vnc
+pkgver=0.9.0
+
+dependencies=(
+	"!$pkgname"
+	'gnutls'
+	'gtk+3'
+	'libgcrypt'
+	'gobject-introspection'
+	'vala'
+	'cyrus-sasl'
+	'pulseaudio'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/gtk-vnc/${pkgver:0:3}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure --prefix=/usr --enable-vala \
+	--with-gtk=3.0
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+
+}
+
+
+
+# vim:set ts=4 syntax=sh:

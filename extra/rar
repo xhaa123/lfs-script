@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=rar
+pkgver=5.5.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	"http://www.rarlab.com/rar/rarlinux-x64-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/rarlinux-x64-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/rar"
+   	install -Dm755 rar          "${fakeroot_dir}/usr/bin/rar"
+    	install -Dm755 default.sfx  "${fakeroot_dir}/usr/lib/default.sfx"
+   	install -Dm644 rarfiles.lst "${fakeroot_dir}/etc/rarfiles.lst"
+}

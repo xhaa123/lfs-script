@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=parted
+pkgver=3.2
+
+dependencies=(
+	"!$pkgname"
+	'lvm2'
+	'pth'
+)
+sources=(
+	"http://ftp.gnu.org/gnu/parted/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i '/utsname.h/a#include <sys/sysmacros.h>' libparted/arch/linux.c
+	./configure --prefix=/usr --disable-static --without-readline
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -C doc html
+	makeinfo --html      -o doc/html       doc/parted.texi
+	makeinfo --plaintext -o doc/parted.txt doc/parted.texi
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	install -v -m755 -d ${fakeroot_dir}/usr/share/doc/parted-${pkgver}/html
+	install -v -m644    doc/html/* ${fakeroot_dir}/usr/share/doc/parted-${pkgver}/html
+	install -v -m644    doc/{FAT,API,parted.{txt,html}} ${fakeroot_dir}/usr/share/doc/parted-${pkgver}
+	rm ${fakeroot_dir}/usr/share/info/dir
+}

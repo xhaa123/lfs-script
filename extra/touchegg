@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=touchegg
+pkgver=git
+giturl=https://github.com/JoseExposito/touchegg
+
+dependencies=(
+	"!$pkgname"
+)
+
+sources=(
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/touchegg/0001-fix-qt5-build.patch"
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	patch -Np1 -i ${sources_dir}/0001-fix-qt5-build.patch
+	qmake
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	INSTALL_ROOT=${fakeroot_dir} make install
+}

@@ -1,0 +1,42 @@
+pkgbuild_version=5
+pkgname=usbutils
+pkgver=012
+
+dependencies=(
+    "!$pkgname"
+	'libusb'
+	'Python2'
+)
+sources=(
+	"http://cdn.kernel.org/pub/linux/utils/usb/usbutils/${pkgname}-${pkgver}.tar.xz"
+	"http://www.linuxfromscratch.org/patches/blfs/8.4/usbutils-010-lsusb_bugfixes-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	patch -Np1 -i $sources_dir//usbutils-010-lsusb_bugfixes-1.patch
+	./configure --prefix=/usr --datadir=/usr/share/hwdata
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	install -dm755 ${fakeroot_dir}/usr/share/hwdata
+}
+
+lfs_me_postinstall()
+{
+wget http://www.linux-usb.org/usb.ids -O /usr/share/hwdata/usb.ids
+}
+
+lfs_me_postremove(){
+
+rm /usr/share/hwdata/usb.ids
+
+}

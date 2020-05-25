@@ -1,0 +1,48 @@
+pkgbuild_version=5
+pkgname=sway
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'cmake'
+	'wlc'
+	'wlroots'
+	'wayland'
+	'libcap'
+	'asciidoc'
+	'pcre'
+	'json-c'
+	'pango'
+	'cairo'
+	'gdk-pixbuf'
+	'Linux-PAM'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd $build_dir
+	git clone https://github.com/SirCmpwn/sway
+	cd $pkgname
+	mkdir build
+	cd build
+	meson --prefix=/usr 
+	sed 's/-Werror//g' -i {compile_commands.json,build.ninja}
+}
+
+lfs_me_build(){
+	cd "${build_dir}/$pkgname/build"
+	ninja
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	DESTDIR="$fakeroot_dir" ninja install
+}
+
+lfs_me_postinstall(){
+	setcap "cap_sys_ptrace,cap_sys_tty_config=eip" /usr/bin/sway
+}	

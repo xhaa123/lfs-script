@@ -1,0 +1,51 @@
+pkgbuild_version=5
+pkgname=rustc
+pkgver=1.35.0
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'curl'
+	'cmake'
+	'Python2'
+)
+sources=(
+	"https://static.rust-lang.org/dist/${pkgname}-${pkgver}-src.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}-src.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}-src"
+cat <<EOF > config.toml
+# see src/bootstrap/config.toml.example for more possible options
+[llvm]
+targets = "X86"
+
+[build]
+# install cargo as well as rust
+extended = true
+
+[install]
+prefix = "/usr"
+docdir = "share/doc/rustc-1.32.0"
+
+[rust]
+channel = "stable"
+rpath = false
+EOF
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}-src"
+	./x.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}-src"
+	DESTDIR="$fakeroot_dir" ./x.py install
+}

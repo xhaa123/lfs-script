@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=grilo
+pkgver=0.3.7
+
+dependencies=(
+    "!$pkgname"
+	'glib'
+	'libxml2'
+	'gobject-introspection'
+	'gtk+3'
+	'libsoup'
+	'totem-pl-parser'
+	'vala'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/grilo/${pkgver:0:3}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr     \
+            --libdir=/usr/lib \
+            --disable-static
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

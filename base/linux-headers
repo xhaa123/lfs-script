@@ -1,0 +1,40 @@
+pkgbuild_version=5
+_pkgbase=linux
+pkgname="${_pkgbase}-headers"
+pkgver=5.2.11
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+    "https://cdn.kernel.org/pub/linux/kernel/v5.x/${_pkgbase}-${pkgver}.tar.xz"
+)
+
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgbase}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgbase}-${pkgver}"
+	make mrproper
+}
+
+lfs_me_build() {
+    return
+}
+
+lfs_me_check() {
+    return
+}
+
+lfs_me_install() {
+
+	cd "${build_dir}/${_pkgbase}-${pkgver}"
+	make INSTALL_HDR_PATH=dest headers_install
+
+	find dest/include \( -name .install -o -name ..install.cmd \) -delete
+
+	mkdir -pv "${fakeroot_dir}/usr/include"
+    	cp -rv dest/include/* "${fakeroot_dir}/usr/include/"
+}
+
+# vim:set syntax=sh et:

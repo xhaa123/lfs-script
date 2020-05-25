@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=guvcview
+_pkgname=guvcview-src
+pkgver=2.0.5
+
+dependencies=(
+    	"!$pkgname"
+	'glibc'
+	'portaudio'
+	'gsl'
+)
+sources=(
+"http://downloads.sourceforge.net/project/${pkgname}/source/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-debian-menu
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+}
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

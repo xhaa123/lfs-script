@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=megatools
+pkgver=git
+giturl=https://github.com/megous/megatools
+
+dependencies=(
+    "!$pkgname"
+    'asciidoc'
+
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	autoreconf -fvi
+	./configure --prefix=/usr
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+}

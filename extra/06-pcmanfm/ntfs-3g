@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=ntfs-3g
+pkgver=2017.3.23
+
+dependencies=(
+	"!$pkgname"
+	"fuse3"
+)
+sources=(
+	"https://tuxera.com/opensource/ntfs-3g_ntfsprogs-${pkgver}.tgz"
+)
+sha1sums=(
+	e0d10e8b4494383c7e366ac80a942ba45a705a96
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/ntfs-3g_ntfsprogs-${pkgver}.tgz" -C "$build_dir"
+
+	cd "${build_dir}/ntfs-3g_ntfsprogs-${pkgver}"
+	./configure --prefix=/usr --disable-static --with-fuse=internal
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/ntfs-3g_ntfsprogs-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/ntfs-3g_ntfsprogs-${pkgver}"
+	mkdir ${fakeroot_dir}/lib
+	make DESTDIR="${fakeroot_dir}" install
+	ln -sv ntfs-3g.8 "${fakeroot_dir}/usr/share/man/man8/mount.ntfs.8"
+
+}
+
+lfs_me_postinstall(){
+	ln -sv /bin/ntfs-3g /sbin/mount.ntfs
+	chmod -v 4755 /sbin/mount.ntfs
+
+}

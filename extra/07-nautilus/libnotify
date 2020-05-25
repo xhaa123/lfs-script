@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=libnotify
+pkgver=0.7.8
+
+dependencies=(
+    "!$pkgname"
+	'gtk+3'
+	'gobject-introspection'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/libnotify/${pkgver:0:3}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=/usr -Dgtk_doc=false ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	ninja
+}	
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}/build"
+	DESTDIR="$fakeroot_dir" ninja install
+}
+
+

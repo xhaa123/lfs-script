@@ -1,0 +1,42 @@
+pkgbuild_version=5
+pkgname=vlc
+pkgver=3.0.6
+
+dependencies=(
+    "!$pkgname"
+	'alsa-lib'
+	'ffmpeg'
+	'liba52'
+	'libgcrypt'
+	'libmad'
+	'lua'
+	'xorg-server'
+	'dbus'
+	'qt'
+)
+sources=(
+	"http://get.videolan.org/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i '/vlc_demux.h/a #define LUA_COMPAT_APIINTCASTS' modules/lua/vlc.h
+	sed -i '/DEPRECATED/s:^://:'  modules/text_renderer/freetype/text_layout.c
+	sed -i '/118/s/$/\&\& X264_BUILD < 153/' modules/codec/x264.c 
+	BUILDCC=gcc ./configure --prefix=/usr --disable-opencv --disable-lua
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall(){
+	gtk-update-icon-cache
+	update-desktop-database
+}

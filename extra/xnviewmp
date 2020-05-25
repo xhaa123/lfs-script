@@ -1,0 +1,51 @@
+pkgbuild_version=5
+pkgname=xnviewmp
+pkgver=0.88
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+	"https://download.xnview.com/XnViewMP-linux-x64.tgz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/XnViewMP-linux-x64.tgz" -C "$build_dir"
+}
+
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/XnView"
+	install -d -m755 "${fakeroot_dir}/opt/${pkgname}"
+  	install -d -m755 "${fakeroot_dir}/usr/bin"
+  	install -d -m755 "${fakeroot_dir}/usr/share/applications"
+
+  	cp -a * "${fakeroot_dir}/opt/${pkgname}"
+  	ln -s "/opt/${pkgname}/xnview.sh" "${fakeroot_dir}/usr/bin/${pkgname}"
+	
+cat > ${fakeroot_dir}/usr/share/applications/xnview.desktop <<EOF
+[Desktop Entry]
+Encoding=UTF-8
+Terminal=0
+Exec=/usr/bin/xnviewmp %F
+Icon=/opt/xnviewmp/xnview.png
+Type=Application
+Categories=Graphics;
+StartupNotify=true
+Name=XnView Multi Platform
+GenericName=XnViewMP
+MimeType=image/bmp;image/gif;image/x-portable-bitmap;image/x-portable-pixmap;image/x-psd;image/x-tga;image/x-xbitmap;image/tiff;image/jpeg;image/x-psd;image/png;image/x-icon;image/x-xpixmap;image/svg+xml;
+EOF
+	rm "${fakeroot_dir}/opt/${pkgname}/XnView.desktop"{,~}
+  	chmod -x "${fakeroot_dir}/opt/${pkgname}/xnview.png"
+}
+

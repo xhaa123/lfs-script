@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=mypaint
+pkgver=1.2.1
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'gtk+3'
+	'json-c'
+	'lcms2'
+	'py2cairo'
+	'pygobject2'
+	'python2-numpy'
+)
+sources=(
+	"https://github.com/mypaint/mypaint/releases/download/v$pkgver/$pkgname-$pkgver.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	scons
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	scons prefix="$fakeroot_dir"/usr install
+}
+
+lfs_me_postinstall(){
+	gtk-update-icon-cache -f /usr/share/icons/hicolor
+}

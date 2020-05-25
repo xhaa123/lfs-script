@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=xf86-video-nouveau
+pkgver=git
+giturl=git://anongit.freedesktop.org/nouveau/xf86-video-nouveau
+
+dependencies=(
+    "!$pkgname"
+
+)
+
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+        NOCONFIGURE=1 ./autogen.sh
+	./configure $XORG_CONFIG 
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+}

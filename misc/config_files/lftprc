@@ -1,0 +1,6 @@
+set mirror:use-pget-n 10
+set mirror:parallel-transfer-count 10
+set pget:default-n 10
+set color:use-color auto
+set color:dir-colors "rs=0:di=01;34:fi=01;32:ln=01;31:*.txt=01;35:*.html=00;35:"
+alias ls cls

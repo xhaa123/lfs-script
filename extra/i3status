@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=i3status
+pkgver=2.11
+
+dependencies=(
+	"!$pkgname"
+	'confuse'
+	'libnl'
+	'pulseaudio'
+	'yajl'
+)
+sources=(
+	
+	"http://i3.zekjur.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+	e0d10e8b4494383c7e366ac80a942ba45a705a96
+)
+
+lfs_me_prepare() {
+	
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+
+
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+
+}
+
+
+
+# vim:set ts=4 syntax=sh:

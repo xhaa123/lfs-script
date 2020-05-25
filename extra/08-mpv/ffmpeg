@@ -1,0 +1,75 @@
+pkgbuild_version=5
+pkgname=ffmpeg
+pkgver=4.2
+
+dependencies=(
+	"!$pkgname"
+	'libass'
+	'fdk-aac'
+	'freetype'
+	'lame'
+	'libtheora'
+	'libvorbis'
+	'libvpx'
+	'opus'
+	'x264'
+	'x265'
+	'yasm'
+	'alsa-lib'
+	'libva'
+	'libvdpau'
+	'sdl2'
+	'fontconfig'
+	'libwebp'
+	'openssl'
+)
+sources=(
+	"http://ffmpeg.org/releases/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	sed -i 's/-lflite"/-lflite -lasound"/' configure
+
+       ./configure --prefix=/usr \
+            --enable-gpl         \
+            --enable-version3    \
+            --enable-nonfree     \
+            --disable-static     \
+            --enable-shared      \
+            --disable-debug      \
+            --enable-avresample  \
+	    --enable-libass      \
+            --enable-libfdk-aac  \
+            --enable-libfreetype \
+            --enable-libmp3lame  \
+            --enable-libopus     \
+            --enable-libtheora   \
+            --enable-libvorbis   \
+            --enable-libvpx      \
+            --enable-libx264     \
+            --enable-libx265     \
+	    --enable-openssl	 \
+	    --enable-libfribidi  \
+	    --enable-libopus     \
+	    --enable-libwebp     \
+	    --disable-doc	 
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+	gcc tools/qt-faststart.c -o tools/qt-faststart
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+	install -v -m755    tools/qt-faststart ${fakeroot_dir}/usr/bin
+}
+

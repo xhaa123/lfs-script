@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=cyrus-sasl
+pkgver=2.1.27
+
+dependencies=(
+	"!$pkgname"
+	"openssl"
+#	'berkeley-db'
+)
+sources=(
+
+	"https://github.com/cyrusimap/cyrus-sasl/releases/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	autoreconf -fi
+	./configure --prefix=/usr        \
+        --sysconfdir=/etc    \
+        --with-dbpath=/var/lib/sasl/sasldb2 \
+        --with-saslauthd=/var/run/saslauthd \
+	--enable-auth-sasldb
+
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="${fakeroot_dir}" install
+
+	install -v -dm755 "${fakeroot_dir}/usr/share/doc/cyrus-sasl-${pkgver}"
+	install -v -m644  doc/{*.{html,txt,fig},ONEWS,TODO} \
+        saslauthd/LDAP_SASLAUTHD "${fakeroot_dir}/usr/share/doc/cyrus-sasl-${pkgver}"
+	install -v -dm700 "${fakeroot_dir}/var/lib/sasl"
+}
+

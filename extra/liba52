@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=liba52
+_pkgname=a52dec
+pkgver=0.7.4
+
+dependencies=(
+	"!$pkgname"
+)
+
+sources=(
+	"http://liba52.sourceforge.net/files/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+        --mandir=/usr/share/man \
+        --enable-shared \
+        --disable-static \
+        CFLAGS="-g -O2 $([ $(uname -m) = x86_64 ] && echo -fPIC)"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+
+}
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	cp liba52/a52_internal.h ${fakeroot_dir}/usr/include/a52dec
+	install -v -m644 -D doc/liba52.txt \
+    	${fakeroot_dir}/usr/share/doc/liba52-${pkgver}/liba52.txt
+
+}
+

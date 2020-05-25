@@ -1,0 +1,23 @@
+pkgbuild_version=5
+pkgname=libdrm
+pkgver=2.4.99
+
+dependencies=(
+	"!$pkgname"
+	'xorg-libraries'
+)
+sources=(
+	"http://dri.freedesktop.org/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	autoreconf -fiv
+	./configure --prefix=/usr --enable-udev
+}
+
+# vim:set ts=4 syntax=sh:

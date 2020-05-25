@@ -1,0 +1,46 @@
+pkgbuild_version=5
+pkgname=baka-mplayer
+_pkgname=Baka-MPlayer
+pkgver=git
+giturl=https://github.com/u8sand/Baka-MPlayer.git
+
+dependencies=(
+	"!$pkgname"
+	'youtube-dl'
+	'mpv'
+	'noto-fonts'
+	'qt'
+
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $_pkgname
+	mkdir build
+	cd build
+	qmake-qt5 \
+	CONFIG+=release \
+	-spec linux-g++ ../src
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}/build"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}/build"
+	make INSTALL_ROOT=${fakeroot_dir} install
+	mv ${fakeroot_dir}/usr/bin/baka-mplayer ${fakeroot_dir}/usr/bin/baka
+
+cat > ${fakeroot_dir}/usr/bin/baka-mplayer << EOF
+
+#!/bin/sh
+LC_ALL=C /usr/bin/baka
+
+EOF
+
+chmod 755 ${fakeroot_dir}/usr/bin/baka-mplayer
+
+}

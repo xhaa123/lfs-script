@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=aalib
+pkgver=1.4rc5
+_pkgver=1.4.0
+
+dependencies=(
+    "!$pkgname"
+	'xorg-server'
+	'slang'
+	'gpm'
+)
+sources=(
+	"https://downloads.sourceforge.net/aa-project/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+
+	sed -i -e '/AM_PATH_AALIB,/s/AM_PATH_AALIB/[&]/' aalib.m4
+	./configure --prefix=/usr             \
+            --infodir=/usr/share/info \
+            --mandir=/usr/share/man   \
+            --disable-static
+}
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+
+	rm ${fakeroot_dir}/usr/share/info/dir
+}
+

@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=sdl2
+_pkgname=SDL2
+pkgver=2.0.10
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+	"http://www.libsdl.org/release/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr --enable-video-directfb
+	sed -i "s#-Werror=declaration-after-statement##g" Makefile
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	rm -v ${fakeroot_dir}/usr/lib/libSDL2*.a
+
+}
+

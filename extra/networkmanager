@@ -1,0 +1,93 @@
+pkgbuild_version=5
+pkgname=networkmanager
+_pkgname=NetworkManager
+pkgver=1.18.1
+
+dependencies=(
+    "!$pkgname"
+	'dbus-glib'
+	'libgudev'
+	'libndp'
+	'libnl'
+	'gobject-introspection'
+	'newt'
+#	'iptables'
+#	'polkit'
+	'systemd'
+#	'upower'
+#	'vala'
+#	'wpa_supplicant'
+#	'bluez'
+#	'modemmanager'
+#	'pygobject3'
+	'dhcpcd'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/NetworkManager/${pkgver:0:4}/${_pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	sed '/initrd/d' -i src/meson.build
+	grep -rl '^#!.*python$' | xargs sed -i '1s/python/&3/'
+	mkdir build
+	cd build	
+	
+	CXXFLAGS+="-O2 -fPIC"            \
+	meson --prefix /usr              \
+      --sysconfdir /etc          \
+      --localstatedir /var       \
+      -Djson_validation=false    \
+      -Dlibaudit=no              \
+      -Dlibnm_glib=true          \
+      -Dlibpsl=false             \
+      -Dnmtui=true               \
+      -Dovs=false                \
+      -Dppp=false                \
+      -Dselinux=false            \
+      -Dqt=false                 \
+      -Dudev_dir=/lib/udev       \
+      -Dsession_tracking=systemd \
+      -Dmodem_manager=false      \
+      -Dsystemdsystemunitdir=/lib/systemd/system \
+      ..
+
+
+}
+
+lfs_me_build(){
+
+	cd "${build_dir}/${_pkgname}-${pkgver}/build"
+	ninja
+}
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/build"
+	DESTDIR="$fakeroot_dir" ninja install
+	mkdir -pv ${fakeroot_dir}/etc/NetworkManager/
+	mkdir -pv ${fakeroot_dir}/usr/share/polkit-1/rules.d/
+	#create base config files
+cat >> ${fakeroot_dir}/etc/NetworkManager/NetworkManager.conf << "EOF"
+[main]
+plugins=keyfile
+EOF
+
+cat > ${fakeroot_dir}/usr/share/polkit-1/rules.d/org.freedesktop.NetworkManager.rules << "EOF"
+polkit.addRule(function(action, subject) {
+    if (action.id.indexOf("org.freedesktop.NetworkManager.") == 0 && subject.isInGroup("netdev")) 
+{
+        return polkit.Result.YES;
+    }
+});
+EOF
+	echo "Add user to netdev group to allow managment of network connections"
+}
+
+lfs_me_postinstall() {
+	groupadd -fg 86 netdev
+}
+

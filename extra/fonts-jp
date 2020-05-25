@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=fonts-jp
+pkgver=00303
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+sources=(
+	"http://dl.ipafont.ipa.go.jp/IPAfont/IPAfont${pkgver}.zip"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	unzip -o ${sources_dir}/IPAfont${pkgver}.zip -d ${build_dir}/
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/IPAfont${pkgver}"
+	install -dm 755 $fakeroot_dir/usr/share/fonts/OTF
+        install -D -m644 *.ttf $fakeroot_dir/usr/share/fonts/OTF
+
+}

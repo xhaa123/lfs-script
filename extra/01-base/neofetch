@@ -1,0 +1,27 @@
+pkgbuild_version=5
+pkgname=neofetch
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	cd $build_dir
+	git clone https://github.com/dylanaraps/neofetch
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install 
+}
+

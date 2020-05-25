@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=libwacom
+pkgver=0.29
+
+dependencies=(
+    "!$pkgname"
+	'libgudev'
+	'libxml2'
+	'gtk+2'
+	'librsvg'
+)
+sources=(
+	"https://sourceforge.net/projects/linuxwacom/files/libwacom/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static 
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

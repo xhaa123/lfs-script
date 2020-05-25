@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=py2cairo
+pkgver=1.10.0
+
+dependencies=(
+    "!$pkgname"
+	'Python2'
+	'cairo'
+)
+sources=(
+	"http://cairographics.org/releases/${pkgname}-${pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./waf configure --prefix=/usr
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"	
+	./waf build
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	./waf install --destdir=${fakeroot_dir}
+}

@@ -1,0 +1,32 @@
+pkgbuild_version=5
+pkgname=ca-certificates
+pkgver=1.4
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+"https://github.com/djlucas/make-ca/releases/download/v$pkgver/make-ca-$pkgver.tar.xz")
+
+lfs_me_prepare() {
+	tar xvf ${sources_dir}/make-ca-$pkgver.tar.xz -C $build_dir
+}
+
+lfs_me_build(){
+	return
+}
+	
+lfs_me_install(){
+	cd $build_dir/make-ca-$pkgver
+	make DESTDIR=$fakeroot_dir install
+	mkdir -p $fakeroot_dir/usr/bin
+	mv $fakeroot_dir/usr/sbin/make-ca $fakeroot_dir/usr/bin/
+	rmdir $fakeroot_dir/usr/sbin
+}
+
+lfs_me_postinstall(){
+	make-ca -g
+	ln -sfv /etc/pki/tls/certs/ca-bundle.crt \
+        /etc/ssl/ca-bundle.crt
+	systemctl enable update-pki.timer
+}

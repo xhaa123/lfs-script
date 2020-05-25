@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=tint2
+pkgver=git
+giturl=https://gitlab.com/o9000/tint2
+
+dependencies=(
+	"!$pkgname"
+    	'cairo'
+    	'pango'
+	'glib'
+	'imlib2'
+	'gtk+2'
+	'startup-notification'	
+)
+
+lfs_me_prepare() {
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr \
+	-GNinja ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}/build"
+	ninja
+	
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}/build"
+	DESTDIR=${fakeroot_dir} ninja install
+}

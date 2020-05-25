@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=polkit-qt
+pkgver=0.112.0
+_pkgver=1-0.112.0
+dependencies=(
+    "!$pkgname"
+	'cmake'
+	'polkit'
+	'qt>5.7'
+)
+sources=(
+	"http://download.kde.org/stable/apps/KDE4.x/admin/${pkgname}-${_pkgver}.tar.bz2"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${_pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+	cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=Release  \
+      -DCMAKE_INSTALL_LIBDIR=lib  \
+      -Wno-dev .
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${_pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

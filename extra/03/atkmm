@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=atkmm
+pkgver=2.28.0
+
+dependencies=(
+    "!$pkgname"
+	'atk'
+	'glibmm'
+)
+sources=(
+	"https://ftp.gnome.org/pub/gnome/sources/atkmm/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	sed -e '/^libdocdir =/ s/$(book_name)/atkmm-2.24.2/' \
+   	-i doc/Makefile.in
+	./configure --prefix=/usr
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

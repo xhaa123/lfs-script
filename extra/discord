@@ -1,0 +1,51 @@
+pkgbuild_version=5
+pkgname=discord
+_pkgname=Discord
+pkgver=0.0.1
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+    'gtk+2'
+	'libnotify'
+	'gconf'
+	'nspr'
+	'nss'
+	'pulseaudio'
+)
+sources=(
+	"https://dl.discordapp.net/apps/linux/${pkgver}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build() {
+    return
+    }
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}"
+    
+	install -d "${fakeroot_dir}/opt/${pkgname}"
+    cp -a . "${fakeroot_dir}/opt/${pkgname}"
+
+    # Exec bit
+    chmod 755 "${fakeroot_dir}/opt/${pkgname}/Discord"
+
+    # Desktop Entry
+    install -d "${fakeroot_dir}/usr/share/applications"
+    install discord.desktop "${fakeroot_dir}/usr/share/applications"
+
+    # Main binary
+    install -d "${fakeroot_dir}/usr/bin"
+    ln -s "/opt/${pkgname}/Discord" "${fakeroot_dir}/usr/bin/${pkgname}"
+
+    # Create symbolic link to the icon
+    install -d "${fakeroot_dir}/usr/share/pixmaps"
+    ln -s "/opt/${pkgname}/discord.png" "${fakeroot_dir}/usr/share/pixmaps/${pkgname}.png"
+}

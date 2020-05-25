@@ -1,0 +1,68 @@
+pkgbuild_version=5
+pkgname=steam
+pkgver=1.0.0.54
+
+dependencies=(
+    "!$pkgname"
+
+)
+sources=(
+	"http://repo.steampowered.com/${pkgname}/pool/${pkgname}/s/${pkgname}/${pkgname}_${pkgver}.tar.gz"
+	"https://support.steampowered.com/downloads/1974-YFKL-4947/SteamFonts.zip"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/misc/steam/steam-native.sh"
+	"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/misc/steam/steam-runtime.sh"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}_${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}"
+
+	sed -r 's|("0666")|"0660", TAG+="uaccess"|g' -i lib/udev/rules.d/99-steam-controller-perms.rules
+	sed -r 's|("misc")|\1, OPTIONS+="static_node=uinput"|g' -i lib/udev/rules.d/99-steam-controller-perms.rules
+	sed -r 's|(, TAG\+="uaccess")|, MODE="0660"\1|g' -i lib/udev/rules.d/60-HTC-Vive-perms.rules
+
+  	# separated runtime/native desktop files
+  	cp steam{,-native}.desktop
+  	sed -r 's|(Name=Steam)|\1 (Runtime)|' -i steam.desktop
+  	sed -r 's|(/usr/bin/steam)|\1-runtime|' -i steam.desktop
+  	sed -r 's|(Name=Steam)|\1 (Native)|' -i steam-native.desktop
+  	sed -r 's|(/usr/bin/steam)|\1-native|' -i steam-native.desktop	
+
+
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+	install -Dm 755 "${sources_dir}/steam-runtime.sh" "${fakeroot_dir}/usr/bin/steam-runtime"
+	install -Dm 755 "${sources_dir}/steam-native.sh" "${fakeroot_dir}/usr/bin/steam-native"
+  	install -d "${fakeroot_dir}/usr/lib/steam"
+  	mv "${fakeroot_dir}/usr/bin/steam" "${fakeroot_dir}/usr/lib/steam/steam"
+  	ln -sf /usr/bin/steam-runtime "${fakeroot_dir}/usr/bin/steam"
+
+  	install -Dm 644 steam-native.desktop -t "${fakeroot_dir}/usr/share/applications"
+  	install -Dm 644 "${fakeroot_dir}/usr/share/doc/steam/steam_install_agreement.txt" \
+    	"${fakeroot_dir}/usr/share/licenses/steam/LICENSE"
+  	install -Dm 644 debian/changelog -t "${fakeroot_dir}/usr/share/doc/${pkgname}"
+
+  	# blank steamdeps because apt-get
+  	ln -sf /usr/bin/true "${fakeroot_dir}/usr/bin/steamdeps"
+
+  	install -Dm 644 lib/udev/rules.d/99-steam-controller-perms.rules \
+    	"${fakeroot_dir}/usr/lib/udev/rules.d/70-steam-controller.rules"
+  	install -Dm 644 lib/udev/rules.d/60-HTC-Vive-perms.rules \
+    	"${fakeroot_dir}/usr/lib/udev/rules.d/70-htc-vive.rules"
+	install -d "${fakeroot_dir}/usr/share/fonts/TTF"
+	unzip -d ${fakeroot_dir}/usr/share/fonts/TTF/ ${sources_dir}/SteamFonts.zip
+}
+lfs_me_postinstall(){
+	echo "creating required symlink to /opt/lib32"
+	ln -sv /opt/lib32/ld-linux.so.2 /lib/ld-lsb.so.3
+}

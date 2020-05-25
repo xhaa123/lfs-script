@@ -1,0 +1,38 @@
+pkgbuild_version=5
+pkgname=python-setuptools
+_pkgname=setuptools
+pkgver=39.2.0
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'Python2'
+	'Python3'
+)
+sources=(
+	"https://github.com/pypa/setuptools/archive/v${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+overwrite=(
+"/usr/bin/easy_install"
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+	return
+}
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python3 bootstrap.py
+	python3 setup.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+#	python2 setup.py install --optimize=1 --prefix=/usr --root="$fakeroot_dir"
+	python3 setup.py install --optimize=1 --prefix=/usr --root="$fakeroot_dir"
+}
+

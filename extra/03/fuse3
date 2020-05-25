@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=fuse3
+_pkgname=fuse
+pkgver=3.6.2
+LC_ALL=en_US.UTF8
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"https://github.com/libfuse/libfuse/releases/download/${_pkgname}-${pkgver}/${_pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	mkdir build
+	cd build
+	meson --prefix=/usr --sbindir=bin ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/build"
+	ninja
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}/build"
+	DESTDIR="${fakeroot_dir}" ninja install
+	rm -rf  "${fakeroot_dir}/tmp/init.d"
+	rm -rf  "${fakeroot_dir}/etc/init.d"
+}

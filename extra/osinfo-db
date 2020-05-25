@@ -1,0 +1,30 @@
+pkgbuild_version=5
+pkgname=osinfo-db
+pkgver=20180514
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+	'osinfo-db-tools'
+)
+
+sources=(
+"https://releases.pagure.org/libosinfo/$pkgname-$pkgver.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	mkdir $build_dir/osinfo-db
+	return
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_install() {
+	cd $build_dir/osinfo-db
+	osinfo-db-import --root "$fakeroot_dir" --system "${sources_dir}/${pkgname}-${pkgver}.tar.xz"
+}

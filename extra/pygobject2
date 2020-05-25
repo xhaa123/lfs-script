@@ -1,0 +1,37 @@
+pkgbuild_version=5
+pkgname=pygobject2
+_pkgname=pygobject
+pkgver=2.28.7
+dependencies=(
+    "!$pkgname"
+	'glib'
+	'pycairo'
+)
+sources=(
+	"http://ftp.gnome.org/pub/gnome/sources/pygobject/${pkgver:0:4}/${_pkgname}-${pkgver}.tar.xz"
+#	"http://www.linuxfromscratch.org/patches/blfs/svn/pygobject-${pkgver}-fixes-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+#	patch -Np1 -i ${sources_dir}/pygobject-2.28.6-fixes-1.patch 
+	sed -i "/seems to be moved/s/^/#/" ltmain.sh
+	PYTHON=/usr/bin/python2 ./configure --prefix=/usr --disable-introspection
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	PYTHON=/usr/bin/python2 make
+}
+
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	PYTHON=/usr/bin/python2 make DESTDIR="$fakeroot_dir" install
+}
+

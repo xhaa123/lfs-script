@@ -1,0 +1,40 @@
+pkgbuild_version=5
+pkgname=transmission
+pkgver=2.94
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'curl'
+	'libevent'
+	'openssl'
+#	'gtk+3'
+)
+
+sources=(
+"https://github.com/transmission/transmission-releases/raw/master/transmission-$pkgver.tar.xz"
+"https://raw.githubusercontent.com/fanboimsft/lfs-script/master/patches/transmission/openssl-1.1.0.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	patch -Np1 -i ${sources_dir}/openssl-1.1.0.patch
+	./configure --prefix=/usr \
+	--enable-cli
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	install -Dm644 daemon/transmission-daemon.service \
+    	"$fakeroot_dir/usr/lib/systemd/system/transmission.service"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall() {
+	gtk-update-icon-cache /usr/share/icons/hicolor/
+}

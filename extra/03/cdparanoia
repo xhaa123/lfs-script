@@ -1,0 +1,35 @@
+pkgbuild_version=5
+pkgname=cdparanoia
+pkgver=III-10.2
+_pkgver=10.2
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+"https://downloads.xiph.org/releases/cdparanoia/${pkgname}-${pkgver}.src.tgz"
+#"https://www.linuxfromscratch.org/patches/blfs/svn/cdparanoia-III-10.2-gcc_fixes-1.patch"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.src.tgz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+#	patch -Np1 -i ../cdparanoia-III-10.2-gcc_fixes-1.patch
+	./configure --prefix=/usr --mandir=/usr/share/man
+
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j1
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make prefix=${fakeroot_dir}/usr MANDIR=${fakeroot_dir}/usr install
+	chmod -v 755 ${fakeroot_dir}/usr/lib/libcdda_*.so.0.${_pkgver}
+}

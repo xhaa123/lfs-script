@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=phonon
+pkgver=4.10.1
+
+dependencies=(
+    "!$pkgname"
+	'cmake'
+	'extra-cmake-modules'
+	'glib'
+	'qt>5.7'
+	'pulseaudio'
+)
+sources=(
+	"http://download.kde.org/stable/phonon/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	cmake -DCMAKE_INSTALL_PREFIX=/usr    \
+        -DCMAKE_BUILD_TYPE=Release     \
+        -DCMAKE_INSTALL_LIBDIR=lib     \
+        -DPHONON_BUILD_PHONON4QT5=ON   \
+        -Wno-dev .
+}
+
+lfs_me_build(){
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

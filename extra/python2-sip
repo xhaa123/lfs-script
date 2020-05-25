@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=python2-sip
+_pkgname=sip
+pkgver=4.19.7
+
+dependencies=(
+	"!$pkgname"
+	'Python2'
+)
+sources=(
+	"http://sourceforge.net/projects/pyqt/files/sip/sip-$pkgver/sip-$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/$_pkgname-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 configure.py CFLAGS="$CFLAGS" LFLAGS="$LDFLAGS"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install -C siplib
+
+}

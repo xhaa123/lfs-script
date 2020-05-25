@@ -1,0 +1,9 @@
+# Begin /etc/fstab
+
+# file system  mount-point  type     options             dump  fsck
+#                                                              order
+
+/dev/sda1 	/ 		ext4 defaults 		0	 1 
+.host:/NZBGet	/home/dbz/NZBGet fuse.vmhgfs-fuse allow_other,uid=1000,gid=1000,auto_unmount,defaults 0	0
+/dev/sdb1 /home/dbz/eCORP ext4 defaults,noauto,loop=/dev/loop0,encryption=AES256,gpgkey=/etc/keyfile.gpg 0 0
+# End /etc/fstab

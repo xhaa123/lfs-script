@@ -1,0 +1,39 @@
+pkgbuild_version=5
+pkgname=dwm
+pkgver=git
+giturl=http://git.suckless.org/dwm
+
+dependencies=(
+    "!$pkgname"
+)
+sources=(
+#	"https://dwm.suckless.org/patches/systray/dwm-systray-20180314-3bd8466.diff"
+)
+lfs_me_prepare() {
+
+	cd ${build_dir}
+	git clone $giturl
+	cd $pkgname
+#	patch -Np1 -i ${sources_dir}/dwm-systray-20161218-bb3bd6f.diff
+	sed "s#/usr/local#/usr#" -i config.mk
+	#set modkey to winkey instead of alt
+	#sed "s/Mod1Mask/Mod4Mask/" -i config.def.h
+	#change modkey-l to modkey-g to avoid windows shortcut conflict
+	sed "s/XK_l/XK_x/" -i config.def.h
+	sed "s/XK_h/XK_z/" -i config.def.h
+	#change firefox to default to first desktop
+	sed 's/"Firefox",  NULL,       NULL,       1 << 8/"Firefox",  NULL,       NULL,       1 << 0/' -i config.def.h
+	#remove pixel gap
+	sed 's/static const int resizehints = 1/static const int resizehints = 0/' -i config.def.h
+}
+
+lfs_me_build()
+	{
+	cd "${build_dir}/${pkgname}"
+	make
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR=${fakeroot_dir} install
+}

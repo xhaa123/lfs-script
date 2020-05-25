@@ -1,0 +1,26 @@
+pkgbuild_version=5
+pkgname=xcb-proto
+pkgver=1.13
+
+dependencies=(
+	"!$pkgname"
+	'xorg-build-environment'
+	'libXdmcp'
+)
+sources=(
+	"https://xcb.freedesktop.org/dist/${pkgname}-${pkgver}.tar.bz2"
+#	"https://www.linuxfromscratch.org/patches/blfs/svn/xcb-proto-1.12-python3-1.patch"	
+)
+sha1sums=(
+	608bd60663e223464d38acec0183ddb827776401
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+#	patch -Np1 -i "${sources_dir}/xcb-proto-1.12-python3-1.patch"
+	./configure $XORG_CONFIG
+}
+
+# vim:set ts=4 syntax=sh:

@@ -1,0 +1,29 @@
+pkgbuild_version=5
+pkgname=python2-markupsafe
+_pkgname=MarkupSafe
+pkgver=1.0
+
+dependencies=(
+	"!$pkgname"
+	'Python2'
+)
+sources=(
+	"https://files.pythonhosted.org/packages/4d/de/32d741db316d8fdb7680822dd37001ef7a448255de9699ab4bfcbdf4172b/${_pkgname}-${pkgver}.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${_pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python setup.py build
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${_pkgname}-${pkgver}"
+	python2 setup.py install --root="${fakeroot_dir}" --optimize=1
+}

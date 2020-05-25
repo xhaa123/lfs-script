@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=libbluray
+pkgver=git
+
+dependencies=(
+    "!$pkgname"
+	'glibc'
+	'apache-ant'
+)
+sources=(
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+
+	cd $build_dir
+	git clone http://git.videolan.org/git/libbluray.git
+	cd "${build_dir}/${pkgname}"
+	git submodule init contrib/libudfread
+	git config submodule.contrib/udfread.url ../libudfread
+  	git submodule update contrib/libudfread
+	./bootstrap
+	./configure --prefix=/usr
+}
+
+lfs_me_build(){
+	cd "${build_dir}/${pkgname}"
+
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}"
+	make DESTDIR="$fakeroot_dir" install
+}

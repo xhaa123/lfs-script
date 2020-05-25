@@ -1,0 +1,31 @@
+pkgbuild_version=5
+pkgname=lz4
+pkgver=1.8.1.2
+
+dependencies=(
+	"!$pkgname"
+	'glibc'
+)
+
+sources=(
+"https://github.com/lz4/lz4/archive/v$pkgver.tar.gz"
+)
+
+sha1sums=(
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/v${pkgver}.tar.gz" -C "$build_dir"
+	cd "${build_dir}/${pkgname}-${pkgver}"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -C lib PREFIX=/usr
+	make -C programs PREFIX=/usr lz4 lz4c
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make install PREFIX=/usr MANDIR=/usr/share/man/man1 DESTDIR="$fakeroot_dir"
+}
