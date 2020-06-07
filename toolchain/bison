@@ -1,6 +1,6 @@
 pkgbuild_version=5
 pkgname=bison
-pkgver=3.6.1
+pkgver=3.6.3
 
 dependencies=(
     "!$pkgname"
