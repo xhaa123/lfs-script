@@ -9,6 +9,7 @@ mknod -m 600 $LFS/dev/console c 5 1
 mknod -m 666 $LFS/dev/null c 1 3
 cp misc/kissd-chroot /tools/bin/
 cp /etc/ssl/cert.pem $LFS/etc/ssl/
+chmod 0755 $LFS/etc
 pushd $LFS
 ln -s usr/bin bin
 ln -s /tools/bin/bash bin/sh
