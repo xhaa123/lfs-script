@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+./configure --prefix=/usr \
+    --disable-static \
+    --docdir=/usr/share/doc/gettext
+
+make BISON_LOCALEDIR=/usr/share/locale
+make DESTDIR="$1" install

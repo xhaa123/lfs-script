@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+../configure --prefix=/usr       \
+             --enable-gold       \
+             --enable-ld=default \
+             --enable-plugins    \
+             --enable-shared     \
+             --disable-werror    \
+             --enable-64-bit-bfd \
+             --with-system-zlib
+
+make tooldir=/usr
+make prefix="$1/usr" tooldir="$1/usr" install
