@@ -1,14 +1,30 @@
-#!/bin/bash
+#!/bin/sh
 
-cp -aR /usr/src/initramfs 	 /usr/src/initramfs-livecd/mnt_init
-#cp -a /bin/busybox 		 /usr/src/initramfs-livecd/mnt_init/bin/
+#build an initramfs with dracut and extract it to /usr/src/initramfs
+
+export KERNVER=5.7.1-sauzeros
+export ROOTFSIMAGE=rootfs-sauzeros.img
+
+#copy modules to initramfs
+rm -rf /usr/src/initramfs/lib/modules/*
+cp -a /lib/modules/$KERNVER /usr/src/initramfs/lib/modules/
+
+#copy modules to rootfs
+mount /usr/src/iso-build/$ROOTFSIMAGE /mnt/iso
+rm -rf /mnt/iso/lib/modules/*
+cp -a /lib/modules/$KERNVER /mnt/iso/lib/modules/
+umount /mnt/iso
+
+mkdir -pv /usr/src/initramfs-livecd/mnt_init
+cp -aR /usr/src/initramfs/* 	 /usr/src/initramfs-livecd/mnt_init
+cp -a /bin/busybox 		 /usr/src/initramfs-livecd/mnt_init/bin/
 mkdir -v /usr/src/initramfs-livecd/mnt_init/boot
-echo "31337ecorp-live" > /usr/src/initramfs-livecd/id_label
+echo "sauzeros-live" > /usr/src/initramfs-livecd/id_label
 
 cat > /usr/src/initramfs-livecd/mnt_init/init << "EOF"
 #!/bin/sh
 
-#/bin/busybox --install -s
+/bin/busybox --install -s
 mount -t proc none /proc
 mount -t sysfs none /sys
 mount -t devtmpfs none /dev
@@ -16,11 +32,12 @@ mount -t devtmpfs none /dev
 ARCH=x86_64
 LABEL="$(cat /boot/id_label)"
 
+
+#load driver early for miix-sg80
+modprobe pwm-lpss
+modprobe pwm-lpss-platform
 modprobe drm
 modprobe i915
-modprobe nouveau
-modprobe vmwgfx
-modprobe amdgpu
 
 ###########################
 rescue_shell() {
@@ -53,11 +70,17 @@ sleep 3
 
 # Search for, and mount the boot medium
 LABEL="$(cat /boot/id_label)"
-for device in $(ls /dev); do
-    [ "${device}" == "console" ] && continue
-    [ "${device}" == "null"    ] && continue
+for device in $(ls /dev/); do
 
-    mount -o ro /dev/${device} /mnt/medium 2> /dev/null && \
+    [ "${device}" == "console" ]  && continue
+    [ "${device}" == "null"    ]  && continue
+    [ "${device}" == "snapshot" ] && continue
+    [ "${device}" == "port" ]     && continue
+    [ "${device}" == "random" ]   && continue
+    [[ "${device}" == tty* ]]     && continue
+    [[ "${device}" == loop* ]]    && continue
+
+    echo $device && mount -o ro /dev/${device} /mnt/medium 2> /dev/null && \
     if [ "$(cat /mnt/medium/boot/${ARCH}/id_label)" != "${LABEL}" ]; then
         umount /mnt/medium
     else
@@ -106,39 +129,27 @@ cd /usr/src/initramfs-livecd
 cp -v id_label mnt_init/boot/
 chmod +x mnt_init/init
 pushd mnt_init
-find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../initramfs-livecd.gz
+find . -print0 | cpio --null -ov --format=newc > ../initramfs-livecd
 popd
 rm -rf mnt_init
 
-mount -o loop,ro /iso-build/rootfs-ecorplive.img /mnt/iso
+lz4 -flv initramfs-livecd
+
+mount -o loop,ro /usr/src/iso-build/$ROOTFSIMAGE /mnt/iso
 mksquashfs /mnt/iso/ root.sfs -comp xz
 umount /mnt/iso
 
 mkdir -p live/boot/x86_64
-#cp -R /boot/* live
+
+cp /usr/src/linux-$KERNVER/arch/x86/boot/bzImage /usr/src/initramfs-livecd/
 
 mv -v root.sfs live/boot/x86_64
 mv -v id_label live/boot/x86_64
-mv -v initramfs-livecd.gz live/boot/x86_64/initram.fs
-
-#mount /dev/sdc1 /mnt/lfs
-#cp -v live/boot/x86_64/initram.fs /mnt/lfs
-#cp -v live/boot/x86_64/root.sfs /mnt/lfs/boot/x86_64/
-#cp /usr/src/linux-$(uname -r)/arch/x86/boot/bzImage /mnt/lfs/vmlinuz-$(uname -r)
-#umount /mnt/lfs
-
-xorriso -as mkisofs \
-       -iso-level 3 \
-       -full-iso9660-filenames \
-       -volid "ecorp-linux" \
-       -eltorito-boot isolinux/isolinux.bin \
-       -eltorito-catalog isolinux/boot.cat \
-       -no-emul-boot -boot-load-size 4 -boot-info-table \
-       -isohybrid-mbr live/isolinux/isohdpfx.bin \
-       -eltorito-alt-boot \
-       -e EFI/ecorp/efiroot.img \
-       -no-emul-boot -isohybrid-gpt-basdat \
-       -output ecorp-live.iso \
-       live
-
-echo "done"
+cp -v initramfs-livecd.lz4 live/boot/x86_64/initram.fs
+cp -v bzImage live/boot/x86_64/vmlinuz-sauzeros
+mount live/EFI/sauzeros/efiboot.img /mnt/iso
+cp -v initramfs-livecd.lz4 /mnt/iso/initram.fs
+cp -v bzImage /mnt/iso/vmlinuz-sauzeros
+umount /mnt/iso
+rm -v initramfs-livecd*
+echo "all done"
