@@ -10,10 +10,9 @@ LC_ALL=POSIX
 LFS_TGT=$(uname -m)-lfs-linux-gnu
 PATH=/tools/bin:/bin:/usr/bin
 export LFS LC_ALL LFS_TGT PATH
-export CFLAGS="-march=x86-6"
+export CFLAGS="-march=x86-64 -mtune=generic -O2 -pipe"
 export CXXFLAGS="${CFLAGS}"
-export MAKEOPTS="-j6"
-export MAKEFLAGS="-j6"
+MAKEFLAGS="-j$(nproc 2>/dev/null || echo 1)"
 alias ls='ls --color'
 alias lfs='lfs-me'
 EOF

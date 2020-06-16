@@ -1,6 +1,6 @@
 pkgbuild_version=5
 pkgname=util-linux
-pkgver=2.35.1
+pkgver=2.35.2
 
 dependencies=(
     "!$pkgname"
